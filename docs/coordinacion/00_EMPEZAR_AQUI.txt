@@ -1,0 +1,112 @@
+GESTOR DE CAPACITACIONES - LEER ANTES DE COMENZAR
+Preparado: 2026-11-09, America/Lima. Revisión vigente: R0002.
+
+POLÍTICA R0002: REPOSITORIO PÚBLICO, COORDINACIÓN PRIVADA
+docs/coordinacion/ está excluida mediante .gitignore. Estos siete TXT se
+conservan localmente y no se incluyen en commits, PR ni en el clon público.
+Adel conserva la copia privada maestra del contexto general. El medio para
+compartirla con el equipo está PENDIENTE_DE_ACORDAR; no se creó un servicio.
+Cada integrante recibirá los TXT por separado y los copiará a
+docs/coordinacion/ dentro de su clon. Un pull no actualiza estos archivos.
+El código, el informe y las evidencias académicas acordadas sí se versionan.
+
+1. QUÉ SE HA PREPARADO
+
+Este paquete organiza el trabajo; NO implementa V1 ni inicializa Git.
+Contiene:
+  PROMPT_MAESTRO.txt    Instrucciones que debe seguir cualquier IA del equipo.
+  CONTEXTO_GENERAL.txt Estado compartido, orden de tareas y turno vigente.
+  ADEL.txt             Trabajo y revisión humana a cargo de Adel.
+  BRENDA.txt           Trabajo y revisión humana a cargo de Brenda.
+  FRANSHESCO.txt       Trabajo y revisión humana a cargo de Franshesco.
+  DANIELA.txt          Trabajo y revisión humana a cargo de Daniela.
+
+Los cuatro usarán estos mismos nombres relativos en sus copias privadas.
+No creen una versión distinta del prompt maestro para cada modelo.
+
+2. QUÉ ABRIR AHORA
+
+En VS Code: Archivo > Abrir carpeta > Gestor-de-Capacitaciones.
+En el explorador: docs > coordinacion.
+Leer 00_EMPEZAR_AQUI.txt, PROMPT_MAESTRO.txt, CONTEXTO_GENERAL.txt y el TXT propio.
+En una IA sin acceso a archivos, adjuntar o pegar los tres últimos.
+Una IA de otro chat NO conoce automáticamente el contexto de este chat.
+
+Primer turno de implementación: ADEL.
+Primera tarea: F0-01, diagnóstico y propuesta de conservación de la base.
+Primera revisora: BRENDA.
+Brenda, Franshesco y Daniela pueden leer sus tareas y preparar preguntas,
+pero no deben comenzar a modificar código en paralelo.
+
+3. MENSAJE QUE ADEL DEBE ENVIAR AHORA A SU IA
+
+Lee docs/coordinacion/PROMPT_MAESTRO.txt,
+docs/coordinacion/CONTEXTO_GENERAL.txt y docs/coordinacion/ADEL.txt.
+Soy Adel. Retoma únicamente F0-01. Revalida el estado real de esta carpeta,
+explica qué código ya existe y qué falta para la V1 acordada.
+Trabaja en modo diagnóstico: no inicialices Git, no cambies la aplicación,
+no migres bases ni publiques servicios en este turno.
+Entrega los pasos concretos que debo revisar en VS Code y las decisiones
+pendientes. Actualiza el contexto y mi TXT con hechos comprobados.
+Prepara el traspaso a Brenda para revisar F0-01; F0-02 solo se desbloquea
+cuando esa revisión esté registrada. No continúes automáticamente.
+
+4. MENSAJE PARA LOS OTROS INTEGRANTES MIENTRAS ESPERAN
+
+Lee PROMPT_MAESTRO.txt, CONTEXTO_GENERAL.txt y mi TXT personal dentro de
+docs/coordinacion. Soy [nombre real]. Comprueba si mi tarea está desbloqueada.
+Si todavía no es mi turno, explícame mi responsabilidad de revisión,
+qué debo mirar y qué resultado debo esperar. No modifiques código,
+el contexto general ni los archivos de otro integrante.
+
+Reemplazar [nombre real] por Brenda, Franshesco o Daniela.
+
+5. CÓMO TRABAJAR DESPUÉS DE CADA RESPUESTA
+
+a. Leer el bloque "AHORA LE TOCA A..." de la respuesta de la IA.
+b. La persona indicada revisa la evidencia y ejecuta la comprobación manual.
+c. Si algo falla, devolver el resultado a la misma IA y a la misma tarea.
+d. Si todo está bien, registrar una aprobación concreta, no un "todo bien"
+   sin indicar qué se comprobó.
+e. Los commits, push, merges, etiquetas y publicación se realizan únicamente
+   cuando la acción concreta esté autorizada. La autorización ya concedida
+   para esa acción no debe volver a pedirse.
+f. Verificar la integración real y compartir privadamente el contexto
+   actualizado antes de entregar el turno al siguiente integrante.
+g. Comenzar la tarea siguiente, no toda la versión siguiente.
+
+Ejemplo de revisión humana:
+  Revisé el formulario en la URL local indicada, registré un caso válido,
+  intenté enviar un caso sin título y comprobé el error.
+  Leí el diff de los archivos indicados y entiendo la explicación.
+  Apruebo la tarea [ID real]; el PR/commit todavía está pendiente.
+
+Ese texto es un modelo de registro: no declararlo realizado sin comprobarlo.
+
+6. TRES ADVERTENCIAS PRÁCTICAS
+
+- "Proyecto casi en cero" describe su organización actual. Hay código previo;
+  no se borrará ni se atribuirá a alguien sin comprobar su origen.
+- Los TXT no son memoria mágica: hay que guardarlos y compartir sus cambios
+  por el medio privado acordado. Git no los sincroniza. Comparar su revisión
+  con la copia privada maestra de Adel y contrastar los hashes del código.
+- Las IA implementan y explican; las personas revisan, prueban y responden
+  por lo aprobado. No se inventarán contribuciones ni evidencia académica.
+
+La formulación correcta del principio OCP es:
+  ABIERTO A LA EXTENSIÓN Y CERRADO A LA MODIFICACIÓN.
+No significa que esté prohibido modificar el proyecto durante su evolución.
+
+7. QUÉ NO SE HA HECHO CON ESTE PAQUETE
+
+No se modificó src/, server/, tests/ ni package.json.
+En R0002 sí se modificó .gitignore para excluir /docs/coordinacion/.
+No se abrió el contenido de las bases SQLite ni archivos privados .env.
+No se ejecutaron las pruebas, la compilación de la app ni la de LaTeX.
+No se crearon cuentas, tareas Jira, ramas, commits, PR, etiquetas ni despliegues.
+Los ejemplos y las tareas futuras están marcados como pendientes.
+
+BITÁCORA R0002 | 2026-11-09 | America/Lima
+El usuario eligió repositorio público con código e informe; los TXT privados
+de coordinación no se subirán. Se conservaron los siete y se excluyó su carpeta.
+No se eliminaron archivos ni se inicializó Git. F0-01 sigue pendiente.

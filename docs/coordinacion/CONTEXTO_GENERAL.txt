@@ -1,0 +1,324 @@
+CONTEXTO GENERAL PRIVADO CANÓNICO - GESTOR DE CAPACITACIONES
+Leer junto con PROMPT_MAESTRO.txt y el TXT de la persona activa.
+
+======================================================================
+1. ESTADO VIGENTE
+======================================================================
+
+REVISION_CONTEXTO: R0002
+FECHA_LOCAL: 2026-11-09
+ZONA_HORARIA: America/Lima
+FASE: F0 - arranque y línea base
+VERSION_ACADEMICA: ninguna cerrada; V1 pendiente
+ESTADO_TAREA: LISTO_PARA_INICIAR
+TURNO_ACTIVO: ADEL
+TAREA_ACTIVA: F0-01
+OBJETIVO: revalidar base existente y entregar diagnóstico/plan de conservación
+REVISOR: BRENDA
+COORDINADOR: ADEL
+SUPLENTE_COORDINACION: BRENDA
+EDITORES_SIMULTANEOS_PERMITIDOS: uno para implementación
+AGENTE_ACTIVO_IDENTIFICADO: PENDIENTE_AL_INICIAR_EL_TURNO
+TRASPASO_CONFIRMADO: ninguno; primer turno Adel
+FUENTE_TRASPASO: PENDIENTE
+RAMA_REAL: SIN_GIT
+BASE_COMMIT_REAL: NO_EXISTE_EN_ESTA_CARPETA
+PR_ACTIVO: PENDIENTE
+JIRA_PROYECTO_URL: PENDIENTE_VERIFICAR
+JIRA_CLAVE_TAREA_ACTIVA: PENDIENTE_VERIFICAR
+GITHUB_REPOSITORIO_URL: PENDIENTE_VERIFICAR
+REVISION_HUMANA: PENDIENTE
+AUTORIZACION_ACTUAL: excluir coordinación privada de Git y ajustar las guías
+VISIBILIDAD_REPOSITORIO: PUBLICO, por decisión del usuario
+COORDINACION_EN_GIT: NO; /docs/coordinacion/ está ignorada
+COPIA_MAESTRA_CONTEXTO: carpeta privada bajo coordinación de Adel
+MEDIO_INTERCAMBIO_PRIVADO: PENDIENTE_DE_ACORDAR
+AUTORIZACION_SIGUIENTE_TURNO: solicitar/iniciar F0-01 con el mensaje del LEEME
+SUPABASE_ESTADO: cuenta/proyecto/acceso NO_VERIFICADOS
+RENDER_ESTADO: cuenta/servicio/acceso NO_VERIFICADOS
+DESPLIEGUE_URL: PENDIENTE
+
+No interpretar "pendiente" como que el recurso no existe fuera de esta carpeta.
+No incluir credenciales en esos campos.
+
+======================================================================
+2. ÚLTIMA ACCIÓN REAL Y SIGUIENTE PASO
+======================================================================
+
+ULTIMA_ACCION_VERIFICADA:
+  Se añadió /docs/coordinacion/ a .gitignore y se ajustaron los siete TXT
+  para conservarlos privados y compartirlos por separado del código público.
+  No se eliminaron archivos, no se inicializó Git ni se implementó V1.
+
+QUE_NO_SE_EJECUTO:
+  Pruebas de la aplicación, lint, typecheck, build, compilación LaTeX,
+  migración PostgreSQL, instalación, edición de código, inicialización Git,
+  commits, push, merges, etiquetas, modificaciones Jira o despliegues.
+
+SIGUIENTE_ACCION:
+  Adel abre el proyecto en VS Code y da a su IA el mensaje de F0-01
+  de 00_EMPEZAR_AQUI.txt o ADEL.txt.
+
+CIERRE_REQUERIDO_F0_01:
+  Inventario comprobado, diagnóstico, pendientes reales, propuesta de
+  conservación y alcance técnico preliminar, revisados por Brenda.
+
+SIGUIENTE_TAREA_CONDICIONADA:
+  F0-02, Brenda, contrastar historias y criterios para aprobar el alcance V1.
+  No está desbloqueada hasta que F0-01 pase su revisión.
+
+======================================================================
+3. HECHOS COMPROBADOS DEL PUNTO DE PARTIDA
+======================================================================
+
+Carpeta de esta computadora:
+  C:\Users\Usuario\Documents\Gestor-de-Capacitaciones
+En otras computadoras usar la raíz real del clon propio.
+
+Existe código previo, no un directorio vacío.
+No hay .git utilizable: status/branch/log devolvieron error de no repositorio.
+Hay node_modules y dist, pero su presencia no prueba instalación/build válidos.
+Node disponible: v24.18.0.
+Git disponible: 2.54.0.windows.1.
+pdflatex y latexmk encontrados; funcionamiento y compilación no probados.
+
+Stack observado:
+  Frontend: React + TypeScript + Vite, carpeta src.
+  Backend: Node.js + Express, carpeta server.
+  Base actual: SQLite, node:sqlite en server/db.js.
+  Pruebas declaradas: Node Test Runner + Supertest.
+  Contrato existente: docs/IMPLEMENTATION_CONTRACT.md.
+
+Scripts ya presentes, no ejecutados en esta preparación:
+  npm.cmd run dev
+  npm.cmd run lint
+  npm.cmd run typecheck
+  npm.cmd test
+  npm.cmd run build
+  npm.cmd run check
+  npm.cmd run db:migrate
+  npm.cmd run db:seed
+Los últimos dos escriben datos: no ejecutarlos por copiar esta lista.
+
+Bases locales detectadas, contenido NO leído:
+  database.sqlite
+  database.sqlite-wal
+  database.sqlite-shm
+.gitignore no las excluye explícitamente todavía.
+Prioridad antes del primer staging: excluirlas sin borrarlas.
+
+Hay autenticación, usuarios/roles y rutas académicas ya escritas.
+App.tsx actual presenta usuarios/roles; pantallas del flujo completo pendientes
+de auditoría. No declarar todo implementado ni descartar el código.
+Existen 14 declaraciones de prueba en los dos archivos principales:
+8 en sprint1.test.js y 6 en security.test.js. Ninguna ejecución certificada.
+
+======================================================================
+4. DECISIONES Y PENDIENTES DE REQUISITOS
+======================================================================
+
+Stack acordado por el usuario:
+  React + TypeScript + Vite; Node.js + Express;
+  PostgreSQL/Supabase Free; Render Free; Git/GitHub Free; Jira Free;
+  Node Test Runner/Supertest; LaTeX/MiKTeX/LaTeX Workshop.
+  Cloudflare opcional, no dependencia del arranque.
+Política de publicación R0002:
+  Repositorio público para código, informe y evidencias académicas acordadas.
+  Los siete TXT de docs/coordinacion NO se suben ni llegan al clonar.
+  Distribución privada explícita bajo coordinación de Adel.
+
+V1 propuesta, todavía por contrastar con HU reales:
+  registrar capacitación, seleccionar trabajadores, asignar participantes,
+  registrar asistencia, consultar historial.
+No están aprobadas automáticamente las 28 historias.
+
+Pendientes:
+  - Exportación/textos y claves reales de HU; criterios aceptados.
+  - Usuarios GitHub reales y privacidad del repositorio.
+  - Origen y atribución del código previo.
+  - Roles necesarios y reglas definitivas del flujo mínimo.
+  - Asistencia mínima: contrato indica 80, configuración de app contiene 70.
+  - Capacidad: schema admite cero, constraint SQL exige mayor que cero.
+  - Estados y transiciones; no confundir labels con comportamiento.
+  - Base aislada de pruebas PostgreSQL y forma de acceso de cada integrante.
+  - Acceso a Supabase/Render, sin compartir contraseñas.
+  - Criterios de aprobación académica de los patrones.
+
+Defectos/discrepancias se corrigen cuando corresponda; no se conservan
+deliberadamente como oportunidades académicas de refactorización.
+
+======================================================================
+5. MAPA INICIAL DE ARCHIVOS Y POSIBLES MEJORAS
+======================================================================
+
+Estos son puntos de inspección, NO refactorizaciones ya aprobadas.
+Rebuscar por función en cada versión; los números de línea cambiarán.
+
+ADEL:
+  server/app.js: userHandler y userItemHandler.
+    Mezclan validación, permisos, SQL y respuestas; candidato a servicios.
+  server/routes/trainings.js: createTrainingRouter y handlers académicos.
+    Revisar coordinación de negocio/persistencia.
+  server/security.js: audit.
+  server/services/training-domain.js: audit.
+    Dos implementaciones de auditoría; comparar y unificar si procede.
+  server/db.js, server/migrations/001_initial.sql:
+    Adaptación real de SQLite a PostgreSQL, no mero cambio de URL.
+  server/index.js:
+    Puerto y base fijados; adaptar a Render en tarea autorizada.
+
+BRENDA:
+  src/App.tsx: App, sesión y navegación actual.
+  src/pages/People.tsx: People y PersonForm.
+  src/pages/Roles.tsx: Roles y RoleForm.
+  src/components/ui.tsx, src/hooks.ts, src/api.ts.
+    Revisar límites de formulario, datos, estado y componentes.
+  src/pages/Trainings.tsx:
+    PROPUESTA de ubicación futura; hoy no se verificó su existencia.
+    Tras implementarla en V1, localizar responsabilidad a extraer en V2.
+
+FRANSHESCO:
+  server/routes/trainings.js: POST /trainings/:id/enrollments.
+  server/services/training-domain.js: enrichEnrollment.
+    Varias consultas por inscripción; medir antes de alegar mejora.
+  src/pages/Participants.tsx o componente equivalente:
+    PROPUESTA futura, no archivo existente confirmado.
+
+DANIELA:
+  server/routes/trainings.js: PUT /sessions/:id/attendance y GET /history.
+  tests/helpers.js, tests/sprint1.test.js, tests/security.test.js.
+  src/pages/Attendance.tsx y src/pages/History.tsx:
+    PROPUESTAS futuras, no archivos existentes confirmados.
+
+STATE CONDICIONADO:
+  server/services/training-domain.js: assertEditable.
+  server/routes/trainings.js: comprobaciones de estados cerrados.
+  Requiere validar transiciones y comportamiento; no basta la existencia
+  de una lista de estados.
+
+OBSERVER CONDICIONADO:
+  No se verificó sistema de notificaciones existente.
+  Agregar notificaciones sería feat; separar luego responsabilidades puede
+  incluir refactor. Eventos solo tras confirmar escritura/transacción.
+
+======================================================================
+6. COLA DE TAREAS Y DEPENDENCIAS
+======================================================================
+
+F0-01 Adel       LISTO_PARA_INICIAR
+F0-02 Brenda     BLOQUEADO_POR_DEPENDENCIA: F0-01 revisada
+F0-03 Daniela    BLOQUEADO_POR_DEPENDENCIA: F0-02 revisada
+F0-04 Adel       BLOQUEADO_POR_DEPENDENCIA: F0-03 y base acordada
+F0-05 Franshesco BLOQUEADO_POR_DEPENDENCIA: F0-04 revisada
+V1-A1 Adel       BLOQUEADO_POR_DEPENDENCIA: F0 completo
+V1-B1 Brenda     BLOQUEADO_POR_DEPENDENCIA: V1-A1 integrada
+V1-F1 Franshesco BLOQUEADO_POR_DEPENDENCIA: V1-B1 integrada
+V1-D1 Daniela    BLOQUEADO_POR_DEPENDENCIA: V1-F1 integrada
+V1-C1 Adel       BLOQUEADO_POR_DEPENDENCIA: V1-D1 integrada
+
+V2: NO_AUTORIZADA, depende de cierre y autorización posterior a V1.
+  V2-00 Adel > V2-B1 Brenda > V2-A1 Adel > V2-F1 Franshesco >
+  V2-D1 Daniela > V2-C1 Adel/equipo.
+V3: NO_AUTORIZADA, depende de cierre y autorización posterior a V2.
+  V3-00 Adel/equipo > V3-A1 Adel > V3-B1 Brenda > V3-F1 Franshesco >
+  V3-D1 Daniela > V3-C1 Adel/equipo.
+V4: NO_AUTORIZADA, depende de cierre y autorización posterior a V3.
+  V4-00 Daniela/equipo > V4-B1 Brenda > V4-A1 Adel >
+  V4-F1 Franshesco > V4-D1 Daniela > V4-C1 Adel/equipo.
+
+Solo el turno actual puede editar módulo + contexto general + TXT propio.
+Reservas de archivos compartidos: NINGUNA TODAVIA.
+Los nombres propuestos de archivos nuevos se validan antes de crearlos.
+
+======================================================================
+7. RAMAS, REVISIONES Y ENTREGAS
+======================================================================
+
+Ramas objetivo, aún NO creadas:
+  develop, dev/adel, dev/brenda, dev/franshesco, dev/daniela.
+main se creará desde la primera V1 estable aprobada, si no existe una main real.
+
+Revisión:
+  Adel -> revisa e integra Brenda.
+  Brenda -> revisa Daniela; integra Adel.
+  Franshesco -> revisa e integra Adel.
+  Daniela -> revisa Franshesco, apoyo técnico Adel; integra Adel.
+  Cierre de versión -> aprobación de los cuatro.
+
+Etiquetas objetivo, aún NO creadas:
+  v1.0-maqueta
+  v2.0-refactor-observer, sujeto a justificación del patrón
+  v3.0-refactor-state, sujeto a justificación del patrón
+  v4.0-final
+
+Registro real de commits/PR/tags: NINGUNO VERIFICADO.
+No ejecutar acciones Git de escritura en la tarea de crear estas guías.
+
+======================================================================
+8. MEMORIA DE TRASPASO
+======================================================================
+
+Antes de actuar, recibir y verificar la revisión privada que conserva Adel.
+El clon público NO trae estos TXT. Cada integrante debe recibirlos por separado
+y copiarlos a docs/coordinacion/, que permanece ignorada.
+Git comprueba el código y los hashes, no distribuye el contexto privado.
+No sobrescribir con un adjunto antiguo ni suponer memoria compartida entre IA.
+Cada persona conserva resultados en su TXT y entrega contexto actualizado.
+Después de un merge, exigir traspaso explícito del coordinador y verificar
+URL/hash reales. Registrar integración y nuevo turno en la copia privada,
+y compartirla con el siguiente integrante antes de continuar.
+No crear un commit público ni un PR con estos TXT para cambiar su estado.
+
+Mensaje siguiente para Adel:
+  Lee el maestro, este contexto y ADEL.txt. Soy Adel.
+  Revalida F0-01 y entrega únicamente diagnóstico y plan, sin modificar
+  la aplicación ni inicializar Git. Explica qué debe revisar Brenda.
+
+Mensaje de traspaso a Brenda, SOLO después de la entrega F0-01:
+  Lee el maestro, el contexto actualizado y BRENDA.txt. Soy Brenda.
+  Primero revisa la evidencia de F0-01. Si hay observaciones, devuélvelas
+  a Adel. Cuando la revisión humana quede registrada, atiende F0-02:
+  historias reales, alcance mínimo y criterios verificables.
+
+======================================================================
+9. PLANTILLA PARA AÑADIR ENTRADAS DE BITÁCORA
+======================================================================
+
+No borrar lo anterior. Resumen vigente arriba; historial al final.
+
+REVISION:
+FECHA_HORA_Y_ZONA:
+PERSONA_RESPONSABLE:
+AGENTE_IA:
+TAREA_Y_VERSION:
+BASE_GIT_REAL:
+ARCHIVOS_REALMENTE_CAMBIADOS:
+ULTIMA_ACCION_VERIFICADA:
+COMANDOS_EJECUTADOS_Y_RESULTADOS:
+REVISION_HUMANA_Y_FUENTE:
+COMMIT_PR_MERGE_REALES_O_PENDIENTES:
+FALLOS_Y_BLOQUEOS:
+SIGUIENTE_PERSONA_Y_TAREA:
+CONDICION_DE_DESBLOQUEO:
+MENSAJE_COPIABLE_SIGUIENTE:
+
+======================================================================
+10. BITÁCORA REAL
+======================================================================
+
+R0001 | 2026-11-09 | America/Lima
+Responsable de preparación: Codex, por solicitud del usuario.
+Acción: creación del paquete de coordinación y diagnóstico documental inicial.
+Hallazgos: código preexistente y SQLite; ausencia de Git; herramientas básicas
+presentes. Los resultados funcionales y las contribuciones previas no se
+certifican. No se ejecutaron controles de la aplicación.
+Estado: guía preparada; ninguna etapa académica cerrada.
+Siguiente: Adel F0-01, revisión Brenda.
+
+R0002 | 2026-11-09 | America/Lima
+Decisión del usuario: repositorio público con código, informe y cosas relevantes;
+los TXT de integrantes y coordinación no se publican.
+Acción: .gitignore ahora excluye /docs/coordinacion/. Se conservaron los siete
+TXT y se adaptó su sincronización a intercambio privado explícito.
+Git sigue sin inicializarse en esta carpeta; no hubo retirada de seguimiento,
+eliminación de archivos, commits ni push. F0-01 permanece lista para iniciar.

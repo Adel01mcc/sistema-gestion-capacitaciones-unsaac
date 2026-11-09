@@ -1,0 +1,314 @@
+FRANSHESCO — CONTEXTO PERSONAL Y GUÍA DE REVISIÓN
+Proyecto: Gestor-de-Capacitaciones / Paz Sur / UNSAAC
+Fecha de preparación: 2026-11-09, zona America/Lima.
+Revisión documental vigente: R0003; se conserva la historia R0001/R0002.
+Naturaleza: guía de trabajo; no acredita implementación ni pruebas aprobadas.
+Política vigente: publicar los siete TXT con el código, por mandato del usuario.
+
+01. QUÉ LEER CUANDO ABRAS TU AGENTE DE IA
+1) docs/coordinacion/00_EMPEZAR_AQUI.txt.
+2) docs/coordinacion/PROMPT_MAESTRO.txt.
+3) docs/coordinacion/CONTEXTO_GENERAL.txt.
+4) Este archivo completo, en especial el estado reanudable y la bitácora.
+La IA debe comparar los TXT con archivos y Git reales antes de escribir código.
+Obtén primero el contexto versionado vigente y confirma el traspaso que coordina Adel.
+No tomar una tarea asignada como una tarea terminada ni un ejemplo como evidencia.
+Si los documentos difieren del repositorio, señalarlo y preservar el trabajo.
+
+02. ESTADO REANUDABLE INICIAL — DATOS MUTABLES
+integrante: FRANSHESCO
+rol_humano: revisor de participantes, inscripciones y trazabilidad Jira.
+rama_personal_prevista: dev/franshesco; revalidar Git tras la importación inicial.
+turno_activo_global: ADEL
+mi_estado_inicial: BLOQUEADO_POR_DEPENDENCIA
+mi_proxima_revision: F0-03, línea base de pruebas realizada con Daniela.
+mi_primera_tarea_propia: F0-05, enlazar Jira/HU y validar contrato de participantes.
+revisor_de_mi_primera_tarea: DANIELA
+ultima_accion_real: actualización R0003 para incluir los TXT en el repositorio público.
+ultimo_commit_real: PENDIENTE.
+ultimo_PR_real: PENDIENTE.
+id_Jira_real: PENDIENTE; HU-06 es referencia propuesta, no una clave Jira validada.
+pruebas: NO EJECUTADAS durante la preparación de estas guías.
+version_academica: ninguna cerrada; V1, V2, V3 y V4 pendientes.
+prerrequisitos_F0_05: F0-01, F0-02, F0-03 y F0-04 revisadas y cerradas.
+siguiente_entrega_propia: contrato de participantes y mapa de tareas/HU verificadas.
+acciones_remotas_realizadas: ninguna acreditada por estas guías.
+repositorio_previsto: PÚBLICO; código, informe disponible y los siete TXT incluidos.
+memoria_IA: VERSIONADA en docs/coordinacion/; sin secretos ni datos sensibles.
+contexto_canonico: main inicialmente; develop cuando se cree y acuerde integración.
+importacion_inicial: snapshot en main autorizado por el usuario; URL remota PENDIENTE.
+estado_importacion: PENDIENTE_DE_VERIFICAR; no inventar hash, push ni aprobación.
+No empezar V1-F1 aunque conozcas sus tareas: antes deben integrarse V1-A1 y V1-B1.
+
+03. TU PAPEL HUMANO; QUÉ DEBE HACER TU IA
+La IA implementa el paquete autorizado, prepara pruebas y documentación.
+Franshesco comprueba las reglas de inscripción y la evidencia que entrega la IA.
+Pide siempre: ruta exacta, función, caso de prueba y resultado esperado.
+Tu revisión debe poder explicarse sin repetir únicamente la conclusión de la IA.
+Registrar asistencia de IA y revisión humana; no fingir autoría manual exclusiva.
+No cambiar identidad Git para aparentar que otra persona implementó el cambio.
+No aprobar tu propio PR. F0-05 lo revisa Daniela; tus entregas de código
+V1-F1, V2-F1, V3-F1 y V4-F1 las revisa Adel.
+Adel coordina integración; Brenda revisa e integra los PR de Adel.
+No mover una tarea a Hecho hasta comprobar aceptación y registrar revisión real.
+
+04. QUÉ DEBES REVISAR EN PARTICIPANTES
+[ ] Solo usuarios autorizados pueden inscribir o cancelar una inscripción.
+[ ] La capacitación y el trabajador seleccionados existen y son válidos.
+[ ] Una misma persona no se inscribe dos veces en una misma capacitación.
+[ ] El cupo se respeta también cuando llegan solicitudes simultáneas.
+[ ] Las restricciones por estado responden a reglas aprobadas del negocio.
+[ ] El listado de inscritos corresponde a la capacitación seleccionada.
+[ ] Un error no deja una inscripción parcial ni un evento falso de éxito.
+[ ] El backend valida aunque el frontend ya haya validado.
+[ ] El usuario recibe un mensaje comprensible ante duplicados o falta de cupo.
+[ ] No se exponen personas o datos fuera del alcance del usuario autenticado.
+[ ] Las pruebas usan datos ficticios y una base aislada.
+[ ] Una refactorización conserva el comportamiento observable aprobado.
+
+05. PUNTO DE PARTIDA REAL Y LÍMITES DE LO VERIFICADO
+Carpeta inicial: C:\Users\Usuario\Documents\Gestor-de-Capacitaciones.
+Ya existen src/, server/, tests/ y docs/; no borrar para simular un inicio en cero.
+Al iniciar esta revisión no había .git; comprobar estado tras la importación del coordinador.
+La primera importación en main está autorizada; no implica cierre de F0 ni una V1.
+Node observado v24.18.0; Git observado 2.54.0.
+pdflatex y latexmk encontrados; compilación LaTeX todavía no verificada.
+Frontend actual: React, TypeScript y Vite; backend: Express con SQLite.
+Objetivo acordado: PostgreSQL en Supabase Free y publicación inicial Render Free.
+El cambio de base todavía no está implementado por estas guías.
+Hay código de inscripciones y asistencia; se verificará antes de extenderlo.
+Existen pruebas, pero esta preparación no las ejecutó ni certificó sus resultados.
+Las historias reales de Jira y sus criterios siguen pendientes de validación.
+La referencia HU-06 viene del prompt original; confirmar equivalencia en Jira.
+
+06. DÓNDE ESTÁ TU MÓDULO ACTUALMENTE
+server/routes/trainings.js: createTrainingRouter y rutas de inscripción.
+Buscar POST /trainings/:id/enrollments y PATCH /enrollments/:id.
+En el archivo actual esas secciones comienzan aproximadamente en líneas 83 y 101.
+Las líneas cambian: localizar por nombre/ruta y registrar el hash al documentar.
+server/services/training-domain.js: getEnrollment, enrichEnrollment, assertEditable.
+server/migrations/001_initial.sql: enrollments, índice único y triggers de capacidad.
+src/App.tsx y src/pages/People.tsx: inspeccionar responsabilidades reales de UI.
+src/api.ts, src/types.ts, src/hooks.ts y src/context.tsx: contratos compartidos.
+tests/helpers.js: datos ficticios y utilidades de inscripción.
+docs/IMPLEMENTATION_CONTRACT.md: comparar contrato de API con implementación.
+No asumir que un archivo llamado Participants.tsx ya existe: hoy no está inventariado.
+
+07. ALCANCE DE EDICIÓN CUANDO TE CORRESPONDA EL TURNO
+Puedes trabajar tu contexto, documentación propia y archivos de tu paquete aprobado.
+Las rutas y servicios actuales son compartidos con Adel y Daniela.
+Antes de tocarlos, enumerar funciones y límites exactos en el contexto general.
+No reestructurar autenticación, roles o la conexión BD de Adel por iniciativa propia.
+No modificar formularios de capacitaciones de Brenda sin coordinación.
+No alterar reglas de asistencia o historial de Daniela sin acordar el contrato.
+Posibles archivos futuros: enrollment-service.js y enrollment-repository.js.
+Posibles tests futuros: tests/participants.test.js o una organización equivalente.
+Esos nombres son propuestas, no archivos creados ni estructura obligatoria.
+Una nueva abstracción debe resolver un problema observado y tener consumidores reales.
+
+08. AHORA MISMO — QUÉ HACER Y QUÉ NO HACER
+El turno inicial pertenece a Adel, tarea F0-01 de diagnóstico.
+Tu IA puede leer tus guías; no debe implementar tareas futuras ni editar en paralelo.
+Puedes comprobar tu acceso humano a Jira, GitHub y VS Code sin cambiar el proyecto.
+Si falta una cuenta o permiso, anótalo; no inventar accesos o acciones completadas.
+No crees un repositorio alternativo para sortear la coordinación.
+No ejecutes git init, npm install, migraciones, semillas, commits, push o merges ahora.
+No pegues claves de Supabase ni datos reales en chats, TXT o capturas.
+No uses git add . ni comandos de borrado o sobrescritura.
+Espera a que CONTEXTO_GENERAL.txt registre la entrega revisada y el siguiente turno.
+Este archivo no cambia de estado automáticamente cuando otro agente termina.
+
+09. TU PRIMERA REVISIÓN — F0-03, TRABAJO DE DANIELA
+Se realiza después de que Brenda confirme HU y alcance en F0-02.
+Daniela y su IA ejecutarán la línea base; Adel apoyará problemas del entorno.
+Franshesco revisará que los comandos y resultados existan y sean comprensibles.
+Comprobar que ningún test utilice la base productiva o personas reales.
+Revisar qué casos están cubiertos y cuáles faltan para participantes y asistencia.
+Si falla una prueba, exigir registro del fallo; no aprobar como si todo pasara.
+No corregir simultáneamente el código desde tu agente mientras Daniela lo edita.
+Resultado: revisión F0-03 aprobada o con observaciones concretas y evidencia.
+Después corresponde F0-04 de Adel; todavía no F0-05 hasta que se cierre.
+
+10. TU PRIMERA TAREA PROPIA — F0-05, PASO A PASO
+Prerrequisitos: F0-04 cerrada, repositorio identificado y contexto sincronizado.
+Objetivo: relacionar tareas reales de Jira, HU aprobadas y contrato de inscripción.
+Revisora: Daniela; apoyo técnico: Adel.
+No implementar todavía la funcionalidad de V1-F1.
+
+En VS Code:
+1) Abre tu clon propio, preparado después del bootstrap; no el clon de otro.
+2) Comprueba que el clon incluye docs/coordinacion/ desde el remoto verificado.
+3) Obtén la revisión de la rama canónica: main inicialmente, después develop.
+4) Lee maestro, contexto general y personal; contrasta sus hashes con Git real.
+5) Abre Terminal > Nueva terminal > PowerShell.
+6) Comprueba ubicación, estado, ramas y origen antes de cambiar de rama.
+
+Get-Location
+git status --short --branch
+git remote
+git branch --all
+git log -5 --oneline
+
+Resultado esperado: repositorio correcto y estado local conocido.
+Si hay cambios locales, preservarlos; no hacer reset --hard, clean ni checkout forzado.
+Si hay red y corresponde actualizar referencias, ejecutar fetch; los dos comandos
+de develop siguientes solo si ya existen develop y origin/develop:
+
+git fetch origin
+git log -5 --oneline origin/develop
+git diff --name-status develop origin/develop
+
+Si develop no existe localmente, no ejecutar ese diff: usa la referencia real disponible.
+Los comandos de cambio/creación de rama se adaptan al estado, siguiendo el maestro.
+No afirmar que tu rama ya contiene origin/develop por haber ejecutado fetch.
+Fetch actualiza referencias remotas; la integración local es otro paso verificable.
+Clone incluye los TXT publicados; fetch actualiza referencias, no el árbol de trabajo.
+Si todavía solo existe main, consultar esa base; no inventar origin/develop.
+Lee primero el contrato y el código de inscripción; anota diferencias y dudas.
+
+En Jira:
+1) Abre las HU aprobadas por Brenda; confirma claves y criterios de aceptación.
+2) Busca la historia de inscripción; confirma si coincide con la llamada HU-06.
+3) Propón o actualiza tareas de V1-A1, V1-B1, V1-F1 y V1-D1 según permisos.
+4) Copia claves reales, responsable de revisión, dependencia y criterio de cierre.
+5) Vincula V1-F1 a la HU real; anota V1-A1 y V1-B1 como prerrequisitos.
+6) No crear duplicados si ya existe tarea ni marcar trabajo futuro como terminado.
+7) Si tu IA no tiene acceso, debe darte texto copiable y registrar acción pendiente.
+
+En GitHub:
+1) Comprueba que trabajas en el repositorio acordado y la rama prevista.
+2) Relaciona las tareas con los PR cuando existan; un PR sugerido no es uno creado.
+3) No abras PR vacío ni inventes URLs, revisores, hashes o aprobaciones.
+
+Entrega de F0-05:
+- Mapa HU real -> tarea -> responsable -> dependencia -> criterio de aceptación.
+- Contrato mínimo: selección de capacitación/persona, inscripción y consulta.
+- Reglas confirmadas: duplicado, cupo, permisos y estados; dudas por resolver.
+- Contexto actualizado y revisión de Daniela registrada cuando ella confirme.
+Siguiente turno: Adel / V1-A1; no implementar V1-F1 por adelantado.
+
+11. TU TRABAJO EN V1 — V1-F1
+Se habilita después de V1-A1 y V1-B1 integradas y revisadas.
+Tu IA verificará primero qué parte de inscripción ya existe y puede reutilizarse.
+Completar solo el flujo mínimo aprobado; no rehacer todo ni implementar 28 HU.
+Revisar selección de capacitación y trabajador, alta y listado de inscritos.
+Validar duplicados y cupo en backend, con transacciones acordadas con Adel.
+No añadir una regla de estados nueva sin aprobación y documentación funcional.
+Pruebas mínimas: inscripción válida, duplicada, sin autorización y sin cupo.
+Añadir casos de estados solo cuando exista una regla confirmada.
+Demostración humana: inscribir a una persona ficticia y repetir el intento.
+Evidencia: respuesta real, consulta posterior y prueba de rechazo del duplicado.
+Revisor principal: Adel, quien comprueba integración y reglas del backend.
+Commit orientativo: feat(participantes): completar inscripcion y consulta.
+Documentación de aporte: sección correspondiente de docs/latex/versiones/v1_maqueta.tex.
+Después de tu entrega revisada, el siguiente turno es Daniela / V1-D1.
+
+12. TU TRABAJO EN V2 — V2-F1
+Prerrequisitos: V1 cerrada, V2 autorizada y V2-A1 integrada después de V2-B1.
+Ubicación inicial: rutas de inscripción de server/routes/trainings.js.
+Objetivo condicionado: desacoplar efectos de una inscripción mediante eventos.
+Solo publicar un evento si existe una acción suscrita real dentro del alcance.
+Coordinar nombre, datos mínimos y momento del evento con Adel y Daniela.
+El evento de éxito sale después del commit de datos, nunca antes de confirmarlo.
+Una inscripción fallida no puede generar una notificación de éxito.
+Probar inscripción, error y entrega al observador según contrato aprobado.
+Si eventos/notificaciones son nuevos, clasificarlos como feat, no refactor puro.
+Si se extrae un efecto existente sin cambiar comportamiento, documentar refactor.
+No añadir correo, SMS ni servicios de pago para justificar el patrón.
+Commit orientativo condicionado: feat(participantes): publicar evento de inscripcion.
+Revisor: Adel; siguiente turno: Daniela / V2-D1.
+
+13. TU TRABAJO EN V3 — V3-F1
+Prerrequisitos: V2 cerrada, V3 autorizada, V3-00, V3-A1 y V3-B1 revisadas.
+Objetivo: centralizar reglas repetidas de inscripción y alinearlas con State aprobado.
+Buscar assertEditable y comprobaciones equivalentes en rutas de inscripción.
+Con Adel, determinar qué regla pertenece al estado y cuál es propia de inscripción.
+No mover permisos de seguridad al frontend ni ocultarlos detrás de un enum.
+No duplicar una regla que Adel ya haya centralizado en State.
+Conservar los mismos resultados para los casos existentes de la versión previa.
+Probar transiciones que cambian si la capacitación admite nuevas inscripciones.
+Los estados y transiciones deben ser reglas reales aprobadas, no inventadas.
+Commit orientativo: refactor(participantes): centralizar reglas de inscripcion.
+Revisor: Adel; siguiente turno: Daniela / V3-D1.
+
+14. TU TRABAJO EN V4 — V4-F1
+Prerrequisitos: V3 cerrada, V4 autorizada y V4-00/V4-B1/V4-A1 revisadas.
+Ubicación inicial: enrichEnrollment en server/services/training-domain.js.
+También revisar sus consumidores: detalle de capacitación e historial.
+Actualmente realiza varias consultas por inscripción; investigar coste y repetición.
+No afirmar «optimizado» sin comparar resultados y una medida pertinente.
+Si se confirma N+1, proponer carga por conjunto u otra mejora simple y comprobable.
+Si no se confirma, elegir otra duplicación real o documentar que no procede.
+Conservar permisos, orden, cálculos de asistencia y contrato de la respuesta.
+No introducir cachés complejas o nuevos patrones para aumentar la documentación.
+Commit orientativo: refactor(participantes): unificar consultas repetidas.
+Revisor: Adel; siguiente turno: Daniela / V4-D1.
+
+15. EVIDENCIA Y DOCUMENTACIÓN EN CADA ENTREGA
+Registrar archivo y función antes/después, referencia Git real y motivo del cambio.
+Usar docs/latex/versiones/v2_refactorizacion.tex, v3_refactorizacion.tex o v4_final.tex.
+Añadir tu aporte al informe común, no una historia alternativa inventada.
+Los fragmentos anteriores se obtienen de V1/V2/V3 reales y preservadas en Git.
+Comandos de pruebas del proyecto: npm.cmd test y comprobaciones del maestro.
+Ejecutarlos solo en tu paquete, en entorno correcto; guardar resultado real.
+La IA debe recomendar archivos concretos para el commit, no git add .
+Incluir los TXT actualizados de tu turno en los commits/PR acordados, sin secretos.
+Código, informe y contexto son públicos; revisar contenido antes de staging.
+Commits, push y merge requieren autorización vigente; ejemplos no autorizan ejecutarlos.
+PR: tu rama real -> develop; revisa Adel en tareas de código.
+F0-05 documental la revisa Daniela. Integración por Adel cuando esté autorizada.
+Las contribuciones deben reflejar implementación asistida y revisión humanas reales.
+
+16. COORDINACIÓN VERSIONADA: UN SOLO AGENTE EDITOR
+Después del bootstrap, usa clon propio y dev/franshesco, si esa convención se confirma.
+El contexto canónico está en main inicialmente y en develop cuando exista y se acuerde.
+Los siete TXT están destinados al repo público y a los clones de todos los integrantes.
+Comprueba referencias, revisión del contexto y confirmación humana del turno.
+Comparar hashes, PR y código Git con lo descrito; una rama personal puede estar atrasada.
+No aplicar cherry-pick, merges ni parches sin revisar sus archivos y procedencia.
+Un TXT no es un bloqueo técnico; confirmar el turno con el equipo antes de escribir.
+Tu agente guarda contexto general y TXT personal y los incluye en la entrega/PR acordada.
+Adel consolida la integración; Brenda revisa e integra el trabajo del propio Adel.
+El contexto previo al merge puede seguir «pendiente»; verificar revisión y hash reales.
+Con el traspaso confirmado, el siguiente agente registra integración y nuevo turno.
+No usar una memoria antigua como permiso para saltarse revisión o ejecutar otra tarea.
+No hay intercambio privado/manual obligatorio: las guías se distribuyen por Git.
+No editar la memoria de Daniela o Brenda diciendo que revisaron sin confirmación.
+Al terminar, indicar siguiente integrante, tarea, ubicación y comando inicial.
+
+17. PROMPT COPIABLE PARA ABRIR TU AGENTE AHORA
+Soy Franshesco, revisor humano de participantes e inscripciones. Lee
+PROMPT_MAESTRO.txt, CONTEXTO_GENERAL.txt y FRANSHESCO.txt en docs/coordinacion.
+Comprueba el turno actual. Inicialmente es Adel/F0-01: no implementes ni edites
+el proyecto en paralelo. Explícame mi revisión de F0-03 y mi primera tarea
+F0-05 con sus prerrequisitos. Cuando realmente llegue mi turno, dame pasos
+exactos para Jira, GitHub, VS Code y PowerShell; ejecuta solo el paquete
+habilitado y registra resultados reales. No atribuyas pruebas ni revisiones
+que no ocurrieron y no saltes directamente a V1-F1. Los TXT se versionan:
+guárdalos en docs/coordinacion e inclúyelos en la entrega/PR acordada sin secretos.
+
+18. PLANTILLA DE ACTUALIZACIÓN Y BITÁCORA
+R0001/R0002 son historia; la política vigente es R0003, al final de la bitácora.
+Fecha Lima / tarea / estado / agente usado:
+Archivos revisados o modificados / comando y resultado real:
+Reglas confirmadas / dudas / defectos / pendientes:
+Revisión humana Franshesco / revisión independiente: PENDIENTE hasta confirmación.
+Revisor independiente: Daniela en F0-05; Adel en V1-F1/V2-F1/V3-F1/V4-F1.
+Rama / hash / Jira / PR: PENDIENTE hasta existir y comprobarse.
+Última acción exacta / siguiente integrante y tarea / dependencias:
+Bitácora inicial: 2026-11-09 | R0001 | preparado este TXT y sus asignaciones.
+Sin implementación, commits, PR ni pruebas ejecutadas por esta preparación.
+F0-05 permanece BLOQUEADO_POR_DEPENDENCIA; no existe cierre aprobado.
+2026-11-09 | R0002 | Decisión del usuario: repositorio público, TXT privados.
+Se conserva R0001 y se separa memoria IA del código e informe publicables.
+Adel coordina la carpeta privada maestra; medio compartido NO_CONFIGURADO.
+Verificado: el agente coordinador añadió /docs/coordinacion/ a .gitignore.
+Sin implementación de app, acciones Git, pruebas o envíos privados acreditados.
+El turno sigue Adel/F0-01; F0-05 continúa BLOQUEADO_POR_DEPENDENCIA.
+2026-11-09 | R0003 | Usuario: «SUBE TODO PARA QUE MI EQUIPO VEA LO QUE VAMOS HACER».
+Se autoriza incluir código, informe disponible y siete TXT en el repositorio público.
+La memoria privada R0002 deja de ser el procedimiento; historia conservada.
+Importación inicial en main autorizada: snapshot preexistente/plan, no una V1.
+Al iniciar esta revisión no había .git; URL remota y publicación aún por verificar.
+No se ejecutó Git ni se implementó código o pruebas desde este TXT.
+Turno Adel/F0-01 sin cambios; F0-05 sigue BLOQUEADO_POR_DEPENDENCIA.

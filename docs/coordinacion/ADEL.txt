@@ -1,0 +1,303 @@
+ADEL — CONTEXTO PERSONAL Y GUÍA DE REVISIÓN
+Proyecto: Gestor-de-Capacitaciones / Paz Sur / UNSAAC
+Fecha de preparación: 2026-11-09, zona America/Lima.
+Revisión documental vigente: R0003; se conserva la historia R0001/R0002.
+Naturaleza: guía de trabajo; no certifica implementación ni pruebas aprobadas.
+Política vigente: publicar los siete TXT con el código, por mandato del usuario.
+
+01. LECTURA OBLIGATORIA AL ABRIR UNA CONVERSACIÓN CON TU IA
+1) Abre docs/coordinacion/PROMPT_MAESTRO.txt.
+2) Abre docs/coordinacion/CONTEXTO_GENERAL.txt.
+3) Abre este archivo completo y docs/coordinacion/00_EMPEZAR_AQUI.txt.
+4) Obtén el contexto versionado vigente y contrástalo con archivos y Git reales.
+5) Si difieren, registrar la diferencia; no inventar cuál fue la última acción.
+6) Ejecutar solo el paquete asignado al turno activo, con su alcance vigente.
+7) Antes de terminar, la IA actualizará contexto y bitácora con evidencia real.
+
+02. ESTADO REANUDABLE INICIAL — DATOS MUTABLES
+integrante: ADEL
+rol_humano: revisor de arquitectura, backend, datos e integración.
+rama_personal_prevista: dev/adel; revalidar Git tras la importación inicial.
+turno_activo_global: ADEL
+tarea_activa: F0-01 — inventario, diagnóstico y plan; SOLO LECTURA.
+estado_tarea: LISTO_PARA_INICIAR
+revisor_de_cierre: BRENDA
+ultima_accion_real: actualización R0003 para incluir los TXT en el repositorio público.
+ultimo_resultado_verificado: código previo presente; .git ausente al iniciar esta revisión.
+ultimo_commit_real: PENDIENTE; no hay historial local para consultar.
+ultimo_PR_real: PENDIENTE.
+id_Jira_real: PENDIENTE; no inventar claves ni afirmar que una tarea fue creada.
+pruebas: NO EJECUTADAS durante la preparación de estas guías.
+version_academica: ninguna cerrada; V1, V2, V3 y V4 pendientes.
+bloqueo_actual: ninguno para iniciar F0-01; faltan validar HU y procedencia.
+siguiente_entrega: diagnóstico de F0-01 y plan de preservación del código.
+siguiente_turno_propuesto: BRENDA / F0-02, tras revisión de F0-01 por Brenda.
+acciones_remotas_realizadas: ninguna acreditada por estas guías.
+repositorio_previsto: PÚBLICO; código, informe disponible y los siete TXT incluidos.
+memoria_IA: VERSIONADA en docs/coordinacion/; sin secretos ni datos sensibles.
+contexto_canonico: main inicialmente; develop cuando se cree y acuerde integración.
+importacion_inicial: snapshot en main autorizado por el usuario; URL remota PENDIENTE.
+estado_importacion: PENDIENTE_DE_VERIFICAR; no inventar commit, push ni revisión humana.
+
+03. TU PAPEL HUMANO Y EL PAPEL DE LA IA
+La IA analiza, propone, implementa el paquete autorizado, prueba y documenta.
+Adel revisa su trabajo y entiende la explicación de las decisiones importantes.
+No necesitas escribir todo manualmente; sí comprobar resultados y límites.
+Pide que te muestre rutas, funciones, comandos y salidas, no solo conclusiones.
+Tu revisión no convierte automáticamente código generado en aporte manual tuyo.
+Registrar asistencia de IA y revisión humana con honestidad académica.
+No configurar identidades Git ajenas ni atribuir aportes a quien no intervino.
+No aprobar tu propio PR: Brenda revisará e integrará los PR de Adel.
+Adel puede integrar PR ajenos revisados, según autorización y permisos reales.
+El cierre de una versión requiere revisión del equipo y pruebas verificadas.
+
+04. LO QUE DEBES VIGILAR EN TODAS LAS VERSIONES
+[ ] El frontend solicita; el backend autoriza y decide; la BD conserva datos.
+[ ] Las consultas reciben parámetros; las reglas no dependen de la pantalla.
+[ ] Persistencia y transacciones preservan inscripciones y capacidad disponible.
+[ ] Los cambios conservan lo que funcionaba, salvo cambio funcional aprobado.
+[ ] Los tests comprueban reglas y fallos relevantes, sin datos reales sensibles.
+[ ] El arranque es reproducible y los secretos no aparecen en Git ni en TXT.
+[ ] SOLID se justifica con código, sin imponer cinco reglas a cada función.
+[ ] OCP: ABIERTO a la extensión y CERRADO a la modificación.
+[ ] OCP no significa prohibir toda edición ni crear interfaces sin necesidad.
+[ ] Cohesión: reunir operaciones de una responsabilidad; reducir acoplamiento.
+[ ] Cada resultado declarado existe y puede reproducirse.
+
+05. EVIDENCIA EXISTENTE; NO EQUIVALE A UNA V1 APROBADA
+Carpeta de partida: C:\Users\Usuario\Documents\Gestor-de-Capacitaciones.
+Hay src/, server/, tests/, docs/, package.json y archivos SQLite en raíz.
+Node observado: v24.18.0; Git observado: 2.54.0.
+pdflatex y latexmk fueron encontrados; no se comprobó compilación LaTeX.
+package.json declara React, TypeScript, Vite y Express.
+node:sqlite es un módulo integrado de Node, utilizado en server/db.js.
+server/db.js usa DatabaseSync, transacciones y migraciones SQLite.
+server/index.js usa puerto 3001 y un archivo SQLite local.
+server/app.js contiene autenticación, usuarios, roles y montaje de rutas.
+server/routes/trainings.js contiene capacitaciones, inscripciones y asistencia.
+También existe código de historial, evaluación y certificados: inventariarlo.
+tests/sprint1.test.js y tests/security.test.js contienen pruebas existentes.
+No declarar aprobado lo anterior hasta ejecutarlo y revisar sus resultados.
+Al iniciar esta revisión no había Git; revalidar después de la importación del coordinador.
+El usuario autorizó importar el snapshot en main: código previo y plan, sin cerrar F0/V1.
+No describir archivos importados como trabajo recién realizado por el equipo.
+
+06. ARCHIVOS QUE TU AGENTE PODRÍA NECESITAR — NO MODIFICAR AHORA
+Actuales: package.json, package-lock.json, .gitignore, .env.example.
+Actuales: server/index.js, server/app.js, server/db.js, server/errors.js.
+Actuales: server/security.js, server/constants.js, server/migrate.js y seed.js.
+Actuales: server/migrations/001_initial.sql y server/seed-data.js.
+Actuales compartidos: server/routes/trainings.js y services/training-domain.js.
+Actuales de pruebas: tests/helpers.js, sprint1.test.js y security.test.js.
+Actual: docs/IMPLEMENTATION_CONTRACT.md; revisar contrato contra implementación.
+Propuestos, NO existentes todavía: servicios y repositorios separados por módulo.
+Propuestos, NO existentes: infraestructura Observer y clases/objetos State.
+Propuestos, NO existentes: archivos LaTeX, evidencias y scripts necesarios.
+Antes de cambiar un archivo compartido, anunciarlo en el contexto general.
+No editar src/ de Brenda o módulos de otros sin coordinación explícita.
+Una extracción que afecte a participantes/asistencia se coordina con sus revisores.
+
+07. TU TAREA INMEDIATA F0-01 — SOLO DIAGNÓSTICO
+Objetivo: conocer el punto de partida, conservarlo y proponer el primer incremento.
+No instalar, migrar, sembrar BD, inicializar Git ni cambiar código en esta tarea.
+En VS Code: Archivo > Abrir carpeta > carpeta del proyecto de partida.
+En VS Code: Terminal > Nueva terminal; comprobar que usa PowerShell.
+Cada bloque siguiente es de lectura; pegar comandos de uno en uno.
+
+Get-Location
+Get-ChildItem -Force
+node --version
+npm.cmd --version
+git --version
+Test-Path -LiteralPath '.git'
+Get-Content -LiteralPath 'package.json' -Raw
+Get-Content -LiteralPath '.gitignore' -Raw
+rg --files src server tests docs -g '!*.png' -g '!*.jpg' -g '!*.pdf'
+
+Resultado esperado: ubicación correcta, versiones y lista real de archivos.
+Si falta rg, usar Get-ChildItem en esas carpetas; no instalarlo sin necesidad.
+Si .git resulta False, registrar «sin repositorio»; no interpretar rama main.
+Si resultara True ahora, consultar estado y origen antes de cualquier otra acción.
+No abrir .env ni mostrar contraseñas o cadenas de conexión en la conversación.
+No consultar el contenido de database.sqlite, -wal o -shm para este inventario.
+Leer código y contratos; distinguir implementado, incompleto, propuesto y probado.
+Anotar que el proyecto práctico puede estar comenzando aunque ya haya archivos.
+No borrar código para volver artificialmente a cero.
+
+En Jira, durante F0-01:
+- Revisar las HU disponibles si hay acceso autorizado; conservar sus claves reales.
+- Identificar objetivos de V1 y dudas; no afirmar que las 28 están aprobadas.
+- Proponer F0-01 y su descripción si aún no hay tarea; ID queda PENDIENTE.
+- No mover una HU a Hecho por la mera existencia de un archivo o una guía.
+En GitHub, durante F0-01:
+- Verificar si ya existe repositorio y cuál es el URL, si está disponible.
+- No crear otro remoto, cambiar visibilidad ni subir archivos en este diagnóstico.
+- Si no hay acceso, señalarlo como dato faltante y continuar análisis local.
+Entrega a Brenda: inventario, diagnóstico, riesgos, alcance pequeño propuesto y orden.
+Condición de cierre: Brenda revisa esa entrega y se registra su respuesta real.
+Siguiente acción: habilitar F0-02; no comenzar V1-A1 directamente.
+
+08. TU COLA DE TRABAJO — DEPENDENCIAS Y ENTREGAS
+F0-01 | AHORA | Inventario y diagnóstico de lectura | revisa Brenda.
+F0-02 | Brenda | Adel aclara dependencias técnicas si se las solicitan.
+F0-03 | Daniela | Adel apoya arranque de pruebas; Franshesco revisa resultados.
+F0-04 | ADEL | Preparar Git/GitHub y preservar snapshot | revisa Brenda.
+F0-05 | Franshesco | Adel confirma contrato técnico antes del incremento V1.
+V1-A1 | ADEL | PostgreSQL/Supabase, API, entorno y tests | Brenda + Daniela.
+V1-B1 | Brenda | Adel revisa conexión UI/API y coherencia de contratos.
+V1-F1 | Franshesco | Adel revisa integración backend; revisión independiente vigente.
+V1-D1 | Daniela | Adel comprueba integración de asistencia/historial.
+V1-C1 | ADEL | Integración, pruebas, LaTeX, evidencias y cierre | revisa equipo.
+V2-00 | ADEL | Diagnóstico de problemas reales de V1 | revisa equipo.
+V2-B1 | Brenda | Primero responsabilidades UI; después el paquete de Adel.
+V2-A1 | ADEL | Servicios y Observer condicionado | revisa Brenda.
+V2-F1 | Franshesco | Eventos de inscripción solo si existe necesidad aprobada.
+V2-D1 | Daniela | Notificaciones/observador y pruebas, según alcance aprobado.
+V2-C1 | ADEL | Comparaciones y cierre de V2 | revisa equipo.
+V3-00 | ADEL | Confirmar reglas State con el equipo | revisa equipo.
+V3-A1 | ADEL | Implementar State justificado | Brenda + Daniela.
+V3-B1 | Brenda | UI según reglas aprobadas.
+V3-F1 | Franshesco | Centralización de reglas de inscripción.
+V3-D1 | Daniela | Reglas de asistencia y regresión.
+V3-C1 | ADEL | Comparaciones y cierre de V3 | revisa equipo.
+V4-00 | Daniela | Auditoría previa; Adel aporta diagnóstico técnico.
+V4-B1 | Brenda | Simplificación UI; después integración de Adel.
+V4-A1 | ADEL | Simplificar servicios; Facade solo si se demuestra | revisa Brenda.
+V4-F1 | Franshesco | Consultas y duplicación de participantes.
+V4-D1 | Daniela | Regresión integral y defectos reales.
+V4-C1 | ADEL | Cierre final, deuda técnica y publicación autorizada | revisa equipo.
+El orden anterior es serial; no desarrollar paquetes futuros por adelantado.
+
+09. F0-04 Y V1-A1 — PREPARACIÓN TÉCNICA CON CONDICIONES
+Antes de Git: excluir SQLite de raíz y auxiliares; conservar los archivos físicos.
+Los siete TXT de docs/coordinacion/ SÍ forman parte del snapshot público autorizado.
+Revisar su contenido junto al código e informe; nunca incluir secretos ni bases locales.
+La política privada R0002 queda superada por el mandato de publicación R0003.
+Revisar secretos, node_modules y dist; nunca usar git add . indiscriminadamente.
+La importación inicial autorizada usa main y no representa una V1 académica validada.
+Si el coordinador ya creó Git, no reinicializarlo: comprobar estado, hash y remoto.
+F0-04 revisará esa importación y preparará develop/ramas desde la base acordada.
+Primer snapshot: identificar código preexistente y procedencia conocida/desconocida.
+No crear cuatro historiales ni reconstruir aportes personales ficticios.
+main contendrá inicialmente el snapshot importado; no etiquetarlo como v1.0-maqueta.
+Después del arranque, los cambios van por ramas y PR; no editar main directamente.
+Los clones personales se preparan después del bootstrap real de Git/GitHub.
+Un clon público incluirá los siete TXT cuando el push real esté verificado.
+No se requiere un canal privado de intercambio de contexto como procedimiento normal.
+Hasta disponer del remoto confirmado, usar la copia actual del coordinador y declararlo.
+SQLite -> PostgreSQL: planear consultas, migraciones, transacciones y tests.
+No basta cambiar DATABASE_URL: DatabaseSync y SQL son específicos de SQLite.
+Validar marcadores, IDs, NOCASE, triggers, concurrencia y manejo de errores.
+Pruebas PostgreSQL usarán una base aislada; nunca semillas destructivas en producción.
+Supabase Free se usará inicialmente para PostgreSQL; Auth no se migra por defecto.
+Render necesitará PORT, variables privadas y servicio de dist si se publica junto.
+Verificar límites gratuitos oficiales antes de crear servicios o publicar.
+Las cuentas, accesos humanos, secretos y autorizaciones siguen siendo del equipo.
+Si la IA no tiene acceso a Jira/GitHub, preparar pasos exactos; no fingir ejecución.
+
+10. MAPA INICIAL DE REFACTORIZACIONES — CANDIDATOS, NO CAMBIOS HECHOS
+V2: server/app.js, userHandler y userItemHandler, mezclan HTTP, SQL y reglas.
+V2: server/routes/trainings.js coordina persistencia y operaciones de negocio.
+Propuesta: extraer servicios que agrupen una responsabilidad y probar equivalencia.
+Duplicación real a evaluar: audit en server/security.js y training-domain.js.
+La extracción se justifica por responsabilidades y consumidores reales.
+Observer: diseñar publicador/suscriptores si notificaciones están aprobadas.
+No hay notificaciones verificadas: añadirlas sería feat, no refactor puro.
+Emitir eventos solo tras confirmar transacciones; una escritura fallida no
+genera éxito. Definir qué ocurre si falla un observador después de guardar,
+sin afirmar que la operación persistida quedó revertida.
+V3: assertEditable en training-domain.js y controles de estado en trainings.js.
+Revisar si hay comportamientos/transiciones suficientes para justificar State.
+Un enum o etiquetas de estado por sí solos no justifican clases State.
+V4: simplificar integraciones detectadas; Facade no es una obligación académica.
+Registrar antes/después desde referencias Git reales; no inventar fragmentos.
+No introducir vulnerabilidades, errores o duplicación artificial deliberada.
+Sí conservar V1 simple y correcta, sin anticipar abstracciones innecesarias.
+Defectos observados por confirmar: capacidad cero y discrepancia de asistencia 70/80.
+Corregir defectos como fix cuando proceda; no guardarlos para aparentar refactor.
+
+11. PRUEBAS, COMMITS Y DOCUMENTACIÓN DE TU ENTREGA
+En cada paquete, la IA indicará comando, salida real y código de salida.
+Comandos: npm.cmd run lint; npm.cmd run typecheck; npm.cmd test; npm.cmd run build.
+No están ejecutados por estas guías; usarlos en la tarea correspondiente.
+Una prueba fallida impide declarar ese comportamiento validado.
+LaTeX de tu aporte: docs/latex/versiones/vN_*.tex, según estructura del maestro.
+Registrar principio/patrón solo cuando pueda mostrarse en código real.
+Commits orientativos, SOLO después del cambio real revisado y autorizado:
+feat(core): adaptar persistencia inicial a PostgreSQL
+refactor(core): extraer servicios de negocio
+feat(eventos): implementar suscripciones a eventos de capacitacion
+refactor(capacitaciones): separar comportamiento por estado
+refactor(api): simplificar coordinacion de servicios
+Nunca copiar todos esos mensajes como una secuencia para ejecutar ahora.
+El PR de Adel va a develop, lo revisa Brenda y lo integra Brenda autorizada.
+Para PR ajenos, Adel comprueba revisión independiente, pruebas y archivos incluidos.
+Etiquetas propuestas: v1.0-maqueta, v2.0-refactor-observer,
+v3.0-refactor-state y v4.0-final; solo al existir versiones integradas verificadas.
+El equipo autoriza el inicio de cada nueva versión; no saltar esa revisión.
+
+12. MEMORIA VERSIONADA Y SINCRONIZACIÓN ENTRE AGENTES Y CLONES
+Un único agente puede editar el proyecto compartido en cada turno.
+Este TXT no es un bloqueo técnico: confirmar con el equipo quién está trabajando.
+Después del bootstrap, cada integrante usa su propio clon y rama personal.
+El contexto canónico está en main inicialmente y en develop cuando exista y se acuerde.
+Los TXT se versionan con el código; incluir cambios de memoria en los commits/PR acordados.
+Al reanudar, comprobar rama, revisión del TXT, referencias remotas y traspaso real.
+Contrastar hashes, PR y código de Git con el contexto; un TXT puede estar desactualizado.
+Si procede y hay red, actualizar referencias; fetch por sí solo no integra la rama local.
+Revisar diff antes de integrar; nunca reset --hard, clean ni sobrescribir trabajo.
+Si hay cambios sin confirmar, preservarlos y acordar integración antes de continuar.
+El agente activo actualiza contexto general y TXT propio con hechos, no avances futuros.
+Adel consolida al integrar; para sus propios PR Brenda revisa y realiza el merge autorizado.
+Un contexto escrito antes del merge puede decir «integración pendiente» legítimamente.
+El coordinador entrega al siguiente integrante evidencia real de revisión y hash del merge.
+El siguiente agente verifica esa evidencia y registra integración y nuevo turno en su entrega.
+No crear commits recursivos para incluir el hash propio ni un commit directo por cada turno.
+Si no hay remoto o hay discrepancias, registrar el estado y coordinar antes de continuar.
+No actualizar los TXT de compañeros atribuyéndoles revisión que no confirmaron.
+
+13. PROMPT COPIABLE PARA COMENZAR AHORA
+Soy Adel, revisor humano del backend y la integración. Lee PROMPT_MAESTRO.txt,
+CONTEXTO_GENERAL.txt y ADEL.txt en docs/coordinacion. Mi tarea es F0-01 y mi
+estado LISTO_PARA_INICIAR. Trabaja SOLO en diagnóstico de lectura: no cambies
+código, no inicialices Git, no instales ni ejecutes migraciones/semillas.
+Comprueba el estado real, inventaría archivos y contratos, distingue código
+preexistente de trabajo nuestro y propón el primer incremento. Dame pasos
+exactos en VS Code, Jira y GitHub, con comandos PowerShell y resultados
+esperados. Guarda los contextos en docs/coordinacion para su versionado acordado.
+Revalida si la importación inicial en main ya ocurrió; no la confundas con V1.
+Entrega el diagnóstico para revisión de Brenda y señala F0-02 como siguiente
+paquete, sin implementarlo ni afirmar que ya fue aprobado.
+
+14. PLANTILLA DE CIERRE — LA IA DEBE COMPLETAR DATOS REALES
+Tarea / estado / fecha Lima / agente usado:
+Archivos leídos y modificados:
+Comandos ejecutados, salidas y resultado:
+Decisiones confirmadas y dudas pendientes:
+Revisión humana de Adel: PENDIENTE hasta confirmación.
+Revisión de Brenda: PENDIENTE hasta confirmación.
+Jira / rama / hash / PR reales o PENDIENTE:
+Última acción exacta y cómo volver a comprobarla:
+Siguiente integrante / tarea / prerrequisitos / pasos:
+Qué falta y qué no debe iniciarse todavía:
+
+15. BITÁCORA ACUMULATIVA — NO BORRAR ENTRADAS ANTERIORES
+R0001 y R0002 son historia; la política vigente es R0003, al final de la bitácora.
+2026-11-09 | R0001 | Preparado este contexto y sus asignaciones.
+Resultado: guía escrita; sin implementación, commits, PR ni pruebas ejecutadas.
+F0-01 sigue LISTO_PARA_INICIAR; aún no existe revisión de cierre.
+2026-11-09 | R0002 | Decisión del usuario: repositorio público, TXT privados.
+Se actualiza esta guía para excluir la memoria de IA de Git y de los PR.
+Código e informe podrán publicarse; la copia privada maestra la coordina Adel.
+Medio de intercambio privado: NO_CONFIGURADO; ningún envío acreditado.
+El agente coordinador añadió /docs/coordinacion/ a .gitignore, verificado en disco.
+No se implementó app ni se realizaron acciones Git; comprobar exclusión antes de staging.
+F0-01 sigue LISTO_PARA_INICIAR; pruebas, commits, PR y revisiones pendientes.
+2026-11-09 | R0003 | Usuario: «SUBE TODO PARA QUE MI EQUIPO VEA LO QUE VAMOS HACER».
+Se autoriza incluir código, informe disponible y siete TXT en el repositorio público.
+Se reemplaza la política privada de R0002; se mantiene la historia sin ocultarla.
+Importación inicial en main autorizada como snapshot preexistente/plan, no como V1.
+Al iniciar esta actualización no había .git; URL remota y subida siguen por verificar.
+El coordinador preparará la importación si existe identidad Git válida.
+No se ejecutó Git ni se implementó código o pruebas desde este TXT.
+Turno siguiente sin cambios: Adel/F0-01, revisión Brenda; F0 y V1 no están cerrados.

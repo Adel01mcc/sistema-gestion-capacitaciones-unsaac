@@ -1,0 +1,293 @@
+CONTEXTO INDIVIDUAL — BRENDA
+Sistema de Gestión de Capacitaciones — Paz Sur
+Revisión vigente: R0003. Historial conservado: R0001 y R0002.
+Fecha de referencia: 2026-11-09, America/Lima
+
+POLÍTICA VIGENTE R0003 — TXT VERSIONADOS EN EL MISMO REPOSITORIO PÚBLICO
+El usuario ordenó: "SUBE TODO PARA QUE MI EQUIPO VEA LO QUE VAMOS HACER."
+Los siete TXT de docs/coordinacion/ se incluyen en el repositorio junto con código
+e informe. Esta política reemplaza la exclusión privada de R0002, conservada abajo.
+El equipo obtendrá estos TXT mediante clone/pull; ya no se exige intercambio privado
+ni copia manual como procedimiento normal.
+No incluir secretos, datos personales sensibles ni credenciales en ningún TXT.
+El contexto canónico está inicialmente en main y pasará a develop cuando exista
+esa rama de integración; cada IA debe consultar la referencia vigente real.
+Al comenzar esta revisión todavía no hay .git; la importación honesta en main y la
+subida están pendientes de preparación/verificación, no son una V1 funcional.
+La URL GitHub fue solicitada y está PENDIENTE; no inventar remoto ni hashes.
+
+01. ESTADO REAL AL PREPARAR ESTA GUÍA
+Esta entrega crea documentación de coordinación; no implementa una versión.
+Hay código previo en src/, server/ y tests/, todavía pendiente de diagnóstico.
+En la carpeta inspeccionada no existe un repositorio Git reconocido.
+No existen ramas, commits, etiquetas ni Pull Requests verificados.
+Node v24.18.0 y Git 2.54.0 fueron encontrados.
+pdflatex y latexmk fueron encontrados; no se verificó una compilación del informe.
+Las pruebas del proyecto NO se ejecutaron durante la preparación de esta guía.
+No hay una V1 integrada, probada y aprobada que podamos dar por terminada.
+Jira, cuentas, historias exportadas y enlaces de GitHub: PENDIENTE_DE_VERIFICAR.
+La propuesta técnica es React/TypeScript/Vite, Express, Supabase y Render Free.
+Actualmente la persistencia es SQLite; PostgreSQL todavía requiere trabajo.
+Estado de Brenda: BLOQUEADO_POR_DEPENDENCIA para implementar.
+Turno activo inicial: ADEL, tarea F0-01, LISTO_PARA_INICIAR.
+Brenda puede leer y preparar observaciones sin modificar archivos en paralelo.
+Última acción real: actualizar esta guía a la publicación versionada R0003.
+F0-01 no ha comenzado; no se implementó código ni se ejecutaron pruebas.
+
+02. TU PAPEL HUMANO
+Eres responsable de revisar la interfaz que genere tu IA, comprenderla y probarla.
+También eres revisora principal del trabajo de Adel y suplente de integración.
+No necesitas escribir todo a mano; sí comprobar y explicar lo que entregas.
+La implementación se declara asistida por IA, sin simular una autoría distinta.
+No apruebes una entrega solamente porque la IA diga que funciona.
+Solicita una demostración reproducible y una explicación de los archivos cambiados.
+Si no entiendes una decisión, pide a la IA que la explique con un ejemplo del código.
+No cambies la identidad Git para atribuir trabajo a otra persona.
+Un texto generado, una prueba no ejecutada o un PR sugerido no son evidencias reales.
+
+03. QUÉ REVISAS DEL TRABAJO DE LA IA
+Tu interfaz: campos, navegación, mensajes, estados de carga y errores visibles.
+Integración: que la pantalla use realmente la API y no simule datos guardados.
+Permisos: que las acciones correspondan al usuario; el backend debe verificarlos.
+Accesibilidad básica: etiquetas, foco visible, teclado y texto de errores entendible.
+Regresión: que lo que funcionaba siga funcionando después de una refactorización.
+Código: que los componentes tengan responsabilidades claras y no secretos incrustados.
+Trabajo de Adel: contrato API, ejemplos de solicitudes, pruebas y reproducibilidad.
+No sustituyas una revisión técnica que no comprendes por una aprobación automática.
+Para cambios complejos de backend solicita el apoyo de pruebas de Daniela.
+Tu revisora habitual: DANIELA.
+Tú revisas y, con autorización, integras los PR de Adel; él no aprueba los suyos.
+
+04. ARCHIVOS ACTUALES Y RUTAS PROPUESTAS
+Archivos existentes identificados, cuya funcionalidad debe comprobarse:
+- src/App.tsx: entrada principal de la interfaz; revisar contenido antes de editar.
+- src/components/ui.tsx: componentes de interfaz existentes.
+- src/api.ts: comunicación existente con la API.
+- src/hooks.ts, src/context.tsx y src/types.ts: utilidades, contexto y tipos.
+- src/pages/People.tsx y src/pages/Roles.tsx: páginas existentes.
+- package.json, vite.config.ts y tsconfig.json: configuración actual.
+Estas ubicaciones no prueban que una historia esté implementada correctamente.
+Rutas nuevas de formularios, validadores o componentes: PROPUESTAS, no creadas aún.
+Cada extracción se elegirá después de localizar el código concreto y sus dependencias.
+No reorganices toda la interfaz antes de congelar la línea base de V1.
+Rama personal prevista: dev/brenda; todavía NO verificada ni creada.
+Documentación prevista: docs/latex/versiones/ y docs/evidencias/.
+Tu archivo de continuidad: docs/coordinacion/BRENDA.txt.
+
+05. REGLAS PARA CADA NUEVA SESIÓN DE TU IA
+Lee PROMPT_MAESTRO.txt, CONTEXTO_GENERAL.txt y este TXT antes de actuar.
+Consulta las rutas dentro de docs/coordinacion/; no inventes otros archivos de contexto.
+Verifica fecha, revisión, turno, tarea y estado real de Git.
+Comprueba la última copia mediante Git cuando el repositorio esté preparado.
+Contexto canónico: develop si existe; de lo contrario, main del arranque.
+Con remoto, revisa primero origin/develop u origin/main después de git fetch.
+Contrasta revisión de TXT, código, hashes y merges reales antes de continuar.
+Sin Git/remoto todavía, usa la copia actual de preparación y marca esa limitación.
+No supongas que un TXT de una rama personal es automáticamente el más reciente.
+No hagas pull, checkout ni sobrescrituras si hay cambios locales sin revisar.
+Si el contexto local difiere del canónico, explica la diferencia y coordina primero.
+Solo el agente del turno activo puede editar el contexto general, su TXT y su módulo.
+Nadie modifica el TXT de otra persona para atribuirle avances.
+Durante una revisión solo lees y pides correcciones; no editas en paralelo al autor.
+Adel coordina el registro compartido versionado después de revisión e integración.
+Incluye general + TXT propio en el PR de tu tarea junto con código/documentación.
+El siguiente agente, con turno concedido, puede registrar el merge previo verificado
+en su primer cambio de contexto y PR; no requiere un commit directo a develop.
+No te concedas un turno solo porque un TXT antiguo diga que la tarea terminó.
+Si el agente no puede escribir, entrega el bloque propuesto como PENDIENTE_DE_APLICAR.
+No afirmes haber actualizado archivos, Jira o GitHub sin haberlo comprobado.
+
+06. LO QUE DEBES HACER AHORA
+1) Abre esta carpeta del proyecto en VS Code.
+2) Cuando el repositorio esté publicado, actualiza la copia por Git y lee
+   00_EMPEZAR_AQUI.txt, PROMPT_MAESTRO.txt y CONTEXTO_GENERAL.txt.
+   Hasta entonces usa los archivos actuales; el remoto/URL siguen pendientes.
+3) Pide a Adel que complete F0-01 antes de iniciar tu implementación.
+4) Prepara preguntas sobre campos, pantallas y flujo, sin aprobar supuestos como requisitos.
+5) No crees ramas, commits, tablas Supabase ni pantallas en este turno ajeno.
+6) Cuando Adel entregue F0-01, revisa su diagnóstico con tu IA en modo solo lectura.
+7) Confirma que distingue código existente, comportamiento comprobado y pendientes.
+8) Pide correcciones si presenta el código previo como V1 terminada o borra trabajo.
+9) Una vez aceptado el diagnóstico, tu tarea será F0-02.
+
+07. F0-02 — HISTORIAS, ALCANCE Y FLUJO V1
+Responsable: BRENDA. Revisora: DANIELA. Dependencia: F0-01 revisada.
+En Jira: abre el proyecto y localiza las historias existentes; no recrees las 28 HU.
+Pide al equipo exportación o acceso si tu IA no tiene conector autorizado.
+Anota identificador real, título y criterios de aceptación de cada historia candidata.
+HU-03/HU-04 y otros números mencionados antes son relaciones tentativas.
+No cambies su estado a aprobada ni inventes una equivalencia por el número.
+Propón solo: registrar capacitación, trabajadores, participantes, asistencia e historial.
+Define campos mínimos con el equipo y diferencia obligatorios, opcionales y pendientes.
+Describe una demostración completa con datos ficticios y resultados esperados.
+Deja explícito lo excluido de V1 y las decisiones que requieren respuesta del equipo.
+En GitHub: prepara el texto de una tarea; publícala solo con acceso e instrucción válidos.
+En VS Code: prepara el documento de alcance en la ruta acordada durante tu turno.
+Todavía no implementes la interfaz ni anticipes Observer o State.
+Entrega a Daniela: historias reales, flujo, criterios y decisiones pendientes.
+Cierre: Daniela y el equipo aceptan el alcance; siguiente tarea F0-03 de Daniela.
+
+08. V1-B1 — INTERFAZ FUNCIONAL DE CAPACITACIONES
+Dependencias: F0-01 a F0-05 cerradas y V1-A1 de Adel integrada y revisada.
+Responsable: BRENDA. Revisora: DANIELA.
+En Jira: usa la tarea real acordada y muévela a En curso según el flujo existente.
+No inventes una transición de Jira si el tablero tiene otros nombres.
+En GitHub: identifica base y rama personal después de sincronizar develop.
+En VS Code: localiza formulario/listado existentes antes de crear otros.
+Pide a la IA cambios pequeños que respeten el contrato real del backend.
+Implementa campos aprobados, validaciones de entrada, listado y mensajes claros.
+Comprueba carga, envío, éxito, fallo y listado vacío.
+La API debe validar las reglas; el formulario no constituye la barrera de permisos.
+No des por persistido un registro porque apareció temporalmente en pantalla.
+Prueba manual: crear una capacitación válida y comprobarla tras recargar.
+Prueba manual: enviar campos obligatorios vacíos y comprobar mensajes por campo.
+Prueba manual: usar una cuenta sin permiso y comprobar rechazo del backend.
+Usa únicamente el entorno aislado y los usuarios de prueba acordados.
+Pide comandos reales de verificación; no aceptes scripts que no existan.
+Entrega archivos, comportamiento comprobado, resultados y limitaciones.
+Prepara PR de código/informe y contextos actualizados a develop; Daniela revisa.
+Incluye CONTEXTO_GENERAL.txt y tu TXT; no edites los TXT de los demás.
+No avances directamente a V2.
+Siguiente tarea después de integración: V1-F1 de Franshesco.
+
+09. V2-B1 — SEPARAR RESPONSABILIDADES DE LA INTERFAZ
+Dependencias: V1 cerrada y V2-00 de Adel con diagnóstico aprobado.
+Localiza el archivo y las líneas reales donde presentación y lógica estén mezcladas.
+Pide una comparación contra el commit o etiqueta real de V1.
+Si hay validaciones repetidas o lógica difícil de probar, justifica su extracción.
+No introduzcas duplicación en V1 solo para eliminarla aquí.
+Extrae funciones o componentes únicamente cuando mejoren claridad o prueba.
+Conserva el comportamiento visible previsto; una función nueva se registra como feat.
+Brenda revisa responsabilidades y uso desde la pantalla; Daniela revisa regresión.
+Prueba el mismo registro válido e inválido antes y después del cambio.
+Documenta archivo anterior, archivo posterior, motivo, resultado y límites.
+Commit sugerido, solo si refleja el cambio: refactor(capacitaciones): separar validaciones.
+No ejecutes el commit sin autorización concreta de la etapa.
+Siguiente tarea tras revisión e integración: V2-A1 de Adel.
+
+10. V3-B1 — MOSTRAR ESTADOS Y ACCIONES APROBADAS
+Dependencias: V2 cerrada, V3-00 y V3-A1 revisadas e integradas.
+No inventes estados ni transiciones desde la interfaz.
+Adel debe entregar reglas y contrato de acciones disponibles verificables.
+Muestra el estado y habilita las acciones autorizadas según ese contrato.
+El backend rechaza una transición inválida aunque alguien manipule la pantalla.
+No dupliques en la interfaz toda la máquina de estados del servidor.
+Comprueba transiciones válidas, inválidas y acciones de usuarios sin permiso.
+La revisora es Daniela; clasifica la nueva visualización como feat cuando corresponda.
+Documenta qué parte cambia presentación y qué comportamiento ya existía.
+Siguiente tarea después de revisión e integración: V3-F1 de Franshesco.
+
+11. V4-B1 — SIMPLIFICACIÓN FINAL DE LA INTERFAZ
+Dependencias: V3 cerrada y V4-00 de Daniela revisada.
+Selecciona duplicaciones reales identificadas en la auditoría.
+Centraliza componentes y mensajes compartidos cuando expresen la misma regla.
+Evita un componente genérico enorme o una abstracción sin uso concreto.
+Comprueba teclado, etiquetas, carga, error y navegación del flujo principal.
+Ejecuta las verificaciones pertinentes después del último cambio.
+Daniela revisa regresión; tú explicas la mejora con un antes/después real.
+Siguiente tarea después de revisión e integración: V4-A1 de Adel.
+
+12. CÓMO REVISAR EL TRABAJO DE ADEL
+Recibe su PR, lista de archivos y objetivo concreto antes de aprobar.
+Comprueba que la API coincide con el contrato que usa tu pantalla.
+Pide a Daniela ejecutar escenarios válidos, inválidos y de permisos.
+Comprueba que no aparecen credenciales reales en código, capturas o documentación.
+Para PostgreSQL, exige migración reproducible y evidencia de datos de prueba.
+Para Observer, pregunta qué evento existe y por qué el consumidor está desacoplado.
+Para State, pregunta qué reglas justifican clases de estado y qué pruebas las cubren.
+Para Facade, exige una operación compleja real que se simplifique.
+Si algo no se comprobó, conserva PENDIENTE_REVISION y describe qué falta.
+Con autorización específica y permisos suficientes, tú realizas el merge de su PR.
+main se prepara inicialmente con una importación honesta de la base y las guías.
+Ese bootstrap autorizado no representa una V1; conserva la autoría como no verificada.
+Tras el arranque, el desarrollo sigue ramas personales y PR hacia develop.
+No hagas commits directos en develop/main para actualizar solo el contexto.
+El repositorio será público; las protecciones de ramas se configuran cuando corresponda.
+No se afirma que las protecciones ya estén configuradas.
+
+13. COMANDOS Y LUGARES — NO EJECUTAR TODO DE GOLPE
+Terminal PowerShell de VS Code, situada en la raíz del proyecto:
+Get-Location
+Get-Content -LiteralPath '.\docs\coordinacion\CONTEXTO_GENERAL.txt' -Raw
+Get-Content -LiteralPath '.\package.json' -Raw
+Cuando el arranque haya preparado Git, y solo como consulta:
+git status --short --branch
+git branch --list
+git log -5 --oneline
+Con remoto configurado y acceso válido, actualizar referencias:
+git fetch origin
+Si existe origin/develop, consultar el contexto vigente:
+git show origin/develop:docs/coordinacion/CONTEXTO_GENERAL.txt
+Si todavía no existe develop y sí origin/main, usar en su lugar:
+git show origin/main:docs/coordinacion/CONTEXTO_GENERAL.txt
+Sin remoto, consultar develop local o main local según la rama canónica existente.
+Las instrucciones completas de sincronización están en el maestro.
+Cuando corresponda tu turno, con dependencias instaladas y entorno aprobado:
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd test
+npm.cmd run build
+Cada comando se ejecuta y se interpreta por separado; build escribe dist/.
+No ejecutes npm.cmd run dev sobre una base real sin comprobar su configuración.
+Crear/cambiar tu rama se incluye en la tarea autorizada; no requiere una
+confirmación adicional por cada paso. Commits, push, merge, etiquetas y
+publicación respetan la autorización concreta disponible, sin repetirla.
+El maestro explica los comandos de Git después del diagnóstico; no improvises git reset.
+Los comandos sugeridos no equivalen a comandos ejecutados con éxito.
+
+14. PROMPT PARA TU IA AL RETOMAR
+"Soy Brenda. Lee docs/coordinacion/PROMPT_MAESTRO.txt,
+docs/coordinacion/CONTEXTO_GENERAL.txt y docs/coordinacion/BRENDA.txt.
+Antes de actuar verifica la copia actual en Git, inicialmente main y después
+develop cuando exista. Estos TXT se versionan en el mismo repositorio público.
+Comprueba revisión y estado real sin modificar código. Indica la única tarea
+desbloqueada para mí, su dependencia, qué revisaré yo y qué revisará Daniela.
+Si mi turno no está activo, limita tu trabajo a lectura y observaciones.
+Si está activo, guía la tarea autorizada con pasos en Jira, GitHub y VS Code,
+comandos reales, criterios manuales y un resultado pequeño revisable.
+No avances a la siguiente tarea ni versión sin el cierre correspondiente.
+Actualiza general y mi TXT solo si tienes permiso y el turno me corresponde.
+Inclúyelos en el PR de la tarea. Registra el merge previo solo tras verificarlo,
+sin commits directos a develop ni afirmaciones de publicación no comprobadas."
+
+15. SOLID Y EVIDENCIA
+OCP significa abierto a la extensión y cerrado a la modificación.
+No significa prohibir toda modificación ni aplicar patrones a cualquier pantalla.
+Busca cohesión y claridad; justifica cada extracción con código y pruebas reales.
+Registra siempre uso de IA y revisión humana, sin contribuciones inventadas.
+
+16. BITÁCORA MUTABLE — ACTUALIZAR EN TU TURNO
+Revisión consultada: R0003.
+Tarea personal actual: preparar lectura y revisar F0-01 cuando Adel lo entregue.
+Estado: BLOQUEADO_POR_DEPENDENCIA para implementar.
+Última acción real: actualizar la política de publicación de esta guía a R0003.
+Archivos funcionales modificados por esta guía: NINGUNO.
+Pruebas ejecutadas: NO EJECUTADAS.
+Jira / rama real / commit / PR / evidencia de revisión: PENDIENTE.
+Próximo trabajo propio: F0-02, después de aceptar F0-01.
+Falta: diagnóstico, alcance, línea base, Git, Jira, PostgreSQL y V1–V4 reales.
+Formato de nueva entrada: fecha Lima | tarea | acción real | archivos | comando y resultado.
+Añadir: revisor | hallazgos | correcciones | estado | siguiente paso y dependencia.
+No borres resultados fallidos ni reemplaces evidencia real por un resumen optimista.
+
+HISTORIAL CONSERVADO
+R0001 | 2026-11-09 | America/Lima
+Se preparó el paquete de guías de coordinación TXT y la asignación de tareas.
+No se implementó la aplicación ni se ejecutaron pruebas.
+
+R0002 | 2026-11-09 | America/Lima
+Decisión del usuario: repositorio público para código e informe; TXT de coordinación
+y de IA privados locales, fuera de commits y PR. Esta guía incorpora esa política.
+Adel mantendrá una carpeta maestra privada y compartirá la copia actual por un medio
+pendiente de acordar. El clon público no distribuye ni sincroniza estos archivos.
+Los archivos se conservan; no se ejecutó eliminación de Git, pues sigue sin .git.
+No hubo cambios funcionales ni pruebas. F0-01 de Adel sigue sin iniciar.
+
+R0003 | 2026-11-09 | America/Lima
+Nuevo mandato del usuario: publicar todo para que el equipo vea el plan.
+Política vigente: siete TXT versionados junto con código e informe; R0002 queda
+como historia y no como instrucción actual. Contexto inicialmente main y luego develop.
+Se actualizó esta guía; no se ejecutaron publicación, Git ni pruebas desde este turno.
+La URL GitHub está solicitada y pendiente. No se inventan commits, hashes ni subidas.
+Código previo con origen/autoría por verificar; implementación futura asistida por IA.
+F0-01 no iniciado, ninguna fase ni V1 cerrada; turno Adel y secuencia sin cambios.
