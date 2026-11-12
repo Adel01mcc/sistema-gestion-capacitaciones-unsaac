@@ -1,0 +1,158 @@
+\documentclass[11pt,a4paper,oneside]{report}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+  \usepackage{lmodern}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Latin Modern Roman}
+  \setsansfont{Latin Modern Sans}
+  \setmonofont{Latin Modern Mono}
+\fi
+\usepackage[spanish,es-tabla]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs,longtable,array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,babel}
+\usepackage{hyperref}
+\hypersetup{hypertexnames=false,colorlinks=true,linkcolor=blue!45!black,urlcolor=blue!55!black,citecolor=blue!45!black,
+  pdftitle={Sistema de Gestión de Capacitaciones -- Paz Sur},pdfauthor={Equipo UNSAAC}}
+\urlstyle{same}
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+\setlist{itemsep=0.15em,topsep=0.3em}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\lstdefinelanguage{JavaScript}{
+  morekeywords={import,from,export,const,let,return,if,else,throw,new,function,async,await,try,catch,finally,true,false,null},
+  sensitive=true,
+  morecomment=[l]{//},morecomment=[s]{/*}{*/},
+  morestring=[b]',morestring=[b]"
+}
+\lstdefinestyle{codigo}{
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{blue!60!black},commentstyle=\color{green!35!black},
+  stringstyle=\color{red!45!black},
+  breaklines=true,breakatwhitespace=false,columns=fullflexible,
+  keepspaces=true,showstringspaces=false,frame=single,
+  numbers=left,numberstyle=\tiny\color{gray},numbersep=7pt,
+  tabsize=2,captionpos=b,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {ñ}{{\~n}}1 {ü}{{\"u}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1
+    {Ó}{{\'O}}1 {Ú}{{\'U}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+    {—}{{---}}1 {–}{{--}}1 {…}{{...}}1
+}
+\lstset{style=codigo}
+\newcommand{\fuenteMermaid}[2]{%
+  \section{#1}
+  Fuente versionable: \path{docs/diagramas/#2}.
+  \IfFileExists{../diagramas/#2}{%
+    \lstinputlisting[language={},numbers=none]{../diagramas/#2}%
+  }{%
+    \IfFileExists{diagramas/#2}{%
+      \lstinputlisting[language={},numbers=none]{diagramas/#2}%
+    }{%
+      \textbf{Fuente pendiente:} ejecutar el preparador de Overleaf.%
+    }%
+  }%
+}
+\newcommand{\pendiente}{\textbf{Pendiente de verificación.}}
+\newcommand{\fragmentocodigo}[4]{%
+  \IfFileExists{../../#1}{%
+    \lstinputlisting[language=JavaScript,firstline=#2,lastline=#3,caption={#4}]{../../#1}%
+  }{%
+    \IfFileExists{codigo/#1}{%
+      \lstinputlisting[language=JavaScript,firstline=#2,lastline=#3,caption={#4}]{codigo/#1}%
+    }{%
+      \textbf{Fragmento pendiente:} no se encontró \texttt{\detokenize{#1}}.
+      Ejecutar el preparador de Overleaf sobre el repositorio completo.%
+    }%
+  }%
+}
+\begin{document}
+\begin{titlepage}
+  \centering
+  {\Large\bfseries UNIVERSIDAD NACIONAL DE SAN ANTONIO ABAD DEL CUSCO\par}
+  \vspace{0.6cm}
+  {\large Facultad: por confirmar con el equipo\par}
+  {\large Escuela profesional: denominación oficial por confirmar\par}
+  \vspace{1cm}
+  \IfFileExists{imagenes/escudo-unsaac.png}{%
+    \includegraphics[width=3.2cm,height=3.8cm,keepaspectratio]{imagenes/escudo-unsaac.png}%
+  }{%
+    \fbox{\parbox[c][3.3cm][c]{4cm}{\centering Escudo UNSAAC\\[0.3cm]
+      \small Incorporar archivo institucional autorizado en\\
+      \path{imagenes/escudo-unsaac.png}}}%
+  }
+  \par
+  \vspace{1cm}
+  {\LARGE\bfseries Sistema de Gestión de Capacitaciones\par}
+  \vspace{0.25cm}
+  {\Large Paz Sur --- Cusco\par}
+  \vspace{0.7cm}
+  {\large Informe de Ingeniería de Software I\par}
+  {\large Primer incremento y diseño del producto\par}
+  \vspace{0.8cm}
+  \begin{minipage}{0.92\textwidth}
+    \textbf{Docente:} Jisbaj Gamarra Salas.\\[0.4cm]
+    \textbf{Integrantes:}
+    \begin{itemize}
+      \item Brenda Lucia Mayhuire Chacón.
+      \item Adel Alejandro Merma Ccarhuarupay.
+      \item Franshesco (apellidos por confirmar).
+      \item Daniela (apellidos por confirmar).
+    \end{itemize}
+    \textbf{Implementación:} asistida por Codex; revisión humana del incremento pendiente de registro.
+  \end{minipage}
+  \vfill
+  {\large Cusco, Perú\par}
+  {\large 12 de noviembre de 2026\par}
+\end{titlepage}
+\pagenumbering{roman}
+\chapter*{Resumen}
+\addcontentsline{toc}{chapter}{Resumen}
+Este proyecto propone organizar la planificación y el seguimiento de las capacitaciones de la empresa comercial Paz Sur. El registro manual de asistencia y su eventual transcripción a hojas de cálculo dificultan la consulta y la verificación de información. El alcance candidato reúne 28 historias de usuario que deben contrastarse con el cliente.
+
+El informe presenta un proceso iterativo, incremental y adaptativo, una arquitectura de monolito modular y el primer incremento de autenticación, usuarios, roles y planificación de capacitaciones. La base inspeccionada contenía documentación y no una aplicación ejecutable; por ello se conserva el contrato existente y se construye el incremento sin atribuirle una historia previa ficticia. La interfaz utiliza React y TypeScript; la API, Node.js y Express; la persistencia local, SQLite con migraciones. PostgreSQL es una opción de evolución pendiente de acordar.
+
+Los resultados de ejecución se consignan en el capítulo de pruebas y en su tabla de evidencia. El diseño de participantes, sesiones, asistencia, resultados, reportes, certificados y catálogos no debe confundirse con funcionalidades terminadas. La revisión humana, la integración y la validación de reglas comerciales se registrarán cuando efectivamente ocurran.
+
+\textbf{Palabras clave:} capacitación, requisitos, Scrum, Kanban, pruebas, arquitectura, UNSAAC.
+\tableofcontents
+\listoffigures
+\listoftables
+\clearpage
+\pagenumbering{arabic}
+\input{capitulos/01_introduccion}
+\input{capitulos/02_contexto}
+\input{capitulos/03_proceso_desarrollo}
+\input{capitulos/04_requisitos}
+\input{capitulos/05_arquitectura}
+\input{capitulos/06_sprint_planning}
+\input{capitulos/07_implementacion}
+\input{capitulos/08_pruebas}
+\input{capitulos/09_refactorizacion}
+\input{capitulos/10_resultados}
+\input{capitulos/11_conclusiones}
+\bibliographystyle{plain}
+\bibliography{referencias}
+\appendix
+\input{bitacora}
+\chapter{Fuentes de los diagramas}
+Las fuentes distinguen V1 del diseño futuro. Los diagramas de inscripción y asistencia son modelos candidatos y no evidencia de endpoints ejecutados.
+\fuenteMermaid{Arquitectura general}{arquitectura.mmd}
+\fuenteMermaid{Casos de uso}{casos_uso.mmd}
+\fuenteMermaid{Entidad--relación V1}{er_v1.mmd}
+\fuenteMermaid{Entidad--relación del producto candidato}{er_producto_candidato.mmd}
+\fuenteMermaid{Responsabilidades de módulos}{clases.mmd}
+\fuenteMermaid{Componentes}{componentes.mmd}
+\fuenteMermaid{Registrar una capacitación}{secuencia_registrar_capacitacion.mmd}
+\fuenteMermaid{Inscribir un participante: diseño futuro}{secuencia_inscribir_participante.mmd}
+\fuenteMermaid{Registrar asistencia: diseño futuro}{secuencia_registrar_asistencia.mmd}
+\fuenteMermaid{Estados}{estados.mmd}
+\fuenteMermaid{Roles y permisos}{roles_permisos.mmd}
+\end{document}

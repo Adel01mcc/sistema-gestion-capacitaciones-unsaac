@@ -1,0 +1,119 @@
+erDiagram
+  %% Diseño completo candidato: NO es el esquema migrado de V1.
+  %% users, roles y trainings ya tienen representación V1; se omiten tablas RBAC auxiliares aquí.
+  users {
+    int id PK
+    string email UK
+    boolean active
+  }
+  roles {
+    int id PK
+    string code UK
+  }
+  workers {
+    int id PK
+    int user_id FK "Opcional y único"
+    string employee_code UK
+    string first_name
+    string last_name
+    int site_id FK
+    int area_id FK
+    boolean active
+  }
+  sites {
+    int id PK
+    string name UK
+    string address
+  }
+  areas {
+    int id PK
+    string name UK
+  }
+  supplier_brands {
+    int id PK
+    string name UK
+    boolean active
+  }
+  campaigns {
+    int id PK
+    string name
+    date start_date
+    date end_date
+  }
+  trainings {
+    int id PK
+    string code UK
+    string title
+    date start_date
+    date end_date
+    int capacity
+    string status
+    int instructor_id FK "Usuario con rol instructor"
+    int responsible_id FK
+    int brand_id FK "Futuro opcional"
+    int campaign_id FK "Futuro opcional"
+    int site_id FK "Futuro opcional"
+  }
+  training_sessions {
+    int id PK
+    int training_id FK
+    date date
+    string title
+  }
+  enrollments {
+    int id PK
+    int training_id FK
+    int participant_id FK "Usuario; inscripción sin cuenta pendiente"
+    string status
+    datetime created_at
+  }
+  attendance {
+    int id PK
+    int enrollment_id FK
+    int session_id FK
+    string status
+    int recorded_by FK
+  }
+  evaluations {
+    int id PK
+    int enrollment_id FK,UK
+    decimal grade
+    string observation
+    int recorded_by FK
+  }
+  certificates {
+    int id PK
+    int enrollment_id FK,UK
+    string code UK
+    string status
+    datetime issued_at
+    int issued_by FK
+    string participant_name
+    string training_title
+  }
+  notifications {
+    int id PK
+    int user_id FK
+    int training_id FK
+    string message
+    datetime created_at
+    datetime read_at "Opcional"
+  }
+  users }o--o{ roles : recibe
+  users o|--o| workers : acceso_opcional
+  sites ||--o{ workers : ubica
+  areas ||--o{ workers : agrupa
+  users o|--o{ trainings : instructor
+  users ||--o{ trainings : responsable
+  supplier_brands o|--o{ trainings : relaciona
+  campaigns o|--o{ trainings : contextualiza
+  sites o|--o{ trainings : organiza
+  trainings ||--o{ training_sessions : contiene
+  trainings ||--o{ enrollments : recibe
+  users ||--o{ enrollments : participante
+  enrollments ||--o{ attendance : recibe
+  training_sessions ||--o{ attendance : registra
+  enrollments ||--o| evaluations : obtiene
+  enrollments ||--o| certificates : puede_obtener
+  users ||--o{ notifications : recibe
+  trainings o|--o{ notifications : origina

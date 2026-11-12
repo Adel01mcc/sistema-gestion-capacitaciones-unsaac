@@ -1,0 +1,30 @@
+\chapter{Resultados y limitaciones}
+\section{Artefactos preparados}
+La sesión construye el primer incremento local y el conjunto documental: diagnóstico, requisitos, backlog de 28 historias, criterios de aceptación, trazabilidad, proceso, planificación, decisiones, diagramas y fuentes del informe. El alcance funcional de implementación se concentra en autenticación, usuarios, roles y capacitaciones.
+
+La evidencia de ejecución se lee en la tabla~\ref{tab:evidencia}. Un archivo creado, una ruta escrita o un botón visible no prueban por sí solos que el flujo esté verificado. Los resultados finales deben indicar los comandos efectivamente completados y sus limitaciones.
+
+\section{Resultado esperado del flujo V1}
+El administrador de demostración puede trabajar con cuentas ficticias y capacitaciones almacenadas en SQLite a través de una API protegida. La interfaz presenta carga, confirmación y error según la respuesta real. El acceso y la edición dependen de los permisos actuales, no de un rol escrito manualmente en el navegador.
+
+Se preservan las ramas de integrantes y los documentos previos. No se presenta la construcción local como una integración, publicación, revisión de compañeros o aprobación de Paz Sur. No se crean tags V1--V4 para simular una evolución que no ocurrió.
+
+\section{Limitaciones del producto}
+\begin{itemize}
+  \item No están implementados los flujos completos de participantes, asistencia, sesiones, resultados o historial.
+  \item No se emiten certificados, ni se presupone que todas las capacitaciones los necesitan.
+  \item Los catálogos de marcas, campañas, sedes y áreas son diseño candidato.
+  \item Los reportes consolidados y las alertas no se presentan como disponibles por existir un permiso de catálogo.
+  \item La matriz de roles, estados y reglas académicas necesita validación con el cliente.
+  \item No se ha demostrado capacidad de producción, alta disponibilidad o cumplimiento normativo específico.
+\end{itemize}
+
+\section{Limitaciones del entorno y del proceso}
+La falta de espacio en la unidad del perfil complicó la ejecución de herramientas. Se verificó disponibilidad de Node y SQLite. XeLaTeX se ejecutó realmente con instalación automática deshabilitada y falló por ausencia de \texttt{xelatex.fmt}; no pudo completar la generación del formato. Se preparó la alternativa pdfLaTeX con fuentes Latin Modern vectoriales y se corrigió la interacción entre Babel español y TikZ. El resultado de esa compilación se consigna en la tabla de evidencia, separado de la revisión visual del PDF.
+
+Los Mermaid se revisaron como fuentes, pero su renderizado con un motor Mermaid no está verificado. El informe incluye esas fuentes y dos diagramas nativos TikZ; ambos tipos de artefacto deben distinguirse al presentar resultados.
+
+Las ceremonias Scrum, las revisiones de compañeros y la integración en Git permanecen propuestas o pendientes hasta que existan registros. Las estimaciones de capacidad son propuestas y no reemplazan datos históricos de Jira.
+
+\section{Siguiente actividad recomendada}
+El equipo debe revisar el diff y ejecutar la demostración con datos ficticios, validar las reglas del primer incremento y registrar las observaciones. Después podrá seleccionar una tarea pequeña de participantes o instructores, verificar sus dependencias y completar sus criterios sin comprometer automáticamente el resto del producto.

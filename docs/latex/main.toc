@@ -1,0 +1,78 @@
+\babel@toc {spanish}{}\relax 
+\contentsline {chapter}{Resumen}{\es@scroman {i}}{chapter*.1}%
+\contentsline {chapter}{\numberline {1}Introducción}{1}{chapter*.5}%
+\contentsline {section}{\numberline {1.1}Descripción del problema}{1}{section*.6}%
+\contentsline {section}{\numberline {1.2}Objetivo general}{1}{section*.7}%
+\contentsline {section}{\numberline {1.3}Objetivos específicos}{1}{section*.8}%
+\contentsline {section}{\numberline {1.4}Alcance y límites del informe}{1}{section*.15}%
+\contentsline {section}{\numberline {1.5}Organización del documento}{2}{section*.16}%
+\contentsline {chapter}{\numberline {2}Contexto y fundamento técnico}{3}{chapter*.17}%
+\contentsline {section}{\numberline {2.1}Participantes y responsabilidades}{3}{section*.18}%
+\contentsline {section}{\numberline {2.2}Diagnóstico del repositorio}{3}{section*.19}%
+\contentsline {section}{\numberline {2.3}Restricciones e incertidumbres}{3}{section*.20}%
+\contentsline {section}{\numberline {2.4}Fundamento teórico}{4}{section*.21}%
+\contentsline {chapter}{\numberline {3}Proceso de desarrollo}{5}{chapter*.22}%
+\contentsline {section}{\numberline {3.1}Enfoque seleccionado}{5}{section*.23}%
+\contentsline {section}{\numberline {3.2}Artefactos y eventos propuestos}{5}{section*.24}%
+\contentsline {section}{\numberline {3.3}Flujo y límites de trabajo}{5}{section*.25}%
+\contentsline {section}{\numberline {3.4}Definition of Done}{6}{section*.26}%
+\contentsline {section}{\numberline {3.5}Métricas y uso de IA}{6}{section*.27}%
+\contentsline {chapter}{\numberline {4}Requisitos y trazabilidad}{7}{chapter*.28}%
+\contentsline {section}{\numberline {4.1}Fuentes y estado de validación}{7}{section*.29}%
+\contentsline {section}{\numberline {4.2}Catálogo de historias candidatas}{7}{section*.30}%
+\contentsline {section}{\numberline {4.3}Las tres C e INVEST}{8}{section*.31}%
+\contentsline {section}{\numberline {4.4}Ejemplo de aceptación}{9}{section*.32}%
+\contentsline {section}{\numberline {4.5}Supuestos que requieren conversación}{9}{section*.33}%
+\contentsline {chapter}{\numberline {5}Arquitectura y modelos}{10}{chapter*.34}%
+\contentsline {section}{\numberline {5.1}Monolito modular}{10}{section*.35}%
+\contentsline {section}{\numberline {5.2}Modelo de datos V1}{10}{section*.37}%
+\contentsline {section}{\numberline {5.3}Modelo candidato del producto}{11}{section*.39}%
+\contentsline {section}{\numberline {5.4}Flujo de estados}{11}{section*.40}%
+\contentsline {section}{\numberline {5.5}Permisos y seguridad}{12}{section*.42}%
+\contentsline {section}{\numberline {5.6}Patrones evaluados}{12}{section*.43}%
+\contentsline {chapter}{\numberline {6}Planificación del primer incremento}{13}{chapter*.44}%
+\contentsline {section}{\numberline {6.1}Referencia histórica y propuesta actual}{13}{section*.45}%
+\contentsline {section}{\numberline {6.2}Objetivo verificable}{13}{section*.46}%
+\contentsline {section}{\numberline {6.3}Entrega mínima y capacidad}{13}{section*.48}%
+\contentsline {section}{\numberline {6.4}Evolución propuesta}{13}{section*.49}%
+\contentsline {chapter}{\numberline {7}Implementación del primer incremento}{15}{chapter*.50}%
+\contentsline {section}{\numberline {7.1}Lenguajes y herramientas}{15}{section*.51}%
+\contentsline {section}{\numberline {7.2}Archivos y comunicación entre módulos}{15}{section*.52}%
+\contentsline {section}{\numberline {7.3}Autenticación, usuarios y roles}{16}{section*.53}%
+\contentsline {section}{\numberline {7.4}Registro y edición de capacitaciones}{16}{section*.54}%
+\contentsline {section}{\numberline {7.5}Fragmentos del código real}{17}{section*.55}%
+\contentsline {section}{\numberline {7.6}Ejecución reproducible}{20}{section*.219}%
+\contentsline {section}{\numberline {7.7}Dificultades y pendientes}{20}{section*.228}%
+\contentsline {section}{\numberline {7.8}Interfaz verificada en navegador}{21}{section*.229}%
+\contentsline {chapter}{\numberline {8}Pruebas y evidencia}{23}{chapter*.232}%
+\contentsline {section}{\numberline {8.1}Estrategia}{23}{section*.233}%
+\contentsline {section}{\numberline {8.2}Casos prioritarios}{23}{section*.234}%
+\contentsline {section}{\numberline {8.3}Registro de ejecución}{24}{section*.235}%
+\contentsline {section}{\numberline {8.4}Prueba manual propuesta}{25}{section*.236}%
+\contentsline {section}{\numberline {8.5}Límites de la verificación}{25}{section*.237}%
+\contentsline {chapter}{\numberline {9}Estructura, mantenimiento y refactorización}{26}{chapter*.238}%
+\contentsline {section}{\numberline {9.1}Situación inicial real}{26}{section*.239}%
+\contentsline {section}{\numberline {9.2}Problema que se busca evitar}{26}{section*.240}%
+\contentsline {section}{\numberline {9.3}Protocolo para una refactorización futura}{26}{section*.241}%
+\contentsline {section}{\numberline {9.4}Strategy, Adapter y evolución}{27}{section*.248}%
+\contentsline {chapter}{\numberline {10}Resultados y limitaciones}{28}{chapter*.249}%
+\contentsline {section}{\numberline {10.1}Artefactos preparados}{28}{section*.250}%
+\contentsline {section}{\numberline {10.2}Resultado esperado del flujo V1}{28}{section*.251}%
+\contentsline {section}{\numberline {10.3}Limitaciones del producto}{28}{section*.252}%
+\contentsline {section}{\numberline {10.4}Limitaciones del entorno y del proceso}{29}{section*.253}%
+\contentsline {section}{\numberline {10.5}Siguiente actividad recomendada}{29}{section*.254}%
+\contentsline {chapter}{\numberline {11}Conclusiones}{30}{chapter*.255}%
+\contentsline {chapter}{\numberline {A}Bitácora de desarrollo}{32}{chapter*.257}%
+\contentsline {section}{\numberline {A.1}Registro de futuras entradas}{33}{section*.258}%
+\contentsline {chapter}{\numberline {B}Fuentes de los diagramas}{34}{chapter*.259}%
+\contentsline {section}{\numberline {B.1}Arquitectura general}{34}{section*.260}%
+\contentsline {section}{\numberline {B.2}Casos de uso}{35}{section*.293}%
+\contentsline {section}{\numberline {B.3}Entidad--relación V1}{35}{section*.346}%
+\contentsline {section}{\numberline {B.4}Entidad--relación del producto candidato}{37}{section*.424}%
+\contentsline {section}{\numberline {B.5}Responsabilidades de módulos}{39}{section*.545}%
+\contentsline {section}{\numberline {B.6}Componentes}{40}{section*.605}%
+\contentsline {section}{\numberline {B.7}Registrar una capacitación}{41}{section*.641}%
+\contentsline {section}{\numberline {B.8}Inscribir un participante: diseño futuro}{41}{section*.674}%
+\contentsline {section}{\numberline {B.9}Registrar asistencia: diseño futuro}{42}{section*.702}%
+\contentsline {section}{\numberline {B.10}Estados}{42}{section*.731}%
+\contentsline {section}{\numberline {B.11}Roles y permisos}{43}{section*.754}%

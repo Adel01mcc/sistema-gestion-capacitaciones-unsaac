@@ -1,0 +1,58 @@
+\chapter{Requisitos y trazabilidad}
+\section{Fuentes y estado de validación}
+El prompt del proyecto aporta 28 historias de referencia. Estas constituyen el alcance candidato; su correspondencia con claves, textos, estimaciones y criterios reales de Jira sigue pendiente. No se reemplazan las estimaciones históricas de Jira con los puntos propuestos en la documentación.
+
+Las fichas completas están en \path{docs/BACKLOG.md}; los criterios verificables y sus pruebas, en \path{docs/CRITERIOS_ACEPTACION.md}; requisitos y supuestos, en \path{docs/REQUISITOS.md}; y el vínculo con implementación y evidencia, en \path{docs/TRAZABILIDAD.md}.
+
+\section{Catálogo de historias candidatas}
+\begin{longtable}{P{1.5cm}P{8.1cm}P{3.1cm}}
+\caption{Historias de referencia y alcance de implementación}\label{tab:historias}\\
+\toprule ID & Nombre & Estado de alcance \\ \midrule
+\endfirsthead
+\toprule ID & Nombre & Estado de alcance \\ \midrule
+\endhead
+HU-01 & Registrar usuarios & Incluida en V1 \\
+HU-02 & Asignar roles y permisos & Incluida en V1 \\
+HU-03 & Registrar capacitación & Incluida en V1 \\
+HU-04 & Modificar capacitación & Incluida en V1 \\
+HU-05 & Asignar instructor & Candidata posterior \\
+HU-06 & Registrar participantes & Candidata posterior \\
+HU-07 & Consultar capacitaciones asignadas & Parcial: consulta por instructor V1 \\
+HU-08 & Registrar asistencia & Candidata posterior \\
+HU-09 & Registrar evaluaciones & Candidata posterior \\
+HU-10 & Registrar certificado & Candidata posterior \\
+HU-11 & Consultar capacitaciones inscritas & Candidata posterior \\
+HU-12 & Consultar resultados & Candidata posterior \\
+HU-13 & Consultar historial de capacitación & Candidata posterior \\
+HU-14 & Consultar reportes consolidados & Candidata posterior \\
+HU-15 & Consultar estado de las capacitaciones & Parcial: estado en V1 \\
+HU-16 & Iniciar sesión & Dependencia incluida en V1 \\
+HU-17 & Gestionar instructores & Candidata posterior \\
+HU-18 & Descargar certificado & Candidata posterior \\
+HU-19 & Gestionar cupos de capacitación & Parcial: capacidad en V1 \\
+HU-20 & Registrar marcas proveedoras & Candidata posterior \\
+HU-21 & Gestionar campañas comerciales & Candidata posterior \\
+HU-22 & Gestionar trabajadores por sede y área & Candidata posterior \\
+HU-23 & Consultar trabajadores pendientes & Candidata posterior \\
+HU-24 & Consultar capacitaciones por marca & Candidata posterior \\
+HU-25 & Consultar capacitaciones por sede & Candidata posterior \\
+HU-26 & Recibir alertas de programación & Candidata posterior \\
+HU-27 & Reprogramar capacitaciones pendientes & Parcial: edición en V1 \\
+HU-28 & Registrar sesiones de capacitación & Candidata posterior \\
+\bottomrule
+\end{longtable}
+
+Que una capacitación permita un instructor opcional, muestre estado o tenga capacidad no acredita el cierre de HU-05, HU-15, HU-19 o HU-27 completas. Es necesario contrastar los criterios de cada historia y demostrar todos sus casos.
+
+\section{Las tres C e INVEST}
+Cada historia se formula como tarjeta con rol, necesidad y beneficio; la conversación registra incertidumbres y alternativas; la confirmación establece criterios verificables. INVEST se usa para revisar independencia, posibilidad de negociación, valor, estimación, tamaño y capacidad de prueba.
+
+Las dependencias reales no se ocultan para aparentar independencia absoluta. Por ejemplo, registrar asistencia requiere una sesión y una inscripción válidas. Historias grandes como reportes o gestión de trabajadores deben dividirse en entregas pequeñas una vez acordadas las consultas y reglas prioritarias.
+
+\section{Ejemplo de aceptación}
+Para HU-03, un usuario autorizado que envía código único, título, periodo válido y capacidad positiva debe obtener una capacitación persistida. Un periodo invertido, un cupo cero o un estado inicial finalizada se rechazan. El código duplicado debe producir un conflicto comprensible y no una segunda fila. Un participante no obtiene permiso de escritura por enviar una solicitud manual.
+
+Estos casos son específicos de HU-03 y se complementan con la DoD general. El registro de su ejecución pertenece al capítulo de pruebas, no a la definición del requisito.
+
+\section{Supuestos que requieren conversación}
+Se deben confirmar roles y alcance de RR. HH./gerencia, trabajadores sin cuenta, sedes y áreas, transiciones y reapertura, forma de evaluación, umbrales de asistencia, emisión opcional de certificados, reprogramación y destinatarios de alertas. Las cifras 80\,\% y 14/20 provienen del contrato, no de una validación documentada con el cliente.

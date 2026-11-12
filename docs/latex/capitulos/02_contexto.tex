@@ -1,0 +1,29 @@
+\chapter{Contexto y fundamento técnico}
+\section{Participantes y responsabilidades}
+El proyecto corresponde al curso Ingeniería de Software I de la UNSAAC, con el docente Jisbaj Gamarra Salas. El equipo está conformado por Brenda Lucia Mayhuire Chacón, Adel Alejandro Merma Ccarhuarupay, Franshesco y Daniela. No se completan apellidos, nombres institucionales de facultad o escuela, ni responsabilidades aceptadas mediante inferencias.
+
+La coordinación propuesta debe acordar quién representa las decisiones del cliente, quién facilita el proceso y quién revisa cada entrega. La colaboración con IA no sustituye la responsabilidad de comprender y revisar el código. No se atribuye a un integrante una implementación manual o una aprobación que no haya realizado.
+
+\section{Diagnóstico del repositorio}
+La referencia inicial inspeccionada fue \texttt{cf6e720}, en la rama \texttt{main}. El árbol contenía README, el contrato de implementación y documentos de coordinación. No se encontraron la aplicación, un archivo de dependencias ni pruebas ejecutables en ese punto de partida.
+
+Se observaron referencias remotas de integrantes: \path{origin/AD-1-registro-usuarios}, \path{origin/BrendaPro} y \path{origin/feature/brenda-mayhuire}. Su inspección no reveló una aplicación recuperable. Esta constatación no afirma que el código no exista en otras computadoras o referencias no disponibles.
+
+Los documentos antiguos mencionan otra ruta local, una aplicación previa, SQLite y herramientas instaladas en esa otra situación. Se conservan como antecedentes y no como evidencia del entorno actual. La solicitud vigente autoriza construir el primer incremento; no se aplica automáticamente el antiguo límite de diagnóstico F0-01.
+
+\section{Restricciones e incertidumbres}
+\begin{itemize}
+  \item Reglas comerciales incompletas y textos originales de Jira no contrastados.
+  \item Capacidad académica de cuatro estudiantes sin velocidad histórica medida.
+  \item Prohibición de push, merge, borrados masivos y publicaciones sin autorización.
+  \item No utilizar credenciales reales ni datos personales de la empresa como datos de demostración.
+  \item Motor PostgreSQL y servicios Supabase/Render mencionados como intención, pero sin conexión o migración verificadas.
+  \item Compilador LaTeX no encontrado en el primer diagnóstico; una comprobación posterior localizó MiKTeX. La compilación se registra de forma separada de la preparación de fuentes.
+\end{itemize}
+
+\section{Fundamento teórico}
+Un requisito funcional describe una capacidad observable, como registrar una capacitación; un requisito no funcional expresa una cualidad o restricción, como evitar que una cuenta sin permiso edite registros. Una arquitectura separa responsabilidades para permitir cambios y pruebas sin concentrar todo el comportamiento en una pantalla.
+
+Un incremento debe aportar un resultado verificable. Una iteración ofrece la oportunidad de inspeccionar y ajustar el trabajo. La combinación permite aprender de un flujo pequeño antes de extenderlo. Scrum aporta un marco de inspección y adaptación con objetivos y artefactos \cite{scrum2020}. Kanban ayuda a definir y gestionar el flujo y sus límites \cite{kanban2025}. Las prácticas de XP orientadas a pruebas y refactorización se seleccionan cuando ayudan a mantener el diseño y el comportamiento \cite{xp}.
+
+La trazabilidad conecta una necesidad con aceptación, código y verificación. No basta con que un nombre de historia aparezca en un archivo: se debe poder señalar la operación, los límites y el resultado comprobado.

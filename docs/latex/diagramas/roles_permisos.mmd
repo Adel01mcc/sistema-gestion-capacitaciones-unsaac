@@ -1,0 +1,25 @@
+flowchart LR
+  %% Matriz inicial del contrato. Permisos editables salvo administrador.
+  %% Los permisos futuros no implican que existan sus módulos en V1.
+  admin[Administrador] --> all[Todos los permisos]
+  coord[Coordinador] --> tm[trainings.manage]
+  coord --> tv[trainings.view_all]
+  coord --> pm[people.manage]
+  coord --> cm[certificates.manage: módulo futuro]
+  instructor[Instructor] --> teach[teaching.manage: consulta de asignadas V1, gestión futura]
+  participant[Participante] --> learn[learning.view: módulo futuro]
+  hr[RR. HH.] --> history[history.view: módulo futuro]
+  hr --> tv
+  hr --> reports[reports.view: módulo futuro]
+  management[Gerencia] --> reports
+  management --> tv
+  all --> um[users.manage]
+  all --> rm[roles.manage]
+  all --> tm
+  all --> tv
+  all --> pm
+  all --> cm
+  all --> teach
+  all --> learn
+  all --> history
+  all --> reports

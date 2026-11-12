@@ -1,0 +1,26 @@
+sequenceDiagram
+  autonumber
+  actor C as Coordinador
+  participant UI as Gestión de participantes
+  participant API as API de inscripción
+  participant S as Servicio inscripción
+  participant DB as Base relacional
+  Note over C,DB: DISEÑO CANDIDATO: HU-06 y HU-19 pendientes; no implementado en V1
+  C->>UI: Selecciona capacitación y trabajador
+  UI->>API: POST /api/trainings/:id/enrollments
+  API->>API: Autenticar, CSRF, permiso y esquema
+  API->>S: Inscribir participante
+  S->>DB: Iniciar transacción con exclusión de escritura
+  S->>DB: Consultar capacitación, persona, duplicado y cupo
+  alt Estado cerrado, duplicado, inactivo o sin cupo
+    S->>DB: ROLLBACK
+    S-->>API: Error de regla de negocio
+    API-->>UI: 404 / 409 / 422 según caso
+  else Datos válidos
+    S->>DB: INSERT inscripción + auditoría
+    S->>DB: COMMIT
+    S-->>API: Inscripción persistida
+    API-->>UI: 201 con data
+    UI-->>C: Lista y cupos actualizados
+  end
+  Note over S,DB: Un evento o aviso futuro solo se origina después del commit

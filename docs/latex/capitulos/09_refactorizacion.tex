@@ -1,0 +1,26 @@
+\chapter{Estructura, mantenimiento y refactorización}
+\section{Situación inicial real}
+En la referencia inicial no había implementación ejecutable que refactorizar. Por ello no se fabrica un listado anterior, un defecto histórico, una versión V2 ni una prueba de regresión sobre código ausente. La separación de rutas y servicios durante esta construcción es una decisión del primer incremento.
+
+\section{Problema que se busca evitar}
+Si un controlador mezclara validación HTTP, reglas de acceso, transiciones y SQL, sería difícil probar una regla sin simular toda la solicitud y difícil cambiar el acceso a datos. La arquitectura reduce ese riesgo con módulos explícitos. Esta motivación no constituye evidencia de que ese controlador monolítico haya existido en el repositorio.
+
+La conexión se recibe por inyección; los servicios contienen las reglas; las rutas traducen solicitudes y respuestas. No se introduce una jerarquía de clases por preferencia. La cohesión se evalúa por responsabilidades y consumidores, no por el número de archivos.
+
+\section{Protocolo para una refactorización futura}
+Una tarea de V2 deberá registrar:
+\begin{enumerate}
+  \item Problema observado, archivo, función y referencia Git real.
+  \item Comportamiento que debe conservarse y pruebas ejecutadas antes del cambio.
+  \item Fragmento anterior obtenido de la referencia preservada, no reconstruido de memoria.
+  \item Cambio concreto, principio o patrón pertinente y razón para elegirlo.
+  \item Fragmento refactorizado y pruebas de regresión posteriores.
+  \item Resultado, limitaciones y revisión humana efectivamente registrada.
+\end{enumerate}
+
+Si se añade una capacidad, como notificaciones por inscripción, se clasifica como ampliación funcional; no como refactorización pura. Los eventos de éxito deben ocurrir después del commit y solo se justifican si existe un consumidor real.
+
+\section{Strategy, Adapter y evolución}
+Strategy puede tener sentido si el cliente confirma diferentes algoritmos de evaluación o certificación. Adapter puede aislar una integración de proveedor externo. Ninguno se implementa solo para mostrarlo en el informe. La eventual migración PostgreSQL exige cambios comprobados y no se resuelve mediante una interfaz vacía.
+
+La prioridad de mantenimiento es corregir defectos reales al encontrarlos. No se preserva un error deliberadamente para producir una historia académica de mejora.

@@ -1,0 +1,31 @@
+\chapter{Planificación del primer incremento}
+\section{Referencia histórica y propuesta actual}
+La referencia histórica proporcionada por el usuario sitúa HU-01 a HU-04 en Sprint 1. No se han consultado las estimaciones originales de Jira y no se modifican. HU-16 se identifica como dependencia técnica y funcional del acceso protegido, sin afirmar que estuviera incluida históricamente.
+
+La planificación propuesta se conserva en \path{docs/SPRINT_1.md}. La duración es dos semanas, pero no se inventan fechas de eventos, horas disponibles o velocidad del equipo. Antes de comprometer todo el alcance se deben contrastar disponibilidad, dificultad y criterios con los cuatro integrantes.
+
+\section{Objetivo verificable}
+Una cuenta administradora de demostración puede iniciar sesión, registrar una cuenta con un rol permitido, crear una capacitación, editarla y volver a consultar los datos persistidos. Las solicitudes sin acceso, los datos inválidos y los conflictos reciben errores comprensibles; el navegador no simula un guardado local.
+
+\begin{table}[htbp]
+\centering
+\caption{Paquetes de trabajo del primer incremento}
+\begin{tabular}{P{2cm}P{7cm}P{3cm}}
+\toprule Referencia & Resultado esperado & Verificación \\ \midrule
+HU-16 & Login, sesión vigente y logout & API y revisión de navegador \\
+HU-01 & Alta, consulta y edición de usuarios & Validez, duplicado y acceso \\
+HU-02 & Roles, asignaciones y permisos & Privilegios y administrador protegido \\
+HU-03 & Crear capacitación persistente & Caso válido y límites \\
+HU-04 & Editar sin violar integridad & Consulta posterior y estados \\
+Técnica & Migraciones, semilla, documentación & Arranque reproducible \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Entrega mínima y capacidad}
+Si no existe capacidad para terminar todo en el Sprint, la entrega mínima debe contener login, un usuario autorizado y creación/consulta persistente de capacitación, con aceptación y pruebas. Edición completa de permisos u otras tareas deben registrarse pendientes, sin declarar terminado un incremento que no cumple su objetivo.
+
+La documentación puede elaborarse en paralelo con límites de archivos claros, pero una revisión de código por otro integrante sigue siendo necesaria. Las tareas compartidas deben integrarse de forma consciente; las contribuciones de IA no representan automáticamente trabajo de cada estudiante.
+
+\section{Evolución propuesta}
+V2 revisará el diseño real y ampliará instructores y participantes cuando sus dependencias estén listas. V3 podrá incorporar sesiones, asistencia, historial y evaluaciones. V4 priorizará integración, seguridad, experiencia y funcionalidades restantes acordadas. Ninguna de estas metas se etiqueta como versión ya construida o probada.

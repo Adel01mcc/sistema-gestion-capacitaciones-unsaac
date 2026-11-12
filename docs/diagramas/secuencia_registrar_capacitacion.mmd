@@ -1,0 +1,31 @@
+sequenceDiagram
+  autonumber
+  actor C as Coordinador o administrador
+  participant UI as Formulario React
+  participant API as Router capacitaciones
+  participant S as Servicio capacitación
+  participant DB as SQLite
+  Note over UI,DB: Flujo V1; reglas de planificación provisionales documentadas
+  C->>UI: Completa título, fechas, modalidad y cupo
+  UI->>API: POST /api/trainings + cookie + X-CSRF-Token
+  API->>API: Sesión, permiso trainings.manage y esquema
+  alt Solicitud inválida o sin permiso
+    API-->>UI: 401 / 403 / 422 con mensaje
+  else Solicitud autorizada
+    API->>S: Crear con actor autenticado
+    S->>S: Comprobar fechas, código, instructor y estado inicial
+    S->>DB: BEGIN IMMEDIATE
+    S->>DB: INSERT trainings
+    S->>DB: INSERT audit_log
+    alt Restricción incumplida
+      DB-->>S: Error de integridad
+      S->>DB: ROLLBACK
+      S-->>API: Conflicto o validación
+      API-->>UI: 409 / 422
+    else Guardado completo
+      S->>DB: COMMIT
+      S-->>API: Capacitación persistida
+      API-->>UI: 201 con data
+      UI-->>C: Confirmación y lista actualizada
+    end
+  end

@@ -1,0 +1,76 @@
+erDiagram
+  %% Modelo físico V1. Consultar 001_initial.sql para tipos/restricciones exactos.
+  users {
+    INTEGER id PK
+    TEXT first_name
+    TEXT last_name
+    TEXT email UK "Único sin distinguir mayúsculas"
+    TEXT document UK "Opcional"
+    TEXT password_hash
+    INTEGER active "Booleano 0/1"
+    TEXT department
+    TEXT specialty
+    TEXT created_at
+    TEXT updated_at
+  }
+  roles {
+    INTEGER id PK
+    TEXT code UK
+    TEXT name
+  }
+  permissions {
+    TEXT code PK
+    TEXT name
+  }
+  user_roles {
+    INTEGER user_id PK,FK
+    INTEGER role_id PK,FK
+  }
+  role_permissions {
+    INTEGER role_id PK,FK
+    TEXT permission_code PK,FK
+  }
+  sessions_auth {
+    TEXT token_hash PK
+    INTEGER user_id FK
+    TEXT csrf_token
+    TEXT expires_at
+  }
+  trainings {
+    INTEGER id PK
+    TEXT code UK "Sin distinguir mayúsculas"
+    TEXT title
+    TEXT description
+    TEXT start_date
+    TEXT end_date
+    TEXT start_time
+    TEXT end_time
+    TEXT modality
+    TEXT location
+    INTEGER capacity "Entre 1 y 10000"
+    TEXT status
+    INTEGER instructor_id FK "Opcional"
+    INTEGER responsible_id FK
+    TEXT created_at
+    TEXT updated_at
+  }
+  audit_log {
+    INTEGER id PK
+    INTEGER user_id FK
+    TEXT action
+    TEXT entity
+    INTEGER entity_id
+    TEXT created_at
+  }
+  schema_migrations {
+    TEXT version PK
+    TEXT applied_at
+  }
+  users ||--o{ user_roles : recibe
+  roles ||--o{ user_roles : asignado
+  roles ||--o{ role_permissions : contiene
+  permissions ||--o{ role_permissions : habilita
+  users ||--o{ sessions_auth : autentica
+  users o|--o{ trainings : instruye
+  users ||--o{ trainings : responsable
+  users o|--o{ audit_log : registra

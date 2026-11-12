@@ -1,0 +1,27 @@
+sequenceDiagram
+  autonumber
+  actor I as Instructor asignado
+  participant UI as Control de asistencia
+  participant API as API de sesiones
+  participant S as Servicio asistencia
+  participant DB as Base relacional
+  Note over I,DB: DISEÑO CANDIDATO: HU-08 y HU-28 pendientes; no implementado en V1
+  I->>UI: Selecciona sesión y marcas de asistencia
+  UI->>API: PUT /api/sessions/:id/attendance
+  API->>API: Verificar sesión, CSRF y teaching.manage
+  API->>S: Registrar lote y actor
+  S->>DB: Consultar sesión, capacitación e instructor
+  S->>S: Verificar alcance, estado y pertenencia de inscripciones
+  alt Alguna inscripción o marca no es válida
+    S-->>API: Rechazar lote completo
+    API-->>UI: 403 / 409 / 422
+  else Lote válido
+    S->>DB: BEGIN
+    loop Cada inscripción del lote
+      S->>DB: Insertar o actualizar marca única por sesión e inscripción
+    end
+    S->>DB: Registrar auditoría y COMMIT
+    S-->>API: Marcas guardadas
+    API-->>UI: 200 con data
+    UI-->>I: Confirmación tras persistencia
+  end

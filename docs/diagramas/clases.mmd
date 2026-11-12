@@ -1,0 +1,58 @@
+classDiagram
+  %% Vista conceptual de módulos y responsabilidades V1; la API usa funciones, no estas clases literales.
+  class InterfazReact {
+    mostrarFormulario()
+    mostrarError()
+    consultarAPI()
+  }
+  class RutasAuth {
+    login()
+    me()
+    logout()
+  }
+  class RutasUsuarios {
+    listar()
+    crear()
+    editar()
+    asignarRoles()
+  }
+  class RutasCapacitaciones {
+    listar()
+    consultar()
+    crear()
+    editar()
+  }
+  class Seguridad {
+    requireAuth()
+    requirePermission()
+    verificarCSRF()
+    hashPassword()
+  }
+  class ServicioUsuarios {
+    validarUsuario()
+    conservarAdministradorActivo()
+    guardarUsuario()
+    guardarPermisos()
+  }
+  class ServicioCapacitaciones {
+    validarPlanificacion()
+    validarInstructor()
+    comprobarTransicion()
+    guardarCapacitacion()
+  }
+  class BaseDatos {
+    createDatabase()
+    transaction()
+    aplicarMigraciones()
+  }
+  InterfazReact ..> RutasAuth : JSON
+  InterfazReact ..> RutasUsuarios : JSON
+  InterfazReact ..> RutasCapacitaciones : JSON
+  RutasAuth ..> Seguridad
+  RutasUsuarios ..> Seguridad
+  RutasCapacitaciones ..> Seguridad
+  RutasUsuarios --> ServicioUsuarios
+  RutasCapacitaciones --> ServicioCapacitaciones
+  ServicioUsuarios --> BaseDatos
+  ServicioCapacitaciones --> BaseDatos
+  Seguridad --> BaseDatos

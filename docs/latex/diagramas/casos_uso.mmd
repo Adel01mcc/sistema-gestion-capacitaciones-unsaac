@@ -1,0 +1,51 @@
+flowchart LR
+  %% Aproximación de casos de uso con flowchart; V1 azul, candidatos amarillo, parciales violeta.
+  admin[Administrador]
+  coord[Coordinador]
+  instructor[Instructor]
+  participante[Participante]
+  rrhh[RR. HH.]
+  gerencia[Gerencia]
+  subgraph sistema[Sistema de Gestión de Capacitaciones]
+    login([HU-16 Iniciar sesión])
+    users([HU-01 Registrar usuarios])
+    roles([HU-02 Asignar roles y permisos])
+    trainings([HU-03 / HU-04 Crear y modificar capacitación])
+    assigned([HU-07 Consulta de asignadas: alcance parcial V1])
+    people([HU-05 / HU-06 / HU-17 Instructor y participantes])
+    teaching([HU-08 / HU-09 / HU-28
+    Sesiones, asistencia y evaluación])
+    learning([HU-10 / HU-11 / HU-12 / HU-18
+    Inscripciones, resultados y certificados])
+    history([HU-13 / HU-23 Historial y pendientes])
+    reports([HU-14 / HU-15 / HU-24 / HU-25
+    Reportes, estados y filtros])
+    catalogs([HU-20 / HU-21 / HU-22
+    Marcas, campañas, sedes y áreas])
+    planning([HU-19 / HU-26 / HU-27
+    Cupos, alertas y reprogramación])
+  end
+  admin --> login
+  coord --> login
+  instructor --> login
+  participante --> login
+  rrhh --> login
+  gerencia --> login
+  admin --> users
+  admin --> roles
+  admin --> trainings
+  coord --> trainings
+  instructor --> assigned
+  coord -.-> people
+  instructor -.-> teaching
+  participante -.-> learning
+  rrhh -.-> history
+  gerencia -.-> reports
+  coord -.-> catalogs
+  coord -.-> planning
+  classDef implemented fill:#e3f2ff,stroke:#17628d;
+  classDef candidate fill:#fff6df,stroke:#a36d13,stroke-dasharray:5 5;
+  classDef partial fill:#eee8ff,stroke:#71519e,stroke-dasharray:5 5;
+  class login,users,roles,trainings implemented;
+  class people,teaching,learning,history,reports,catalogs,planning candidate;
+  class assigned partial;

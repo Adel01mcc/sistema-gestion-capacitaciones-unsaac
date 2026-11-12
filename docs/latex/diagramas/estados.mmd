@@ -1,0 +1,21 @@
+stateDiagram-v2
+  %% Grafo V1 provisional; necesita validación del cliente.
+  [*] --> planificada : creación
+  [*] --> programada : creación
+  planificada --> programada : programar
+  planificada --> cancelada : cancelar
+  programada --> planificada : volver a planificación
+  programada --> en_curso : iniciar
+  programada --> cancelada : cancelar
+  en_curso --> finalizada : cerrar
+  en_curso --> cancelada : cancelar
+  finalizada --> [*]
+  cancelada --> [*]
+  note right of planificada
+    Edición manteniendo estado permitida
+    en estados abiertos
+  end note
+  note right of finalizada
+    Finalizadas y canceladas inmutables.
+    Reapertura pendiente de validación.
+  end note

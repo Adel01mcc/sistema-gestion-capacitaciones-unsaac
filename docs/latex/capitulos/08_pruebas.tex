@@ -1,0 +1,40 @@
+\chapter{Pruebas y evidencia}
+\section{Estrategia}
+Se verifica la API real con Supertest y Node Test Runner. Los archivos \path{tests/api.test.js}, \path{tests/security.test.js} y \path{tests/persistence.test.js} utilizan bases aisladas y datos ficticios. Los casos cubren solicitudes válidas, entradas inválidas, límites y controles de acceso. Las consultas posteriores comprueban que la respuesta de éxito corresponde a datos guardados.
+
+Playwright añade los flujos de \path{tests/ui.spec.ts} sobre Chrome y un servidor con base E2E propia. Es una automatización de navegador y no una revisión humana. Su ejecución se registra separadamente en la tabla de evidencia; escribir el archivo de prueba no demuestra que haya aprobado.
+
+La documentación de aceptación define el resultado esperado; este capítulo registra lo observado. La definición de un caso no demuestra que haya sido ejecutado. Un análisis de tipos o una compilación frontend tampoco reemplazan pruebas de integración.
+
+\section{Casos prioritarios}
+\begin{longtable}{P{2.2cm}P{7.7cm}P{2.4cm}}
+\caption{Cobertura que debe verificarse para el incremento}\\
+\toprule Área & Caso y resultado esperado & Relación \\ \midrule
+\endfirsthead
+\toprule Área & Caso y resultado esperado & Relación \\ \midrule
+\endhead
+Acceso & Credenciales válidas crean sesión; contraseña inválida y cuenta inactiva se rechazan & HU-16 \\
+Sesión & Sin cookie no se accede a rutas protegidas; logout invalida la sesión & HU-16 \\
+CSRF & Una mutación autenticada sin token válido se rechaza & Seguridad \\
+Usuarios & Alta válida y lectura posterior; duplicado de correo o documento rechazado & HU-01 \\
+Roles & Asignar roles exige roles.manage; users.manage delegado no eleva privilegios ni edita cuentas administrativas & HU-02 \\
+Capacitación & Registro válido, consulta y modificación persistidas & HU-03/04 \\
+Límites & Capacidad cero, fecha invertida, hora inválida y datos incompletos se rechazan & HU-03/04 \\
+Estado & Transición válida admitida; salto no permitido y edición de cierre rechazados & HU-04 \\
+Alcance & Instructor no consulta capacitaciones ajenas; participante no ve datos de otros & Acceso a datos \\
+Persistencia & Reapertura conserva registros; rollback revierte todo; migración incremental conserva catálogos personalizados & Técnica \\
+\bottomrule
+\end{longtable}
+
+Los nombres y el número exacto de pruebas son los de los archivos y la salida del comando real. La tabla anterior no los sustituye ni promete cobertura de funcionalidades pendientes.
+
+\section{Registro de ejecución}
+\input{tablas/evidencia}
+
+\section{Prueba manual propuesta}
+Con la semilla ficticia y la aplicación ejecutándose, el revisor puede iniciar sesión, crear un usuario, intentar repetir su correo, crear una capacitación, editar su título y volver a consultar. Debe observar guardado real y errores comprensibles. Luego puede comprobar que una cuenta sin privilegios no dispone de las mismas acciones ni obtiene acceso mediante llamadas directas.
+
+Esta secuencia es un protocolo pendiente hasta que una persona registre fecha, cuenta ficticia usada, resultado y observaciones. No se atribuye una ejecución de navegador a los cuatro integrantes ni se presentan capturas generadas como evidencia.
+
+\section{Límites de la verificación}
+Las pruebas de API y los flujos de navegador seleccionados no demuestran por sí solos accesibilidad completa, comportamiento en todos los dispositivos, concurrencia de producción o ausencia de vulnerabilidades. La revisión visual del frontend y la revisión del PDF se registran separadamente. La ejecución de una futura CI debe enlazarse a un resultado real del repositorio.

@@ -1,0 +1,55 @@
+\begin{thebibliography}{1}
+
+\bibitem{xp}
+{Agile Alliance}.
+\newblock Extreme programming.
+\newblock \url{https://agilealliance.org/glossary/xp/}.
+\newblock Consultado el 12 de noviembre de 2026.
+
+\bibitem{express5}
+{Express.js}.
+\newblock Moving to express 5.
+\newblock \url{https://expressjs.com/en/guide/migrating-5/}.
+\newblock Requisitos de entorno y migración; consultado el 12 de noviembre de
+  2026.
+
+\bibitem{kanban2025}
+{Kanban Guides}.
+\newblock The kanban guide, may 2025.
+\newblock \url{https://kanbanguides.org/the-kanban-guide/2025.5/}, 2025.
+\newblock Consultado el 12 de noviembre de 2026.
+
+\bibitem{nodecrypto}
+{Node.js}.
+\newblock Crypto, node.js 24 api documentation.
+\newblock \url{https://nodejs.org/docs/latest-v24.x/api/crypto.html}.
+\newblock Consultado el 12 de noviembre de 2026.
+
+\bibitem{nodesqlite}
+{Node.js}.
+\newblock Sqlite, node.js 24 api documentation.
+\newblock
+  \url{https://nodejs.org/download/release/v24.9.0/docs/api/sqlite.html}.
+\newblock Referencia de DatabaseSync; la versión ejecutada en el entorno se
+  registra por separado.
+
+\bibitem{owaspcsrf}
+{OWASP Foundation}.
+\newblock Cross-site request forgery prevention cheat sheet.
+\newblock
+  \url{https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html}.
+\newblock Medidas de prevención; consultado el 12 de noviembre de 2026.
+
+\bibitem{scrum2020}
+Ken Schwaber and Jeff Sutherland.
+\newblock The scrum guide.
+\newblock \url{https://scrumguides.org/scrum-guide.html}, 2020.
+\newblock Consultado el 12 de noviembre de 2026.
+
+\bibitem{vite}
+{Vite}.
+\newblock Getting started.
+\newblock \url{https://vite.dev/guide/}.
+\newblock Consultado el 12 de noviembre de 2026.
+
+\end{thebibliography}

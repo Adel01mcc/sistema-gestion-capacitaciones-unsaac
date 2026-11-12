@@ -1,0 +1,85 @@
+\chapter{Arquitectura y modelos}
+\section{Monolito modular}
+Se separan presentación, entrada HTTP, lógica de negocio y persistencia. Un solo proceso backend y un solo motor de datos simplifican el arranque y las pruebas. La decisión completa se documenta en \path{docs/ARQUITECTURA.md} y \path{docs/DECISIONES_TECNICAS.md}.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  bloque/.style={draw,rounded corners,align=center,minimum width=9.5cm,minimum height=0.95cm,fill=blue!5},
+  >=Latex,node distance=0.7cm]
+  \node[bloque] (ui) {Presentación: React + TypeScript\\Formularios y mensajes en español};
+  \node[bloque,below=of ui] (http) {API: Express\\Sesión, CSRF, permisos, validación y respuestas};
+  \node[bloque,below=of http] (servicios) {Servicios de aplicación\\Usuarios, roles y capacitación};
+  \node[bloque,below=of servicios] (db) {Persistencia: SQLite\\Migraciones, claves foráneas y transacciones};
+  \draw[->] (ui) -- node[right,font=\small] {HTTP/JSON} (http);
+  \draw[->] (http) -- (servicios);
+  \draw[->] (servicios) -- node[right,font=\small] {SQL parametrizado} (db);
+\end{tikzpicture}
+\caption{Arquitectura del primer incremento. No se representa un despliegue externo.}
+\end{figure}
+
+\section{Modelo de datos V1}
+La base contiene usuarios, roles, permisos, asignaciones, sesiones de autenticación, capacitaciones, auditoría y control de migraciones. Una sesión de autenticación no es una sesión de capacitación: la primera mantiene el acceso; la segunda será una unidad académica en un incremento posterior.
+
+Las tablas \texttt{user\_roles} y \texttt{role\_permissions} resuelven relaciones de muchos a muchos sin repetir listas de texto en una columna. El correo y el código de capacitación son únicos sin distinguir mayúsculas; el documento es opcional y único cuando existe. Una capacitación tiene responsable y puede tener instructor. El cupo admite de 1 a 10\,000 personas.
+
+Las migraciones se registran y aplican transaccionalmente. Los roles y permisos iniciales se cargan solo durante la primera migración; abrir la base o añadir otra migración no sobreescribe las personalizaciones administrativas. Los timestamps técnicos usan UTC y el panel determina el día actual en \texttt{America/Lima}.
+
+\begin{table}[htbp]
+\centering
+\caption{Relaciones principales del modelo físico V1}
+\begin{tabular}{P{5.2cm}P{6.8cm}}
+\toprule Relación & Integridad \\ \midrule
+Usuario--rol & PK compuesta impide asignación duplicada \\
+Rol--permiso & FK a catálogos conocidos y combinación única \\
+Usuario--sesión de acceso & Token hasheado, vencimiento y usuario válido \\
+Usuario--capacitación & Responsable obligatorio; instructor opcional \\
+Usuario--auditoría & Actor de una acción, sin contraseñas o cookies \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Modelo candidato del producto}
+El diseño posterior contempla trabajador, sede, área, marca proveedora, campaña, sesión académica, inscripción, asistencia, evaluación, certificado y notificación. No se crean entidades por acumular nombres: un instructor V1 es un usuario con rol instructor, sin duplicar su identidad en una tabla independiente.
+
+Cada inscripción futura vincula persona y capacitación, con unicidad de esa pareja. Cada marca de asistencia vincula inscripción y sesión y debe comprobar que ambas pertenecen a la misma capacitación. Evaluación y certificado son opcionales por inscripción. Las alertas se plantean dentro de la aplicación; no se asume un proveedor de correo o SMS.
+
+La alternativa candidata del contrato exige una cuenta para inscribirse, aunque un perfil de trabajador pueda existir sin acceso. Si se requiere inscribir a trabajadores sin cuenta, la FK deberá apuntar al trabajador y se revisarán contrato, permisos y migración antes de implementar. El diagrama señala esta incertidumbre en lugar de simular una solución aprobada.
+
+\section{Flujo de estados}
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  estado/.style={draw,rounded corners,align=center,minimum height=0.8cm,minimum width=2.5cm,fill=blue!5},
+  >=Latex,node distance=1cm]
+  \node[estado] (p) {Planificada};
+  \node[estado,right=of p] (s) {Programada};
+  \node[estado,right=of s] (c) {En curso};
+  \node[estado,below=of c] (f) {Finalizada};
+  \node[estado,below=of s] (x) {Cancelada};
+  \draw[->] (p) to[bend left=12] (s);
+  \draw[->] (s) to[bend left=12] (p);
+  \draw[->] (s) -- (c);
+  \draw[->] (c) -- (f);
+  \draw[->] (p) -- (x);
+  \draw[->] (s) -- (x);
+  \draw[->] (c) -- (x);
+\end{tikzpicture}
+\caption{Transiciones provisionales V1. Finalizada y cancelada son inmutables.}
+\end{figure}
+
+La creación admite planificada o programada. La edición puede conservar un estado abierto. No se permite saltar directamente de planificada a finalizada. La reapertura no forma parte de este incremento y requiere una decisión del cliente.
+
+\section{Permisos y seguridad}
+La API comprueba permisos en el servidor y filtra los datos por alcance. Los seis roles iniciales son administrador, coordinador, instructor, participante, RR. HH. y gerencia. El administrador tiene todas las capacidades y su rol se protege; los demás roles parten de la matriz del contrato y sus permisos pueden editarse con autorización.
+
+Asignar roles requiere \texttt{roles.manage}. Una cuenta delegada con solo \texttt{users.manage} crea únicamente participantes y no edita cuentas que tengan privilegios \texttt{users.manage} o \texttt{roles.manage}. El permiso \texttt{people.manage} habilita en V1 consultas reducidas para selectores, sin correo, documento, roles o permisos ajenos; las mutaciones de gestión de instructores y participantes continúan pendientes.
+
+La contraseña se protege con \texttt{scrypt} y una sal propia; el navegador recibe una cookie HttpOnly con token opaco y la base almacena su hash. La sesión vence en ocho horas y se revoca al desactivar la cuenta o cambiar la contraseña. Las mutaciones requieren un token CSRF. Se limitan diez intentos de login por IP en quince minutos, incluidos los correctos y sin reiniciar contador al acertar. El control reside en memoria de una sola instancia y se pierde al reiniciar.
+
+La explicación de estas primitivas se apoya en la documentación de Node \cite{nodecrypto} y las recomendaciones de OWASP \cite{owaspcsrf}. Un despliegue real requiere TLS, cookie Secure y revisar sus condiciones de operación.
+
+\section{Patrones evaluados}
+Strategy no se aplica todavía porque no hay varias políticas de evaluación aprobadas. Adapter se reconsiderará cuando exista un proveedor externo o una diferencia real de integración. Un mapa central de transiciones resuelve los estados V1 sin una jerarquía de clases State. Se documentan las condiciones de aplicación sin fabricar un problema para justificar un patrón.
+
+El diagrama de clases del anexo representa responsabilidades conceptuales de módulos. La implementación backend utiliza funciones; no se afirma que esas clases existan literalmente en JavaScript.

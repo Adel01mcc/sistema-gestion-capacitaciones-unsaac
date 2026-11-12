@@ -1,0 +1,31 @@
+flowchart TB
+  %% V1 local; los nodos futuros son diseño candidato, no implementación.
+  persona[Personal autorizado / trabajador]
+  subgraph web[Presentación V1]
+    ui[React + TypeScript]
+    apiClient[Cliente HTTP /api]
+    ui --> apiClient
+  end
+  subgraph backend[Aplicación Node 24 + Express 5]
+    middleware[Sesión + CSRF + permisos + validación]
+    routes[Rutas HTTP]
+    users[Servicio de usuarios y roles]
+    trainings[Servicio de capacitaciones]
+    db[Conexión y transacciones]
+    middleware --> routes
+    routes --> users
+    routes --> trainings
+    users --> db
+    trainings --> db
+  end
+  sqlite[(SQLite V1)]
+  persona --> ui
+  apiClient -->|JSON, cookie HttpOnly| middleware
+  db -->|SQL parametrizado| sqlite
+  futuro[Participantes, sesiones, asistencia,
+  evaluaciones, historial y reportes: futuros]
+  postgres[(PostgreSQL: decisión futura)]
+  routes -. evolución candidata .-> futuro
+  db -. migración pendiente .-> postgres
+  classDef future fill:#fff6df,stroke:#a36d13,stroke-dasharray:5 5;
+  class futuro,postgres future;

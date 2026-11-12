@@ -1,0 +1,19 @@
+% Actualizar exclusivamente con comandos y resultados realmente observados.
+% Resultados locales reales. No equivalen a aprobación humana o CI remota.
+\begin{longtable}{P{4.2cm}P{8.2cm}}
+\caption{Evidencia de la sesión del 12 de noviembre de 2026}\label{tab:evidencia}\\
+\toprule Comprobación & Resultado registrado \\ \midrule
+\endfirsthead
+\toprule Comprobación & Resultado registrado \\ \midrule
+\endhead
+Inspección Git & Base \texttt{cf6e720}; rama local de incremento \texttt{feature/v1-base-funcional}. Sin commit, push, merge o tag de esta entrega acreditados. \\
+Motor local & Node 24.16.0; apertura de SQLite en memoria devolvió versión 3.53.0. \\
+Instalación & 133 paquetes auditados después de incorporar Playwright; cero vulnerabilidades reportadas por npm en esa consulta. No equivale a una auditoría de seguridad. \\
+\texttt{npm.cmd run check} & Verificación final: 28 pruebas aprobadas, 0 fallidas en 12.52 s; también análisis de tipos y build aprobados. Incluye fecha Lima y privilegios indirectos. Véase \path{docs/PRUEBAS.md}. \\
+Tipos TypeScript & \texttt{tsc --noEmit} aprobado como paso de build. No se afirma ejecución separada del script typecheck. \\
+\texttt{npm.cmd run build} & Aprobado con Vite 8.3.8, 22 módulos. El primer intento detectó falta de tipos del import CSS, corregida antes de la ejecución aprobada. \\
+Prueba de navegador & Playwright y Chrome: 4 aprobadas, 0 fallidas en 9.0 s. Login/logout, alta/edición/duplicado de usuario, alta/edición/detalle de capacitación y panel móvil. Se corrigieron títulos que se cortaban en 390 px. Capturas reales en \path{docs/evidencias/}. \\
+Compilación LaTeX & XeLaTeX falló por ausencia de xelatex.fmt. pdfLaTeX y BibTeX generaron el PDF tras corregir Babel/TikZ y usar fuentes Latin Modern. La inspección visual final se registra en \path{docs/PRUEBAS.md}. \\
+Revisión humana e integración & PENDIENTES; no declarar cumplida la DoD completa sin estos registros. \\
+\bottomrule
+\end{longtable}
