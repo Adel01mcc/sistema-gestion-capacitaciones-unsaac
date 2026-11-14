@@ -63,8 +63,57 @@ async function saveUser(user: User | null, payload: Record<string, unknown>): Pr
   });
 }
 
+// Gestion de roles (HU-02): una sola funcion para marcar o desmarcar opciones.
+function toggleSelection(selected: string[], code: string, checked: boolean): string[] {
+  if (checked) {
+    return selected.includes(code) ? selected : [...selected, code];
+  }
+  return selected.filter((item) => item !== code);
+}
+
+// La interfaz no necesita conocer la ruta ni el metodo HTTP de cada operacion.
+async function saveUserRoles(userId: User['id'], roles: string[]): Promise<void> {
+  await request(`/users/${userId}/roles`, {
+    method: 'PUT',
+    body: JSON.stringify({ roles }),
+  });
+}
+
+async function saveRolePermissions(roleId: Role['id'], name: string, permissions: string[]): Promise<void> {
+  await request(`/roles/${roleId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ name, permissions }),
+  });
+}
+
+// Carga de roles y permisos fuera del componente visual.
+async function loadRoleCatalog(): Promise<{ roles: Role[]; permissions: Permission[] }> {
+  const [roleResult, permissionResult] = await Promise.all([
+    request<{ data: Role[] }>('/roles'),
+    request<{ data: Permission[] }>('/permissions'),
+  ]);
+
+  return { roles: roleResult.data, permissions: permissionResult.data };
+}
+
 function RoleChoices({ roles, selected, onChange }: { roles: Role[]; selected: string[]; onChange: (value: string[]) => void }) {
-  return <div className="choice-grid">{roles.map((role) => <label className={`checkbox-choice ${selected.includes(role.code) ? 'selected' : ''}`} key={role.id}><input type="checkbox" checked={selected.includes(role.code)} onChange={(event) => onChange(event.target.checked ? [...selected, role.code] : selected.filter((code) => code !== role.code))} /><span>{role.name || roleLabels[role.code] || role.code}</span></label>)}</div>;
+  return (
+    <div className="choice-grid">
+      {roles.map((role) => (
+        <label
+          className={`checkbox-choice ${selected.includes(role.code) ? 'selected' : ''}`}
+          key={role.id}
+        >
+          <input
+            type="checkbox"
+            checked={selected.includes(role.code)}
+            onChange={(event) => onChange(toggleSelection(selected, role.code, event.target.checked))}
+          />
+          <span>{role.name || roleLabels[role.code] || role.code}</span>
+        </label>
+      ))}
+    </div>
+  );
 }
 
 function UserForm({ user, roles, canAssignRoles, onClose, onSaved }: { user: User | null; roles: Role[]; canAssignRoles: boolean; onClose: () => void; onSaved: () => void }) {
@@ -107,18 +156,56 @@ function UserForm({ user, roles, canAssignRoles, onClose, onSaved }: { user: Use
 }
 
 function UserRolesForm({ user, roles, onClose, onSaved }: { user: User; roles: Role[]; onClose: () => void; onSaved: () => void }) {
-  const [selected, setSelected] = useState(user.roles);
+  const [selected, setSelected] = useState<string[]>(user.roles);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
   async function submit(event: FormEvent) {
-    event.preventDefault(); setError('');
-    if (!selected.length) { setError('Selecciona al menos un rol.'); return; }
+    event.preventDefault();
+    setError('');
+
+    if (selected.length === 0) {
+      setError('Selecciona al menos un rol.');
+      return;
+    }
+
     setSaving(true);
-    try { await request(`/users/${user.id}/roles`, { method: 'PUT', body: JSON.stringify({ roles: selected }) }); onSaved(); }
-    catch (failure) { setError(errorMessage(failure)); }
-    finally { setSaving(false); }
+    try {
+      await saveUserRoles(user.id, selected);
+      onSaved();
+    } catch (failure) {
+      setError(errorMessage(failure));
+    } finally {
+      setSaving(false);
+    }
   }
-  return <Modal title="Asignar roles" description={`${user.first_name} ${user.last_name} · ${user.email}`} onClose={() => { if (!saving) onClose(); }}><form onSubmit={submit}><div className="modal-body"><Notice message={error} /><p className="form-intro">Cada rol habilita un conjunto de acciones. La cuenta recibe los permisos de todos sus roles.</p><RoleChoices roles={roles} selected={selected} onChange={setSelected} /><Notice message="El sistema protege la última cuenta administradora activa para conservar el acceso a la administración." kind="info" /></div><div className="modal-actions"><button type="button" className="button secondary" disabled={saving} onClick={onClose}>Cancelar</button><button type="submit" className="button primary" disabled={saving}>{saving ? 'Guardando…' : 'Guardar roles'}<Icon name="check" size={18} /></button></div></form></Modal>;
+
+  return (
+    <Modal
+      title="Asignar roles"
+      description={`${user.first_name} ${user.last_name} · ${user.email}`}
+      onClose={() => { if (!saving) onClose(); }}
+    >
+      <form onSubmit={submit}>
+        <div className="modal-body">
+          <Notice message={error} />
+          <p className="form-intro">Cada rol habilita un conjunto de acciones. La cuenta recibe los permisos de todos sus roles.</p>
+          <RoleChoices roles={roles} selected={selected} onChange={setSelected} />
+          <Notice
+            message="El sistema protege la última cuenta administradora activa para conservar el acceso a la administración."
+            kind="info"
+          />
+        </div>
+        <div className="modal-actions">
+          <button type="button" className="button secondary" disabled={saving} onClick={onClose}>Cancelar</button>
+          <button type="submit" className="button primary" disabled={saving}>
+            {saving ? 'Guardando…' : 'Guardar roles'}
+            <Icon name="check" size={18} />
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
 }
 
 export function UsersPage({ currentUser, onSessionRefresh }: { currentUser: User; onSessionRefresh: () => Promise<void> }) {
@@ -164,16 +251,75 @@ export function UsersPage({ currentUser, onSessionRefresh }: { currentUser: User
 
 function RoleForm({ role, permissions, onClose, onSaved }: { role: Role; permissions: Permission[]; onClose: () => void; onSaved: () => void }) {
   const [name, setName] = useState(role.name);
-  const [selected, setSelected] = useState(role.permissions);
+  const [selected, setSelected] = useState<string[]>(role.permissions);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
   async function submit(event: FormEvent) {
-    event.preventDefault(); setError(''); setSaving(true);
-    try { await request(`/roles/${role.id}`, { method: 'PUT', body: JSON.stringify({ name, permissions: selected }) }); onSaved(); }
-    catch (failure) { setError(errorMessage(failure)); }
-    finally { setSaving(false); }
+    event.preventDefault();
+    setError('');
+
+    // Un nombre compuesto solo por espacios no se debe enviar al servidor.
+    const cleanName = name.trim();
+    if (!cleanName) {
+      setError('Escribe un nombre para el rol.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await saveRolePermissions(role.id, cleanName, selected);
+      onSaved();
+    } catch (failure) {
+      setError(errorMessage(failure));
+    } finally {
+      setSaving(false);
+    }
   }
-  return <Modal title={`Editar rol: ${role.name}`} description="Define las acciones que podrán realizar las cuentas con este rol." onClose={() => { if (!saving) onClose(); }}><form onSubmit={submit}><div className="modal-body"><Notice message={error} /><Field label="Nombre del rol *"><input value={name} onChange={(event) => setName(event.target.value)} required maxLength={80} /></Field><fieldset className="permission-fieldset"><legend>Permisos habilitados</legend><div className="permissions-list">{permissions.map((permission) => <label key={permission.code} className="permission-choice"><input type="checkbox" checked={selected.includes(permission.code)} onChange={(event) => setSelected(event.target.checked ? [...selected, permission.code] : selected.filter((code) => code !== permission.code))} /><span>{permission.name}</span></label>)}</div></fieldset></div><div className="modal-actions"><button type="button" className="button secondary" disabled={saving} onClick={onClose}>Cancelar</button><button type="submit" className="button primary" disabled={saving}>{saving ? 'Guardando…' : 'Guardar permisos'}<Icon name="check" size={18} /></button></div></form></Modal>;
+
+  return (
+    <Modal
+      title={`Editar rol: ${role.name}`}
+      description="Define las acciones que podrán realizar las cuentas con este rol."
+      onClose={() => { if (!saving) onClose(); }}
+    >
+      <form onSubmit={submit}>
+        <div className="modal-body">
+          <Notice message={error} />
+          <Field label="Nombre del rol *">
+            <input
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+              maxLength={80}
+            />
+          </Field>
+          <fieldset className="permission-fieldset">
+            <legend>Permisos habilitados</legend>
+            <div className="permissions-list">
+              {permissions.map((permission) => (
+                <label key={permission.code} className="permission-choice">
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(permission.code)}
+                    onChange={(event) => setSelected(toggleSelection(selected, permission.code, event.target.checked))}
+                  />
+                  <span>{permission.name}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        </div>
+        <div className="modal-actions">
+          <button type="button" className="button secondary" disabled={saving} onClick={onClose}>Cancelar</button>
+          <button type="submit" className="button primary" disabled={saving}>
+            {saving ? 'Guardando…' : 'Guardar permisos'}
+            <Icon name="check" size={18} />
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
 }
 
 export function RolesPage({ onSessionRefresh }: { onSessionRefresh: () => Promise<void> }) {
@@ -186,9 +332,15 @@ export function RolesPage({ onSessionRefresh }: { onSessionRefresh: () => Promis
   const [revision, setRevision] = useState(0);
   useEffect(() => {
     let active = true; setLoading(true); setError('');
-    Promise.all([request<{ data: Role[] }>('/roles'), request<{ data: Permission[] }>('/permissions')]).then(([roleResult, permissionResult]) => {
-      if (active) { setRoles(roleResult.data); setPermissions(permissionResult.data); }
-    }).catch((failure) => { if (active) setError(errorMessage(failure)); }).finally(() => { if (active) setLoading(false); });
+    loadRoleCatalog()
+      .then((catalog) => {
+        if (active) {
+          setRoles(catalog.roles);
+          setPermissions(catalog.permissions);
+        }
+      })
+      .catch((failure) => { if (active) setError(errorMessage(failure)); })
+      .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [revision]);
   return <>
