@@ -4,26 +4,93 @@ import { EmptyState, Field, Icon, Loading, Modal, Notice, Pagination } from './c
 import { usePaged } from './hooks';
 import { roleLabels, type Permission, type Role, type User } from './types';
 
+// Estructura de los datos administrados por el formulario.
+type UserFormData = {
+  first_name: string;
+  last_name: string;
+  email: string;
+  document: string;
+  department: string;
+  specialty: string;
+  active: boolean;
+  password: string;
+};
+
+// Obtiene los valores iniciales al registrar o editar un usuario.
+function initialUserForm(user: User | null): UserFormData {
+  return {
+    first_name: user?.first_name ?? '',
+    last_name: user?.last_name ?? '',
+    email: user?.email ?? '',
+    document: user?.document ?? '',
+    department: user?.department ?? '',
+    specialty: user?.specialty ?? '',
+    active: user?.active ?? true,
+    password: '',
+  };
+}
+
+// Prepara los datos para la API sin modificar los valores del formulario.
+function prepareUserPayload(
+  form: UserFormData,
+  user: User | null,
+  selectedRoles: string[],
+  canAssignRoles: boolean,
+): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    ...form,
+    document: form.document.trim() || null,
+  };
+
+  // En una edicion, no cambiar la contrasena cuando se deja vacia.
+  if (user && !form.password) {
+    delete payload.password;
+  }
+
+  // La asignacion inicial de roles solo corresponde al registro.
+  if (!user) {
+    payload.roles = canAssignRoles ? selectedRoles : ['participante'];
+  }
+
+  return payload;
+}
+
+// El formulario ya no necesita conocer la URL ni el metodo HTTP.
+async function saveUser(user: User | null, payload: Record<string, unknown>): Promise<void> {
+  await request(`/users${user ? `/${user.id}` : ''}`, {
+    method: user ? 'PUT' : 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
 function RoleChoices({ roles, selected, onChange }: { roles: Role[]; selected: string[]; onChange: (value: string[]) => void }) {
   return <div className="choice-grid">{roles.map((role) => <label className={`checkbox-choice ${selected.includes(role.code) ? 'selected' : ''}`} key={role.id}><input type="checkbox" checked={selected.includes(role.code)} onChange={(event) => onChange(event.target.checked ? [...selected, role.code] : selected.filter((code) => code !== role.code))} /><span>{role.name || roleLabels[role.code] || role.code}</span></label>)}</div>;
 }
 
 function UserForm({ user, roles, canAssignRoles, onClose, onSaved }: { user: User | null; roles: Role[]; canAssignRoles: boolean; onClose: () => void; onSaved: () => void }) {
-  const [form, setForm] = useState({ first_name: user?.first_name ?? '', last_name: user?.last_name ?? '', email: user?.email ?? '', document: user?.document ?? '', department: user?.department ?? '', specialty: user?.specialty ?? '', active: user?.active ?? true, password: '' });
+  const [form, setForm] = useState<UserFormData>(() => initialUserForm(user));
   const [selectedRoles, setSelectedRoles] = useState<string[]>(['participante']);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const update = (field: keyof typeof form, value: string | boolean) => setForm((current) => ({ ...current, [field]: value }));
   async function submit(event: FormEvent) {
-    event.preventDefault(); setError('');
-    if (!user && canAssignRoles && selectedRoles.length === 0) { setError('Selecciona al menos un rol para la cuenta.'); return; }
+    event.preventDefault();
+    setError('');
+    if (!user && canAssignRoles && selectedRoles.length === 0) {
+      setError('Selecciona al menos un rol para la cuenta.');
+      return;
+    }
+
     setSaving(true);
-    const payload: Record<string, unknown> = { ...form, document: form.document.trim() || null };
-    if (user && !form.password) delete payload.password;
-    if (!user) payload.roles = canAssignRoles ? selectedRoles : ['participante'];
-    try { await request(`/users${user ? `/${user.id}` : ''}`, { method: user ? 'PUT' : 'POST', body: JSON.stringify(payload) }); onSaved(); }
-    catch (failure) { setError(errorMessage(failure)); }
-    finally { setSaving(false); }
+    try {
+      const payload = prepareUserPayload(form, user, selectedRoles, canAssignRoles);
+      await saveUser(user, payload);
+      onSaved();
+    } catch (failure) {
+      setError(errorMessage(failure));
+    } finally {
+      setSaving(false);
+    }
   }
   return <Modal title={user ? 'Editar usuario' : 'Registrar usuario'} description={user ? 'Actualiza la información y el estado de esta cuenta.' : 'Crea una cuenta y define su acceso al sistema.'} onClose={() => { if (!saving) onClose(); }}><form onSubmit={submit}><div className="modal-body"><Notice message={error} /><div className="form-grid">
     <Field label="Nombres *"><input autoComplete="given-name" value={form.first_name} onChange={(event) => update('first_name', event.target.value)} required maxLength={80} /></Field>
