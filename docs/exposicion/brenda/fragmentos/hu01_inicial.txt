@@ -1,0 +1,13 @@
+function initialUserForm(user: User | null): UserFormData {
+  return {
+    first_name: user?.first_name ?? '',
+    last_name: user?.last_name ?? '',
+    email: user?.email ?? '',
+    document: user?.document ?? '',
+    department: user?.department ?? '',
+    specialty: user?.specialty ?? '',
+    active: user?.active ?? true,
+    password: '',
+  };
+}
+

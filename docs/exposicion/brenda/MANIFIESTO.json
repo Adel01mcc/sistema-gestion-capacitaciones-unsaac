@@ -1,0 +1,98 @@
+[
+  {
+    "fragmento": "hu01_antes",
+    "commit": "eb004641b114d8c71f86af08b05f0f9e073baf73",
+    "archivo": "src/Users.tsx",
+    "inicio": 21,
+    "fin": 24,
+    "sha256": "273fbd107f5215e085afc19d4b718f7eee770efdd8d8083357ac68b3336686db"
+  },
+  {
+    "fragmento": "hu01_despues",
+    "commit": "4cab7eb8b114adaf6746bca7c11efae872c542a4",
+    "archivo": "src/Users.tsx",
+    "inicio": 86,
+    "fin": 88,
+    "sha256": "19e9f883e3faf26840fffe684f588d0932253349bd26cd84723beb766de97e15"
+  },
+  {
+    "fragmento": "hu01_payload",
+    "commit": "4cab7eb8b114adaf6746bca7c11efae872c542a4",
+    "archivo": "src/Users.tsx",
+    "inicio": 34,
+    "fin": 56,
+    "sha256": "ee6c1d317ac1bdc369c921b5d1857b365cd69d586066f69531aa7d202bf38515"
+  },
+  {
+    "fragmento": "hu01_guardar",
+    "commit": "4cab7eb8b114adaf6746bca7c11efae872c542a4",
+    "archivo": "src/Users.tsx",
+    "inicio": 59,
+    "fin": 64,
+    "sha256": "66865a81a40a5fffc3a27a6331e2a5d02079fd10fa2ade53edb4f3262865194e"
+  },
+  {
+    "fragmento": "hu01_inicial",
+    "commit": "4cab7eb8b114adaf6746bca7c11efae872c542a4",
+    "archivo": "src/Users.tsx",
+    "inicio": 20,
+    "fin": 32,
+    "sha256": "d619e3cd2db3704093fd2ba1e62d9e3db4b0b51fdbe66e1f28381a9f232b20e0"
+  },
+  {
+    "fragmento": "hu02_antes",
+    "commit": "4cab7eb8b114adaf6746bca7c11efae872c542a4",
+    "archivo": "src/Users.tsx",
+    "inicio": 117,
+    "fin": 117,
+    "sha256": "a4bd04859cd436ccc713000ff4e55cf9298a44df5680b5a4b93f4df96015fb28"
+  },
+  {
+    "fragmento": "hu02_despues",
+    "commit": "6ccf4caeb90e51c4cc02ad53953c47e63dce1cc8",
+    "archivo": "src/Users.tsx",
+    "inicio": 174,
+    "fin": 175,
+    "sha256": "eae488e7752060f4b16a7e8a0676506493b2b6695fd59fd9d181412ec5e46dc6"
+  },
+  {
+    "fragmento": "hu02_guardar_roles",
+    "commit": "6ccf4caeb90e51c4cc02ad53953c47e63dce1cc8",
+    "archivo": "src/Users.tsx",
+    "inicio": 75,
+    "fin": 80,
+    "sha256": "dc029759a2f8a53c1db98e55ca3472546b32fd12cd3b0ef5d360e0cd499f487c"
+  },
+  {
+    "fragmento": "hu02_guardar_permisos",
+    "commit": "6ccf4caeb90e51c4cc02ad53953c47e63dce1cc8",
+    "archivo": "src/Users.tsx",
+    "inicio": 82,
+    "fin": 87,
+    "sha256": "3de34e93fc6356189ba9cb6a6c9d557cf4341e08913531d01af2dbd37386819b"
+  },
+  {
+    "fragmento": "hu02_seleccion",
+    "commit": "6ccf4caeb90e51c4cc02ad53953c47e63dce1cc8",
+    "archivo": "src/Users.tsx",
+    "inicio": 67,
+    "fin": 72,
+    "sha256": "c4c2cafce044e0569e641884289f76dad26c579739b4d1d570d2f58c1577e660"
+  },
+  {
+    "fragmento": "hu02_catalogo",
+    "commit": "6ccf4caeb90e51c4cc02ad53953c47e63dce1cc8",
+    "archivo": "src/Users.tsx",
+    "inicio": 90,
+    "fin": 97,
+    "sha256": "fff36f73daf387d95e830c2cda71791c813e83cf67fb1ac9f62c62e9bcf1de7a"
+  },
+  {
+    "fragmento": "hu02_nombre",
+    "commit": "6ccf4caeb90e51c4cc02ad53953c47e63dce1cc8",
+    "archivo": "src/Users.tsx",
+    "inicio": 263,
+    "fin": 268,
+    "sha256": "c8c472a47611ccc14adc8ccb345a5ad4e35eb27dcebcabf079e4205f294f2fc9"
+  }
+]

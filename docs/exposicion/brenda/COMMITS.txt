@@ -1,0 +1,14 @@
+eb004641b114d8c71f86af08b05f0f9e073baf73
+Padre: cf6e7205a1411c4edd31e86fdc1ce8c799912b8b
+Asunto: feat: subir sistema funcional de capacitaciones Paz Sur
+
+4cab7eb8b114adaf6746bca7c11efae872c542a4
+Padre: eb004641b114d8c71f86af08b05f0f9e073baf73
+Asunto: refactor(frontend): mejorar registro de usuarios
+
+6ccf4caeb90e51c4cc02ad53953c47e63dce1cc8
+Padre: 4cab7eb8b114adaf6746bca7c11efae872c542a4
+Asunto: refactor(frontend): mejorar gestion de roles y permisos
+
+Rama actual: feature/brenda-mayhuire
+Respaldo V1: eb004641b114d8c71f86af08b05f0f9e073baf73

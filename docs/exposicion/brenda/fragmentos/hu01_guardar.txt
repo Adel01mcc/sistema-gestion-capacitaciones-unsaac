@@ -1,0 +1,6 @@
+async function saveUser(user: User | null, payload: Record<string, unknown>): Promise<void> {
+  await request(`/users${user ? `/${user.id}` : ''}`, {
+    method: user ? 'PUT' : 'POST',
+    body: JSON.stringify(payload),
+  });
+}

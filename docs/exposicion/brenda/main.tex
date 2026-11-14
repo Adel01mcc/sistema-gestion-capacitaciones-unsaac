@@ -1,0 +1,213 @@
+\documentclass[10pt]{article}
+\usepackage[paperwidth=280mm,paperheight=175mm,margin=12mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\definecolor{paz}{RGB}{22,62,81}
+\definecolor{acento}{RGB}{0,125,137}
+\setlength{\parindent}{0pt}
+\emergencystretch=2em
+\setlength{\parskip}{5pt}
+\newenvironment{diapositiva}[1]{\clearpage\begingroup\large\ifx\relax#1\relax\else{\color{paz}\LARGE\bfseries #1\par}\vspace{2mm}\hrule\vspace{3mm}\fi}{\par\endgroup}
+\newenvironment{block}[1]{\par{\color{acento}\bfseries #1}\par\vspace{-1mm}}{\par}
+\newenvironment{columns}[1][]{\par\noindent}{\par}
+\newenvironment{column}[1]{\begin{minipage}[t]{#1}}{\end{minipage}\hfill}
+\newcommand{\institute}[1]{\def\institucion{#1}}
+\newcommand{\subtitle}[1]{\def\subtitulo{#1}}
+\makeatletter
+\renewcommand{\maketitle}{\begin{center}\vspace*{7mm}{\color{paz}\large\institucion\par}\vspace{8mm}{\color{paz}\LARGE\bfseries\@title\par}\vspace{4mm}{\large\subtitulo\par}\vspace{8mm}{\large\@author\par}\vspace{5mm}\@date\end{center}}
+\makeatother
+\lstset{basicstyle=\ttfamily\scriptsize,breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,frame=single,rulecolor=\color{black!15},backgroundcolor=\color{black!2},tabsize=2}
+\newcommand{\codigo}[1]{\lstinputlisting{fragmentos/#1.txt}}
+\newcommand{\fuente}[1]{{\scriptsize\color{paz}Fuente: \texttt{src/Users.tsx}; #1. Rangos exactos en MANIFIESTO.json.}\par}
+\title{Sistema de Gestión de Capacitaciones de Paz Sur}
+\subtitle{Documentación individual · HU-01 y HU-02}
+\author{Brenda Lucía Mayhuire Chacón\\Product Owner y desarrolladora frontend}
+\institute{Universidad Nacional de San Antonio Abad del Cusco\\Escuela Profesional de Ingeniería Informática y de Sistemas\\Curso: Ingeniería de Software I}
+\date{14 de noviembre de 2026}
+\begin{document}
+\begin{diapositiva}{}\maketitle\end{diapositiva}
+\begin{diapositiva}{2. Objetivo y responsabilidades}
+\begin{block}{Objetivo individual}
+Mejorar la claridad y mantenibilidad del frontend de registro de usuarios y gestión de roles, conservando su contrato con la API.
+\end{block}
+\begin{itemize}
+\item Como Product Owner: ordenar necesidades, aclarar criterios de aceptación y mantener la relación entre requisitos, cambios y comprobaciones.
+\item Como desarrolladora frontend: refactorizar formularios React/TypeScript, separar preparación de datos y peticiones, y comprobar los flujos afectados.
+\item Alcance demostrado: dos commits sobre \texttt{src/Users.tsx}. La V1 es la base del sistema, no una contribución individual atribuida íntegramente a Brenda.
+\end{itemize}
+\small Los roles personales proceden de la declaración de Brenda en el encargo. No se acreditan reuniones, aceptación del cliente ni revisiones humanas adicionales.
+\end{diapositiva}
+\begin{diapositiva}{3. Gestión de configuración y trazabilidad}
+\begin{itemize}
+\item Rama real: \texttt{feature/brenda-mayhuire}; permite identificar el trabajo individual.
+\item Respaldo real: \texttt{respaldo/brenda-v1} apunta a \texttt{eb00464}. Conserva una referencia Git de la V1; no es un respaldo certificado de la base de datos.
+\item Secuencia comprobada: \texttt{eb00464} (V1) $\rightarrow$ \texttt{4cab7eb} (HU-01) $\rightarrow$ \texttt{6ccf4ca} (HU-02).
+\item Cada refactorización cambia únicamente \texttt{src/Users.tsx}. Los TXT de comparación coinciden con los diffs de esos pares de commits.
+\item Trazabilidad: HU $\rightarrow$ criterio CA $\rightarrow$ commit $\rightarrow$ archivo y líneas $\rightarrow$ comprobación. El manifiesto registra hashes de fragmentos.
+\end{itemize}
+\small Inspección local del 14/11/2026; no se consultó GitHub ni se efectuaron commit, push o merge. Se preservaron los cambios locales preexistentes.
+\end{diapositiva}
+\begin{diapositiva}{4. Requisitos y criterios documentados}
+\small
+\textbf{HU-01:} Como administrador, registrar usuarios con datos y acceso protegido.
+\begin{itemize}
+\item CA-01-1: alta autenticada, contraseña de 12 a 128 caracteres, respuesta 201 y consulta sin contraseña/hash.
+\item CA-01-2: correo/documento duplicado: 409; entradas inválidas: 422, sin alta parcial.
+\item CA-01-3: exigir sesión y permisos; \texttt{users.manage} sin \texttt{roles.manage} solo permite altas participantes; normalizar opcionales vacíos.
+\end{itemize}
+\textbf{HU-02:} Asignar roles y gestionar permisos para controlar operaciones.
+\begin{itemize}
+\item CA-02-1: \texttt{roles.manage}, roles existentes y permisos efectivos consultables.
+\item CA-02-2: rechazar acceso insuficiente/código inexistente sin cambios parciales.
+\item CA-02-3: proteger rol administrador y última administración activa.
+\end{itemize}
+\scriptsize Fuente: BACKLOG y CRITERIOS\_ACEPTACION, CA-01/02-1 a 3. Son criterios existentes, pendientes de validación de negocio según el repositorio. Brenda reporta pruebas manuales de alta, roles y permisos; no acredita por ello todos los casos negativos. No se añaden criterios aprobados nuevos.
+\end{diapositiva}
+\begin{diapositiva}{5. Diseño de software aplicado a los cambios}
+\begin{itemize}
+\item \textbf{SRP:} \texttt{initialUserForm} inicializa; \texttt{prepareUserPayload} prepara; \texttt{saveUser} envía; \texttt{submit} coordina la interacción.
+\item \textbf{Cohesión:} cada función reúne instrucciones de una tarea concreta.
+\item \textbf{Acoplamiento:} los manejadores delegan detalles HTTP en funciones con nombre; estas siguen dependiendo de \texttt{request} y del contrato de API.
+\item \textbf{Modularidad funcional:} extracción dentro de \texttt{Users.tsx}; no se crearon archivos de servicio ni módulos independientes.
+\item \textbf{Reutilización real:} \texttt{toggleSelection} se usa tanto en opciones de roles como de permisos. No se demuestra reutilización externa de las otras funciones.
+\end{itemize}
+\small Mejora observada por lectura: responsabilidades más localizables. No se midieron tiempos de mantenimiento ni rendimiento.
+\end{diapositiva}
+\begin{diapositiva}{HU-01: del envío mezclado a tareas identificables}
+\begin{block}{ANTES · eb00464 · preparación y petición dentro de submit}
+\codigo{hu01_antes}
+\end{block}
+\begin{block}{DESPUÉS · 4cab7eb · submit coordina el guardado}
+\codigo{hu01_despues}
+\end{block}
+\fuente{eb00464 y 4cab7eb}
+\small Cambio: extraer preparación y envío. Mejora: localizar cada tarea y leer el flujo con mayor facilidad. Las reglas de documento, contraseña y roles se conservan.
+\end{diapositiva}
+\begin{diapositiva}{HU-01: qué hacen las funciones extraídas}
+\begin{columns}[T]
+\begin{column}{.58\textwidth}
+\codigo{hu01_payload}
+\end{column}
+\begin{column}{.39\textwidth}
+\small\texttt{prepareUserPayload} copia el formulario; convierte documento vacío en \texttt{null}; omite contraseña vacía al editar; añade roles solo en el alta.
+\medskip
+
+\texttt{initialUserForm} concentra valores iniciales y tipa el estado con \texttt{UserFormData}.
+\medskip
+
+\texttt{saveUser} selecciona POST para alta o PUT para edición. La autorización sigue en el servidor.
+\end{column}
+\end{columns}
+\fuente{4cab7eb; fragmentos auxiliares incluidos en la carpeta fragmentos}
+\end{diapositiva}
+\begin{diapositiva}{HU-02: separar la asignación de roles del formulario}
+\begin{block}{ANTES · 4cab7eb · petición HTTP dentro de submit}
+\codigo{hu02_antes}
+\end{block}
+\begin{columns}[T]
+\begin{column}{.38\textwidth}
+\begin{block}{DESPUÉS · 6ccf4ca · llamada}
+\codigo{hu02_despues}
+\end{block}
+\end{column}
+\begin{column}{.59\textwidth}
+\begin{block}{DESPUÉS · función extraída}
+\codigo{hu02_guardar_roles}
+\end{block}
+\end{column}
+\end{columns}
+\fuente{4cab7eb y 6ccf4ca}
+\small Cambio: concentrar URL, método y JSON en una función. El formulario mantiene la validación, mensajes y estado de guardado.
+\end{diapositiva}
+\begin{diapositiva}{HU-02: guardar permisos y reutilizar la selección}
+\begin{columns}[T]
+\begin{column}{.53\textwidth}
+\codigo{hu02_guardar_permisos}
+\small\texttt{saveRolePermissions} envía nombre y permisos por PUT. No decide quién está autorizado.
+\end{column}
+\begin{column}{.44\textwidth}
+\codigo{hu02_seleccion}
+\small\texttt{toggleSelection} agrega o retira códigos; al marcar uno existente evita duplicarlo. Se comparte entre roles y permisos.
+\end{column}
+\end{columns}
+\medskip
+\small Hay un ajuste funcional adicional: \texttt{RoleForm} aplica \texttt{name.trim()} y rechaza un nombre vacío antes de enviar. No es únicamente un cambio de formato.
+\fuente{6ccf4ca}
+\end{diapositiva}
+\begin{diapositiva}{HU-02: cargar catálogos sin mezclar la presentación}
+\codigo{hu02_catalogo}
+\begin{itemize}
+\item \texttt{loadRoleCatalog} conserva las dos consultas concurrentes con \texttt{Promise.all} y devuelve un objeto con roles y permisos.
+\item \texttt{RolesPage} conserva el manejo de carga, error y cancelación lógica mediante la variable \texttt{active}.
+\item La concurrencia ya existía antes: la mejora es la ubicación y claridad de la tarea, sin una aceleración demostrada.
+\end{itemize}
+\fuente{6ccf4ca; comparación con 4cab7eb}
+\end{diapositiva}
+\begin{diapositiva}{Patrones candidatos del proyecto completo}
+\small
+\begin{description}
+\item[Observer] Notificar a suscriptores cuando cambia un evento; candidato para alertas de capacitaciones. El proyecto ya usa eventos de navegador para sesión expirada, pero estos commits no implementan un Observer propio para alertas.
+\item[State] Encapsular comportamiento que cambia según el estado; candidato si crece la lógica de capacitación. El mapa de transiciones actual no demuestra una implementación GoF de State; \texttt{useState} tampoco.
+\item[Strategy] Intercambiar algoritmos bajo un contrato común; candidato para políticas distintas de evaluación o certificación si se confirman. No se identificaron estrategias intercambiables en estas refactorizaciones.
+\end{description}
+\begin{block}{Evaluación del aporte individual}
+Extracción de funciones, reducción de duplicación y aplicación de principios de diseño. No hay evidencia de que HU-01/HU-02 introduzcan Observer, State o Strategy. Una función auxiliar y SRP no son patrones GoF.
+\end{block}
+\scriptsize Referencia local: ARQUITECTURA, sección 9; inspección de Users.tsx y api.ts.
+\end{diapositiva}
+\begin{diapositiva}{Pruebas: resultado, procedencia y alcance}
+\begin{block}{Resultado reportado por Brenda}
+\texttt{npm run check}: 28 pruebas aprobadas, 0 fallidas y compilación exitosa. Registro recibido en el encargo; sin fecha/hora ni log de esa ejecución adjuntos.
+\end{block}
+\begin{itemize}
+\item Las 28 pertenecen al conjunto automatizado del proyecto: API, seguridad y persistencia; no son 28 pruebas exclusivas del frontend de Brenda.
+\item Antecedente independiente: \texttt{docs/PRUEBAS.md}, 12/11/2026, registra 28 aprobadas y build de V1; no certifica por sí solo los commits posteriores.
+\item Pruebas manuales reportadas: registro de usuarios, asignación de roles y edición de permisos. No se inventan capturas ni casos adicionales ejecutados.
+\item Esta preparación verificó fuentes y diffs; no repitió pruebas ni compiló la aplicación para respetar el alcance de documentación.
+\end{itemize}
+\scriptsize Propuestas de regresión, aún no acreditadas: selección repetida sin duplicados, nombre de rol solo con espacios y respuestas de error en formularios. No son nuevos criterios de negocio aprobados.
+\end{diapositiva}
+\begin{diapositiva}{Conclusiones y aprendizaje}
+\begin{itemize}
+\item La mantenibilidad mejora al poder ubicar inicialización, preparación y comunicación HTTP por separado.
+\item Los formularios conservan la interacción; las funciones extraídas describen tareas concretas y permiten compartir la selección.
+\item Aprendizaje: justificar el diseño con cambios verificables; distinguir un principio SOLID de un patrón GoF y separar refactorización de ajustes funcionales.
+\item Como Product Owner, la trazabilidad permite explicar qué necesidad atiende cada cambio y qué evidencia falta para aceptarlo.
+\end{itemize}
+\begin{block}{Estado de la entrega individual}
+Refactorizaciones terminadas según Brenda, con evidencia Git y verificaciones reportadas. No se declara ``Hecha'' la historia completa sin revisión humana e integración exigidas por la Definition of Done.
+\end{block}
+\end{diapositiva}
+\appendix
+\begin{diapositiva}{Anexo A. Commits y fuentes utilizadas}
+\small
+\begin{tabular}{ll}\hline Referencia & Evidencia \\\hline
+\texttt{eb00464} & Base funcional V1 y respaldo Git \\
+\texttt{4cab7eb} & HU-01; padre: \texttt{eb00464} \\
+\texttt{6ccf4ca} & HU-02; padre: \texttt{4cab7eb} \\\hline\end{tabular}
+\medskip
+
+\textbf{Código:} \texttt{src/Users.tsx} en los tres commits; \texttt{src/api.ts} para contexto HTTP/CSRF.
+\medskip
+
+\textbf{Comparaciones:} \texttt{HU01\_comparacion.txt}, \texttt{HU02\_comparacion.txt}; igualdad comprobada contra \texttt{git diff}.
+\medskip
+
+\scriptsize\textbf{Documentos:} README; DIAGNOSTICO\_INICIAL; IMPLEMENTATION\_CONTRACT; REQUISITOS; BACKLOG; CRITERIOS\_ACEPTACION; PROCESO\_DESARROLLO; ARQUITECTURA; PRUEBAS, en \texttt{docs/} salvo README.
+\end{diapositiva}
+\begin{diapositiva}{Anexo B. Reproducibilidad y límites}
+\begin{itemize}
+\item \texttt{COMMITS.txt}: identificadores completos y referencia del respaldo.
+\item \texttt{MANIFIESTO.json}: commit, ruta, líneas originales y SHA-256 de cada fragmento; extracción literal sin reescribir código.
+\item \texttt{comparaciones.tex}: dos láminas independientes para exportar a PNG o PDF; mismo contenido que las diapositivas 6 y 8.
+\item \texttt{VERIFICACION.md}: comandos, fecha, resultados y limitaciones de la preparación documental.
+\item La asignación personal de los commits se basa en la declaración de Brenda; los metadatos Git no son prueba suficiente de identidad. No se modificaron autorías.
+\end{itemize}
+\small No se reproducen secretos, base de datos ni cambios locales ajenos. Se conservan documentos previos sin actualizarlos por la restricción explícita del encargo.
+\end{diapositiva}
+\end{document}

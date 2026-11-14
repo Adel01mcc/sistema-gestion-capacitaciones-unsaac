@@ -1,0 +1,4 @@
+    const payload: Record<string, unknown> = { ...form, document: form.document.trim() || null };
+    if (user && !form.password) delete payload.password;
+    if (!user) payload.roles = canAssignRoles ? selectedRoles : ['participante'];
+    try { await request(`/users${user ? `/${user.id}` : ''}`, { method: user ? 'PUT' : 'POST', body: JSON.stringify(payload) }); onSaved(); }

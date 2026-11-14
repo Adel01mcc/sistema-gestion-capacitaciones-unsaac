@@ -1,0 +1,8 @@
+async function loadRoleCatalog(): Promise<{ roles: Role[]; permissions: Permission[] }> {
+  const [roleResult, permissionResult] = await Promise.all([
+    request<{ data: Role[] }>('/roles'),
+    request<{ data: Permission[] }>('/permissions'),
+  ]);
+
+  return { roles: roleResult.data, permissions: permissionResult.data };
+}
