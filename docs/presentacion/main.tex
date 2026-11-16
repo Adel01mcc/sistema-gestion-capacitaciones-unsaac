@@ -1,0 +1,138 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tabularx,booktabs}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usetikzlibrary{calc,positioning}
+
+% Paleta Paz Sur - naranja
+\definecolor{AzulNoche}{HTML}{6B2D00}
+\definecolor{AzulMedio}{HTML}{E8751A}
+\definecolor{AzulAcento}{HTML}{F59E0B}
+\definecolor{AzulSuave}{HTML}{FFF3E8}
+\definecolor{GrisTexto}{HTML}{4B3B2A}
+\definecolor{CremaFondo}{HTML}{FFF9F4}
+\definecolor{NaranjaOscuro}{HTML}{C85D12}
+\definecolor{NaranjaClaro}{HTML}{FDE7D3}
+
+\setbeamercolor{normal text}{fg=GrisTexto,bg=white}
+\setbeamercolor{background canvas}{bg=white}
+\setbeamercolor{frametitle}{fg=AzulNoche,bg=white}
+\setbeamercolor{title}{fg=AzulNoche}
+\setbeamercolor{subtitle}{fg=NaranjaOscuro}
+\setbeamercolor{structure}{fg=AzulMedio}
+\setbeamercolor{block title}{fg=white,bg=AzulMedio}
+\setbeamercolor{block body}{fg=GrisTexto,bg=AzulSuave}
+\setbeamercolor{author}{fg=white}
+\setbeamercolor{date}{fg=white}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}{\color{AzulAcento}\raisebox{0.1ex}{\scriptsize$\blacktriangleright$}}
+\setbeamertemplate{frametitle}{%
+  \vspace{0.20cm}\hspace{0.34cm}{\Large\bfseries\insertframetitle}\par
+  \vspace{0.07cm}\hspace{0.34cm}{\color{AzulAcento}\rule{\dimexpr\paperwidth-2.10cm\relax}{0.75pt}}}
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=0.46cm,dp=0.16cm,leftskip=0.40cm,rightskip=0.40cm]{footer}%
+  \color{AzulNoche}\scriptsize \textbf{PAZ SUR} \;|\; Ingeniería de Software I \;|\; UNSAAC
+  \hfill \insertframenumber/\inserttotalframenumber
+  \end{beamercolorbox}%
+}
+
+\newcommand{\azul}[1]{{\color{NaranjaOscuro}\textbf{#1}}}
+\newcommand{\codigofuente}[1]{{\color{NaranjaOscuro}\scriptsize\texttt{#1}}}
+\newcommand{\cajaclara}[1]{\begin{beamercolorbox}[rounded=true,sep=0.22cm,wd=\linewidth]{block body}#1\end{beamercolorbox}}
+
+\title{Sistema de Gestión de Capacitaciones}
+\subtitle{Paz Sur | Segunda etapa: refactorización y diseño}
+\author{Equipo UNSAAC}
+\date{Cusco, 2026}
+
+\begin{document}
+
+% PORTADA PAZ SUR. Edite aqui titulo, docente e integrantes si fuese necesario.
+\begin{frame}[plain]
+\begin{tikzpicture}[remember picture, overlay]
+  % Diseño editorial: fondo claro + panel corporativo naranja
+  \fill[CremaFondo] (current page.south west) rectangle (current page.north east);
+  \fill[AzulMedio] ([xshift=-4.15cm]current page.north east)
+     rectangle (current page.south east);
+  \fill[NaranjaOscuro] ([xshift=-4.15cm]current page.north east)
+     rectangle ([xshift=-4.02cm]current page.south east);
+  \fill[AzulAcento] ([xshift=0.83cm,yshift=-2.32cm]current page.north west)
+     rectangle ([xshift=1.65cm,yshift=-2.40cm]current page.north west);
+
+  % Identidad institucional (sin nombres cortados)
+  \node[anchor=north west,text width=10.4cm,inner sep=0pt]
+    at ([xshift=0.82cm,yshift=-0.48cm]current page.north west)
+    {{\fontsize{10}{11}\selectfont\bfseries\color{AzulNoche}
+      UNIVERSIDAD NACIONAL DE SAN ANTONIO ABAD DEL CUSCO}\\[0.12cm]
+     {\fontsize{9}{10}\selectfont\color{GrisTexto}
+      Escuela Profesional de Ingeniería Informática y de Sistemas}};
+
+  % Sección de portada
+  \node[anchor=north west,inner sep=0pt]
+    at ([xshift=0.82cm,yshift=-1.95cm]current page.north west)
+    {{\fontsize{10}{12}\selectfont\bfseries\color{NaranjaOscuro}
+      PRESENTACIÓN DE PROYECTO}};
+
+  % Título principal en 2 líneas, sin desbordamientos
+  \node[anchor=north west,text width=10.6cm,inner sep=0pt]
+    at ([xshift=0.82cm,yshift=-2.70cm]current page.north west)
+    {{\fontsize{25}{30}\selectfont\bfseries\color{AzulNoche}
+      Sistema de Gestión\\ de Capacitaciones}};
+
+  \node[anchor=north west,inner sep=0pt]
+    at ([xshift=0.84cm,yshift=-5.13cm]current page.north west)
+    {{\fontsize{19}{22}\selectfont\bfseries\color{AzulMedio}PAZ SUR}};
+  \node[anchor=north west,text width=10.6cm,inner sep=0pt]
+    at ([xshift=0.84cm,yshift=-5.67cm]current page.north west)
+    {{\fontsize{11}{14}\selectfont\color{GrisTexto}
+      Refactorización, diseño de software y evidencias de pruebas}};
+
+  % Ficha académica en dos filas completas y bien espaciadas
+  \draw[NaranjaClaro,line width=0.9pt]
+    ([xshift=0.84cm,yshift=-6.48cm]current page.north west) --
+    ([xshift=11.33cm,yshift=-6.48cm]current page.north west);
+  \node[anchor=north west,text width=10.6cm,inner sep=0pt]
+    at ([xshift=0.84cm,yshift=-6.64cm]current page.north west)
+    {{\fontsize{9}{12}\selectfont\color{AzulNoche}
+      \textbf{Curso:} Ingeniería de Software I\\
+      \textbf{Docente:} Jisbaj Gamarra Salas}};
+  \node[anchor=north west,text width=10.75cm,inner sep=0pt]
+    at ([xshift=0.84cm,yshift=-7.34cm]current page.north west)
+    {{\fontsize{8.2}{10.2}\selectfont\color{GrisTexto}
+      \textbf{Integrantes:} Brenda Lucía Mayhuire Chacón,\\
+      Adel Alejandro Merma Ccarhuarupay, Franshesco y Daniela}};
+
+  % Lateral corporativo con escudo UNSAAC y motivos geométricos
+  \fill[white] ([xshift=-2.08cm,yshift=-2.0cm]current page.north east)
+    circle[radius=1.44cm];
+  \node[anchor=center,inner sep=0pt] at
+    ([xshift=-2.08cm,yshift=-2.0cm]current page.north east)
+    {\includegraphics[height=2.28cm,keepaspectratio]{imagenes/escudo-unsaac.png}};
+  \draw[white!45,line width=1.1pt]
+    ([xshift=-3.34cm,yshift=3.1cm]current page.south east) --
+    ([xshift=-0.78cm,yshift=3.1cm]current page.south east);
+  \node[align=center,text=white,inner sep=0pt] at
+    ([xshift=-2.08cm,yshift=2.25cm]current page.south east)
+    {{\fontsize{19}{23}\selectfont\bfseries CUSCO}\\[0.12cm]
+     {\fontsize{10}{12}\selectfont 2026}};
+  \draw[white!35, line width=0.8pt]
+    ([xshift=-2.08cm,yshift=5.22cm]current page.south east) circle[radius=0.42cm];
+  \draw[white!22, line width=1.0pt]
+    ([xshift=-2.08cm,yshift=5.22cm]current page.south east) circle[radius=0.74cm];
+\end{tikzpicture}
+\end{frame}
+
+\input{secciones/00_contexto}
+\input{secciones/01_brenda}
+\input{secciones/02_adel}
+\input{secciones/03_franshesco}
+\input{secciones/04_daniela}
+\input{secciones/05_cierre}
+\end{document}
