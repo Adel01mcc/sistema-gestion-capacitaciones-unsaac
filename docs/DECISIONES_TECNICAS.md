@@ -155,3 +155,12 @@ Fecha de elaboración: 2026-11-12, America/Lima. Las decisiones de implementaci�
 - **Ventajas:** el informe referencia implementaciones existentes y deja preparado el escudo sin inventarlo.
 - **Limitaciones:** validación visual del PDF pendiente si no se dispone de XeLaTeX; nombres de facultad/escuela y apellidos faltantes deben confirmar los estudiantes.
 - **Impacto:** después de cambios importantes actualizar capítulos, bitácora y evidencia; no publicar datos privados ni atribuir revisiones inexistentes.
+
+## ADR-015 — Separar la presentación y el guardado de capacitaciones
+
+- **Fecha:** 2026-11-18 (America/Lima).
+- **Problema:** en `daniela-base-v1`, el formulario coordinaba la edición de campos, la validación y la petición HTTP. También aplicaba la comparación de horas solo cuando coincidían las fechas.
+- **Alternativas:** corregir el condicional dentro de la página, extraer el formulario compartido o crear formularios independientes para alta y edición.
+- **Decisión:** extraer un formulario compartido con una función tipada de guardado y un módulo de valores, validación y conversión. Mostrar los errores de la API junto a sus campos.
+- **Justificación:** el alta y la edición comparten datos de entrada. El módulo de validación se puede revisar sin depender de React ni del transporte, y la página puede coordinar el guardado y la actualización de la lista.
+- **Limitaciones e impacto:** la comprobación anticipada del horario diario se aplica a ambas historias. La API conserva la validación definitiva. La revisión de transiciones y de instructores inactivos corresponde a la siguiente refactorización de HU-04.

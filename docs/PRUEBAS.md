@@ -66,6 +66,19 @@ Estos ajustes pertenecen a la construcción de V1; no se inventa una V2 históri
 
 Protocolo humano propuesto: seguir el README, registrar una identidad ficticia y una capacitación, repetir el correo, probar cupo cero, reiniciar y recuperar registros; comparar permisos con coordinador/instructor. Anotar fecha, resultado y observaciones antes de aprobar e integrar.
 
+## HU-03 · Primera refactorización · 2026-11-18 (America/Lima)
+
+Base verificada mediante `git status` y `git rev-parse`. La rama `feature/daniela-refactor-capacitaciones` estaba limpia y apuntaba al commit `eb00464`, igual que la etiqueta `daniela-base-v1`. Las pruebas se ejecutaron en Windows con Node 24.18.0 y datos ficticios.
+
+| Comprobación | Antes, build de `daniela-base-v1` | Después, árbol de trabajo |
+| --- | --- | --- |
+| `npm.cmd run check` | El primer intento se detuvo por dependencias ausentes. Después de `npm.cmd ci`, pasaron 28 pruebas Node, TypeScript y el build. | Pasaron 28 pruebas Node, TypeScript y el build. |
+| `npm.cmd run test:ui -- --grep "valida horarios y guarda y edita"` | Pasó el escenario original. El escenario ampliado falló de forma esperada contra el build original porque la API recibió la solicitud y devolvió el error de horario diario. | Pasó el escenario ampliado. Verifica el error junto a Hora de fin en fechas iguales y distintas sin emitir un POST, el mensaje de código duplicado junto al campo, el alta con cupo 1 e instructor vacío, la edición y la consulta del detalle. |
+
+La regresión usa inicio el 15/01/2027 a las 10:00 y fin el 16/01/2027 a las 09:00. El build original mostró el aviso general «Revise los campos indicados. end_time: La hora final debe ser posterior a la inicial (horario diario).». La captura de ese fallo y su contexto se guardaron localmente en `.verification/hu03-antes/`.
+
+Playwright informó el resultado de cada escenario, pero el servidor auxiliar de Windows quedó escuchando hasta que se terminó su proceso. Los comandos devolvieron código 0 para el escenario original y el refactorizado, y código 1 para la regresión contra V1. Se ejecutó solo el escenario filtrado para preservar las capturas versionadas. Vite avisó de un bloque JavaScript superior a 500 kB en ambos builds. La revisión humana queda pendiente.
+
 ## Cierre del informe y del entorno
 
 `docs/latex/main.pdf`: 50 páginas A4, 674909 bytes. SHA-256: `DB4F0F531C8E0C206C21F8E838C9E85B64F527C260BD10456A2BD12792469EAD`.

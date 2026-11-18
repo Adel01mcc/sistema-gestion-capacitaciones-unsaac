@@ -90,6 +90,13 @@ test('registra y modifica un usuario y explica el rechazo de un correo duplicado
 });
 
 test('valida horarios y guarda y edita una capacitación desde el formulario', async ({ page }) => {
+  const creationRequests: string[] = [];
+  page.on('request', (request) => {
+    if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/trainings') {
+      creationRequests.push(request.url());
+    }
+  });
+
   await login(page);
   await page.getByRole('button', { name: 'Capacitaciones', exact: true }).click();
   await page.getByRole('button', { name: 'Nueva capacitación', exact: true }).click();
@@ -97,22 +104,49 @@ test('valida horarios y guarda y edita una capacitación desde el formulario', a
   await form.getByLabel('Código *', { exact: true }).fill('E2E-001');
   await form.getByLabel('Título de la capacitación *', { exact: true }).fill('Capacitación E2E');
   await form.getByLabel('Fecha de inicio *', { exact: true }).fill('2027-01-15');
-  await form.getByLabel('Fecha de fin *', { exact: true }).fill('2027-01-15');
+  await form.getByLabel('Fecha de fin *', { exact: true }).fill('2027-01-16');
   await form.getByLabel('Hora de inicio *', { exact: true }).fill('10:00');
-  await form.getByLabel('Hora de fin *', { exact: true }).fill('09:00');
+  const endTime = form.getByLabel('Hora de fin *', { exact: true });
+  await endTime.fill('09:00');
   await form.getByLabel('Lugar o enlace *', { exact: true }).fill('Sala ficticia E2E');
-  await form.getByLabel('Capacidad de personas *', { exact: true }).fill('25');
-  await form.getByRole('button', { name: 'Crear capacitación', exact: true }).click();
-  await expect(form.getByRole('alert')).toContainText('posteriores al inicio');
+  await form.getByLabel('Capacidad de personas *', { exact: true }).fill('1');
+  const createButton = form.getByRole('button', { name: 'Crear capacitación', exact: true });
+  await createButton.click();
+  const scheduleError = 'La hora de fin debe ser posterior a la hora de inicio en cada día de la capacitación.';
+  await expect(form.getByRole('alert')).toHaveText(scheduleError);
+  await expect(endTime).toHaveAccessibleDescription(scheduleError);
+  expect(creationRequests).toHaveLength(0);
+
+  await endTime.fill('11:00');
+  await expect(form.getByRole('alert')).toHaveCount(0);
+  await form.getByLabel('Fecha de fin *', { exact: true }).fill('2027-01-15');
+  await endTime.fill('09:00');
+  await createButton.click();
+  await expect(endTime).toHaveAccessibleDescription(scheduleError);
+  expect(creationRequests).toHaveLength(0);
+
   await form.getByLabel('Hora de inicio *', { exact: true }).fill('09:00');
-  await form.getByLabel('Hora de fin *', { exact: true }).fill('10:00');
-  await form.getByRole('button', { name: 'Crear capacitación', exact: true }).click();
+  await endTime.fill('10:00');
+  await form.getByLabel('Fecha de fin *', { exact: true }).fill('2027-01-16');
+
+  const code = form.getByLabel('Código *', { exact: true });
+  await code.fill('DEMO-001');
+  await createButton.click();
+  await expect(form.getByRole('alert')).toHaveText('Use otro código.');
+  await expect(code).toHaveAccessibleDescription('Use otro código.');
+  expect(creationRequests).toHaveLength(1);
+
+  await code.fill('E2E-001');
+  await createButton.click();
   await expect(form).toHaveCount(0);
+  expect(creationRequests).toHaveLength(2);
   await expect(page.getByRole('status').filter({ hasText: 'La capacitación se registró correctamente.' })).toBeVisible();
   await page.getByLabel('Buscar capacitaciones por título o código', { exact: true }).fill('E2E-001');
   await page.getByRole('button', { name: 'Buscar', exact: true }).click();
   const row = page.getByRole('row').filter({ hasText: 'E2E-001' });
   await expect(row).toHaveCount(1);
+  await expect(row.getByText('1', { exact: true })).toBeVisible();
+  await expect(row.getByText('Sin asignar', { exact: true })).toBeVisible();
   await row.getByRole('button', { name: 'Editar Capacitación E2E', exact: true }).click();
   form = page.getByRole('dialog');
   await form.getByLabel('Título de la capacitación *', { exact: true }).fill('Capacitación E2E actualizada');

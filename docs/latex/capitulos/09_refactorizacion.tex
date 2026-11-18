@@ -24,3 +24,10 @@ Si se añade una capacidad, como notificaciones por inscripción, se clasifica c
 Strategy puede tener sentido si el cliente confirma diferentes algoritmos de evaluación o certificación. Adapter puede aislar una integración de proveedor externo. Ninguno se implementa solo para mostrarlo en el informe. La eventual migración PostgreSQL exige cambios comprobados y no se resuelve mediante una interfaz vacía.
 
 La prioridad de mantenimiento es corregir defectos reales al encontrarlos. No se preserva un error deliberadamente para producir una historia académica de mejora.
+
+\section{Primera refactorización de HU-03}
+La etiqueta \path{daniela-base-v1} conserva el formulario original en \path{src/Trainings.tsx} (commit \path{eb00464}). Allí se reunían los campos, la validación y la selección del método HTTP. La comparación de horas solo ocurría cuando coincidían las fechas, por lo que el formulario enviaba un horario diario invertido entre fechas distintas y la API lo rechazaba.
+
+\path{src/TrainingForm.tsx} conserva los campos y muestra el error junto al control asociado. \path{src/trainingForm.ts} concentra los valores iniciales, la conversión al formato de la API y la comparación independiente de fechas y horas. La página proporciona una función de guardado tipada y actualiza el listado tras la respuesta. Esta separación de responsabilidades permite cambiar una regla de entrada sin modificar la navegación o la petición HTTP.
+
+\path{tests/ui.spec.ts} comprueba que el horario invertido se rechaza antes de enviar, que el error de código duplicado se asocia al campo y que el alta válida y la edición funcionan con la API real. Los resultados y las incidencias de ejecución están en \path{docs/PRUEBAS.md}.
