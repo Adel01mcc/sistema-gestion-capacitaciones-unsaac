@@ -25,6 +25,13 @@
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 
+.training-field-error {
+  margin: 6px 0 0;
+  color: #a54c5a;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
 /* Bandeja interna de avisos: estilos propios, sin alterar formularios existentes. */
 .notification-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
 .notification-list{list-style:none;margin:0;padding:0}

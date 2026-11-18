@@ -1,10 +1,12 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { errorMessage, request } from './api';
-import { EmptyState, Field, formatDate, Icon, Loading, Modal, Notice, Pagination, StatusBadge } from './components';
+import { EmptyState, formatDate, Icon, Loading, Modal, Notice, Pagination, StatusBadge } from './components';
 import { usePaged } from './hooks';
-import { modalityLabels, statusLabels, type DashboardData, type ListResponse, type Training, type TrainingStatus, type User } from './types';
+import { TrainingForm } from './TrainingForm.tsx';
+import { trainingEditStatuses, type TrainingPayload } from './trainingForm.ts';
+import { modalityLabels, statusLabels, type DashboardData, type Training, type User } from './types';
 
-function TrainingDetails({ id, onClose }: { id: number; onClose: () => void }) {
+function TrainingDetails({ id, onClose, inline = false }: { id: number; onClose: () => void; inline?: boolean }) {
   const [training, setTraining] = useState<Training | null>(null);
   const [error, setError] = useState('');
   useEffect(() => {
@@ -13,82 +15,62 @@ function TrainingDetails({ id, onClose }: { id: number; onClose: () => void }) {
       .catch((failure) => { if (active) setError(errorMessage(failure)); });
     return () => { active = false; };
   }, [id]);
-  return <Modal title={training?.title ?? 'Detalle de capacitación'} onClose={onClose}>
-    <div className="modal-body"><Notice message={error} />{!training && !error && <Loading />}{training && <>
+  const content = <><Notice message={error} />{!training && !error && <Loading />}{training && <>
       <div className="detail-top"><span className="code-label">{training.code}</span><StatusBadge status={training.status} /></div>
       <p className="detail-description">{training.description || 'Sin descripción adicional.'}</p>
       <dl className="detail-grid"><div><dt>Inicio</dt><dd>{formatDate(training.start_date)} · {training.start_time}</dd></div><div><dt>Fin</dt><dd>{formatDate(training.end_date)} · {training.end_time}</dd></div><div><dt>Modalidad</dt><dd>{modalityLabels[training.modality]}</dd></div><div><dt>Lugar o enlace</dt><dd className="break-word">{training.location || 'Por definir'}</dd></div><div><dt>Instructor</dt><dd>{training.instructor_name || 'Sin asignar'}</dd></div><div><dt>Capacidad</dt><dd>{training.capacity} personas</dd></div></dl>
-    </>}</div><div className="modal-actions"><button className="button secondary" onClick={onClose}>Cerrar detalle</button></div>
+    </>}</>;
+  if (inline) return <section aria-label="Versión vigente" className="panel modal-body">
+    <h3>{training?.title ?? 'Versión vigente'}</h3>
+    {content}
+    <button type="button" className="button secondary small" onClick={onClose}>Cerrar consulta</button>
+  </section>;
+  return <Modal title={training?.title ?? 'Detalle de capacitación'} onClose={onClose}>
+    <div className="modal-body">{content}</div>
+    <div className="modal-actions"><button className="button secondary" onClick={onClose}>Cerrar detalle</button></div>
   </Modal>;
 }
 
-const transitions: Record<TrainingStatus, TrainingStatus[]> = {
-  planificada: ['planificada', 'programada', 'cancelada'],
-  programada: ['programada', 'planificada', 'en_curso', 'cancelada'],
-  en_curso: ['en_curso', 'finalizada', 'cancelada'], finalizada: ['finalizada'], cancelada: ['cancelada'],
-};
-
-function TrainingForm({ training, onClose, onSaved }: { training: Training | null; onClose: () => void; onSaved: () => void }) {
-  const [form, setForm] = useState({
-    code: training?.code ?? '', title: training?.title ?? '', description: training?.description ?? '',
-    start_date: training?.start_date ?? '', end_date: training?.end_date ?? '',
-    start_time: training?.start_time ?? '09:00', end_time: training?.end_time ?? '10:00',
-    modality: training?.modality ?? 'presencial', location: training?.location ?? '', capacity: String(training?.capacity ?? 20),
-    status: training?.status ?? 'planificada', instructor_id: String(training?.instructor_id ?? ''),
-  });
-  const [instructors, setInstructors] = useState<User[]>([]);
-  const [lookupError, setLookupError] = useState('');
-  const [lookupLoading, setLookupLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+function TrainingEditor({ id, onClose, onSubmit }: {
+  id: number;
+  onClose: () => void;
+  onSubmit: (payload: TrainingPayload) => Promise<void>;
+}) {
+  const [training, setTraining] = useState<Training | null>(null);
   const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
+  const [viewCurrent, setViewCurrent] = useState(false);
+
   useEffect(() => {
     let active = true;
-    async function loadInstructors() {
-      const first = await request<ListResponse<User>>('/users?role=instructor&pageSize=100&page=1');
-      const people = [...first.data];
-      for (let page = 2; active && page <= first.meta.totalPages; page += 1) {
-        const next = await request<ListResponse<User>>(`/users?role=instructor&pageSize=100&page=${page}`);
-        people.push(...next.data);
-      }
-      return people;
-    }
-    loadInstructors().then((people) => { if (active) setInstructors(people.filter((user) => user.active || user.id === training?.instructor_id)); })
-      .catch((failure) => { if (active) setLookupError(errorMessage(failure)); })
-      .finally(() => { if (active) setLookupLoading(false); });
+    request<{ data: Training }>(`/trainings/${id}`)
+      .then(({ data }) => { if (active) setTraining(data); })
+      .catch((failure) => { if (active) setError(errorMessage(failure)); });
     return () => { active = false; };
-  }, [training?.instructor_id]);
-  function update(field: keyof typeof form, value: string) { setForm((current) => ({ ...current, [field]: value })); }
-  async function submit(event: FormEvent) {
-    event.preventDefault(); setError('');
-    if (form.end_date < form.start_date || (form.end_date === form.start_date && form.end_time <= form.start_time)) {
-      setError('La fecha y hora de fin deben ser posteriores al inicio.'); return;
-    }
-    setSaving(true);
-    try {
-      await request(`/trainings${training ? `/${training.id}` : ''}`, {
-        method: training ? 'PUT' : 'POST', body: JSON.stringify({ ...form, capacity: Number(form.capacity), instructor_id: form.instructor_id ? Number(form.instructor_id) : null }),
-      }); onSaved();
-    } catch (failure) { setError(errorMessage(failure)); }
-    finally { setSaving(false); }
+  }, [id, attempt]);
+
+  if (training && trainingEditStatuses[training.status].length > 0) {
+    return <TrainingForm
+      training={training}
+      onClose={onClose}
+      onSubmit={onSubmit}
+      onConsultCurrent={() => setViewCurrent(true)}
+      currentVersion={viewCurrent && <TrainingDetails id={id} inline onClose={() => setViewCurrent(false)} />}
+    />;
   }
-  const allowedStatuses = training ? transitions[training.status] : ['planificada', 'programada'] as TrainingStatus[];
-  return <Modal title={training ? 'Editar capacitación' : 'Nueva capacitación'} description="Organiza los datos y la programación de la actividad." onClose={() => { if (!saving) onClose(); }}>
-    <form onSubmit={submit}><div className="modal-body"><Notice message={error} /><Notice message={lookupError} kind="info" /><div className="form-grid">
-      <Field label="Código *"><input value={form.code} onChange={(event) => update('code', event.target.value)} required maxLength={30} placeholder="CAP-001" /></Field>
-      <Field label="Estado *"><select value={form.status} onChange={(event) => update('status', event.target.value)}>{allowedStatuses.map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}</select></Field>
-      <Field label="Título de la capacitación *" wide><input value={form.title} onChange={(event) => update('title', event.target.value)} required minLength={3} maxLength={160} placeholder="Ej. Conocimiento de productos" /></Field>
-      <Field label="Descripción" wide><textarea value={form.description} onChange={(event) => update('description', event.target.value)} rows={3} maxLength={4000} placeholder="Objetivo y contenido de la actividad" /></Field>
-      <Field label="Fecha de inicio *"><input type="date" value={form.start_date} onChange={(event) => update('start_date', event.target.value)} required /></Field>
-      <Field label="Fecha de fin *"><input type="date" value={form.end_date} min={form.start_date || undefined} onChange={(event) => update('end_date', event.target.value)} required /></Field>
-      <Field label="Hora de inicio *"><input type="time" value={form.start_time} onChange={(event) => update('start_time', event.target.value)} required /></Field>
-      <Field label="Hora de fin *"><input type="time" value={form.end_time} onChange={(event) => update('end_time', event.target.value)} required /></Field>
-      <Field label="Modalidad *"><select value={form.modality} onChange={(event) => update('modality', event.target.value)}>{Object.entries(modalityLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></Field>
-      <Field label="Capacidad de personas *"><input type="number" min={1} max={10000} step={1} value={form.capacity} onChange={(event) => update('capacity', event.target.value)} required /></Field>
-      <Field label="Lugar o enlace *" wide><input value={form.location} onChange={(event) => update('location', event.target.value)} required maxLength={240} placeholder="Dirección, sala o enlace de reunión" /></Field>
-      <Field label="Instructor" wide hint="La asignación es opcional; se muestran instructores activos."><select value={form.instructor_id} disabled={lookupLoading} onChange={(event) => update('instructor_id', event.target.value)}><option value="">{lookupLoading ? 'Cargando instructores…' : 'Sin asignar'}</option>{training?.instructor_id && !instructors.some((person) => person.id === training.instructor_id) && <option value={training.instructor_id}>{training.instructor_name ?? `Instructor #${training.instructor_id}`}</option>}{instructors.map((person) => <option key={person.id} value={person.id}>{person.first_name} {person.last_name}</option>)}</select></Field>
-    </div><p className="form-required">* Campos obligatorios. Los cambios se validan al guardar.</p>{form.status === 'cancelada' || form.status === 'finalizada' ? <Notice message="Al guardar este estado, la capacitación quedará cerrada y no admitirá más ediciones." kind="info" /> : null}</div>
-      <div className="modal-actions"><button type="button" className="button secondary" disabled={saving} onClick={onClose}>Cancelar</button><button type="submit" className="button primary" disabled={saving}>{saving ? 'Guardando…' : training ? 'Guardar cambios' : 'Crear capacitación'}<Icon name="check" size={18} /></button></div>
-    </form>
+
+  return <Modal title="Editar capacitación" onClose={onClose}>
+    <div className="modal-body">
+      <Notice message={error || (training ? 'La capacitación está finalizada o cancelada y ya no admite cambios.' : '')} />
+      {!training && !error && <Loading />}
+    </div>
+    <div className="modal-actions">
+      <button type="button" className="button secondary" onClick={onClose}>Cerrar</button>
+      {error && <button type="button" className="button primary" onClick={() => {
+        setError('');
+        setAttempt((value) => value + 1);
+      }}>Reintentar</button>}
+    </div>
   </Modal>;
 }
 
@@ -99,21 +81,34 @@ export function TrainingsPage({ user }: { user: User }) {
   const [status, setStatus] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-  const [editing, setEditing] = useState<Training | null | undefined>(undefined);
+  const [creating, setCreating] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [detailId, setDetailId] = useState<number | null>(null);
   const [success, setSuccess] = useState('');
   const query = new URLSearchParams({ page: String(page), pageSize: '10', search, status, from, to });
   const { data, meta, loading, error, reload } = usePaged<Training>(`/trainings?${query}`);
   const canManage = user.permissions.includes('trainings.manage');
+
+  async function saveTraining(payload: TrainingPayload, id: number | null) {
+    await request(id === null ? '/trainings' : `/trainings/${id}`, {
+      method: id === null ? 'POST' : 'PUT',
+      body: JSON.stringify(payload),
+    });
+    setSuccess(id === null ? 'La capacitación se registró correctamente.' : 'La capacitación se actualizó correctamente.');
+    setCreating(false);
+    setEditingId(null);
+    reload();
+  }
   return <>
-    <div className="page-heading"><div><p className="eyebrow">PLANIFICACIÓN Y DESARROLLO</p><h1>Capacitaciones</h1><p>Organiza actividades y consulta su programación.</p></div>{canManage && <button className="button primary" onClick={() => { setSuccess(''); setEditing(null); }}><Icon name="plus" size={19} />Nueva capacitación</button>}</div>
+    <div className="page-heading"><div><p className="eyebrow">PLANIFICACIÓN Y DESARROLLO</p><h1>Capacitaciones</h1><p>Organiza actividades y consulta su programación.</p></div>{canManage && <button className="button primary" onClick={() => { setSuccess(''); setCreating(true); }}><Icon name="plus" size={19} />Nueva capacitación</button>}</div>
     <Notice message={success} kind="success" /><Notice message={error} />
     <section className="panel"><div className="panel-topline"><div><h2>Listado de capacitaciones</h2><p>{canManage ? 'Toda la información de tus actividades, en un solo lugar.' : 'Actividades disponibles según tu rol y asignación.'}</p></div>{meta && <span className="count-badge">{meta.total} en total</span>}</div>
       <form className="filter-bar" onSubmit={(event) => { event.preventDefault(); setPage(1); setSearch(searchDraft.trim()); }}><div className="search-input"><Icon name="search" size={18} /><input aria-label="Buscar capacitaciones por título o código" value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} placeholder="Buscar por título o código…" maxLength={160} /></div><select aria-label="Filtrar por estado" value={status} onChange={(event) => { setPage(1); setStatus(event.target.value); }}><option value="">Todos los estados</option>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><button className="button secondary" type="submit">Buscar</button><div className="date-filters"><label>Desde<input type="date" value={from} onChange={(event) => { setPage(1); setFrom(event.target.value); }} /></label><label>Hasta<input type="date" min={from || undefined} value={to} onChange={(event) => { setPage(1); setTo(event.target.value); }} /></label></div></form>
-      {loading ? <Loading /> : error ? <div className="retry-row"><button className="button secondary" onClick={reload}>Reintentar</button></div> : data.length === 0 ? <EmptyState title="No hay capacitaciones para mostrar" description={search || status || from || to ? 'Ajusta los filtros para encontrar otras actividades.' : canManage ? 'Crea la primera capacitación para comenzar a organizar la formación.' : 'Cuando tengas una capacitación asignada, aparecerá aquí.'} /> : <div className="table-scroll"><table><thead><tr><th>Capacitación</th><th>Programación</th><th>Instructor</th><th>Capacidad</th><th>Estado</th><th className="align-right">Acciones</th></tr></thead><tbody>{data.map((training) => <tr key={training.id}><td><button className="text-link table-title" onClick={() => setDetailId(training.id)}>{training.title}</button><span className="table-subtext">{training.code} <span>·</span> {modalityLabels[training.modality]}</span></td><td><span className="table-date">{formatDate(training.start_date)}</span><span className="table-subtext">{training.start_time} – {training.end_time}</span></td><td>{training.instructor_name || <span className="muted">Sin asignar</span>}</td><td><span className="capacity-label"><Icon name="users" size={16} />{training.capacity}</span></td><td><StatusBadge status={training.status} /></td><td className="align-right"><div className="table-actions"><button className="button ghost small" onClick={() => setDetailId(training.id)}>Ver detalle</button>{canManage && !['cancelada', 'finalizada'].includes(training.status) && <button className="icon-button" onClick={() => { setSuccess(''); setEditing(training); }} title={`Editar ${training.title}`} aria-label={`Editar ${training.title}`}><Icon name="edit" size={17} /></button>}</div></td></tr>)}</tbody></table></div>}
+      {loading ? <Loading /> : error ? <div className="retry-row"><button className="button secondary" onClick={reload}>Reintentar</button></div> : data.length === 0 ? <EmptyState title="No hay capacitaciones para mostrar" description={search || status || from || to ? 'Ajusta los filtros para encontrar otras actividades.' : canManage ? 'Crea la primera capacitación para comenzar a organizar la formación.' : 'Cuando tengas una capacitación asignada, aparecerá aquí.'} /> : <div className="table-scroll"><table><thead><tr><th>Capacitación</th><th>Programación</th><th>Instructor</th><th>Capacidad</th><th>Estado</th><th className="align-right">Acciones</th></tr></thead><tbody>{data.map((training) => <tr key={training.id}><td><button className="text-link table-title" onClick={() => setDetailId(training.id)}>{training.title}</button><span className="table-subtext">{training.code} <span>·</span> {modalityLabels[training.modality]}</span></td><td><span className="table-date">{formatDate(training.start_date)}</span><span className="table-subtext">{training.start_time} – {training.end_time}</span></td><td>{training.instructor_name || <span className="muted">Sin asignar</span>}</td><td><span className="capacity-label"><Icon name="users" size={16} />{training.capacity}</span></td><td><StatusBadge status={training.status} /></td><td className="align-right"><div className="table-actions"><button className="button ghost small" onClick={() => setDetailId(training.id)}>Ver detalle</button>{canManage && trainingEditStatuses[training.status].length > 0 && <button className="icon-button" onClick={() => { setSuccess(''); setEditingId(training.id); }} title={`Editar ${training.title}`} aria-label={`Editar ${training.title}`}><Icon name="edit" size={17} /></button>}</div></td></tr>)}</tbody></table></div>}
       {!loading && !error && <Pagination meta={meta} onPage={setPage} />}
     </section>
-    {editing !== undefined && <TrainingForm training={editing} onClose={() => setEditing(undefined)} onSaved={() => { setSuccess(editing ? 'La capacitación se actualizó correctamente.' : 'La capacitación se registró correctamente.'); setEditing(undefined); reload(); }} />}
+    {creating && <TrainingForm training={null} onClose={() => setCreating(false)} onSubmit={(payload) => saveTraining(payload, null)} />}
+    {editingId !== null && <TrainingEditor key={editingId} id={editingId} onClose={() => setEditingId(null)} onSubmit={(payload) => saveTraining(payload, editingId)} />}
     {detailId !== null && <TrainingDetails id={detailId} onClose={() => setDetailId(null)} />}
   </>;
 }

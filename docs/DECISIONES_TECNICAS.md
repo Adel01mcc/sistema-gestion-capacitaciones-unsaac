@@ -156,7 +156,24 @@ Fecha de elaboración: 2026-11-12, America/Lima. Las decisiones de implementaci�
 - **Limitaciones:** validación visual del PDF pendiente si no se dispone de XeLaTeX; nombres de facultad/escuela y apellidos faltantes deben confirmar los estudiantes.
 - **Impacto:** después de cambios importantes actualizar capítulos, bitácora y evidencia; no publicar datos privados ni atribuir revisiones inexistentes.
 
-## ADR-015 — Separar validación y persistencia de capacitaciones
+## ADR-015 — Separar la presentación y el guardado de capacitaciones
+
+- **Fecha:** 2026-11-18 (America/Lima).
+- **Problema:** en `daniela-base-v1`, el formulario coordinaba la edición de campos, la validación y la petición HTTP. También aplicaba la comparación de horas solo cuando coincidían las fechas.
+- **Alternativas:** corregir el condicional dentro de la página, extraer el formulario compartido o crear formularios independientes para alta y edición.
+- **Decisión:** extraer un formulario compartido con una función tipada de guardado y un módulo de valores, validación y conversión. Mostrar los errores de la API junto a sus campos.
+- **Justificación:** el alta y la edición comparten datos de entrada. El módulo de validación se puede revisar sin depender de React ni del transporte, y la página puede coordinar el guardado y la actualización de la lista.
+- **Limitaciones e impacto:** la comprobación anticipada del horario diario se aplica a ambas historias. La API conserva la validación definitiva. La revisión de transiciones y de instructores inactivos corresponde a la siguiente refactorización de HU-04.
+
+## ADR-016 — Cargar el detalle vigente al editar una capacitación
+
+- **Fecha:** 2026-11-18 (America/Lima).
+- **Problema:** en el commit 0647086, la edición copiaba la fila del listado y podía reenviar datos anteriores en un PUT completo. El catálogo mostraba la asignación inactiva como opción normal, aunque la API la rechazaba.
+- **Alternativas:** reutilizar la fila del listado o consultar el detalle por ID al abrir. Consultar también las transiciones desde la API requeriría ampliar un contrato que actualmente solo expone los estados.
+- **Decisión:** cargar el detalle por ID antes de abrir los campos, comprobar si admite edición y centralizar las opciones de estado del frontend en `trainingForm.ts`. Distinguir una asignación no elegible de un catálogo sin verificar. Ante un conflicto de estado, conservar el borrador y ofrecer una consulta del detalle vigente.
+- **Principio:** responsabilidad única. `TrainingEditor` coordina la lectura y comprueba si puede abrir el formulario, `trainingForm.ts` mantiene las opciones de estado y `TrainingForm` conserva el borrador y muestra su validación.
+- **Límites:** el servidor conserva las reglas y los permisos existentes. El nuevo GET reduce la antigüedad de los datos al abrir. El PUT completo carece de control de versión, por lo que todavía puede sobrescribir cambios posteriores si el servidor acepta la actualización. Roles con `trainings.manage` sin permisos de catálogo pueden guardar una asignación sin verificar si el servidor la acepta, o retirarla explícitamente.
+## ADR-017 — Separar validación y persistencia de capacitaciones
 
 - **Fecha:** 2026-11-17, America/Lima. HU-04 y soporte HU-03.
 - **Referencia real:** `eb004641b114d8c71f86af08b05f0f9e073baf73`, versión funcional conservada; rama de trabajo `feature/adel-refactor-backend` desde `main`.
@@ -168,7 +185,7 @@ Fecha de elaboración: 2026-11-12, America/Lima. Las decisiones de implementaci�
 - **Limitaciones:** el repositorio sigue siendo específico de SQLite y recibe fragmentos de alcance definidos internamente por el servicio; no admite texto SQL del cliente ni promete portabilidad automática a PostgreSQL.
 - **Impacto y verificación:** no se requiere modificar `src/Trainings.tsx`. Regresión inicial 28/28; `npm.cmd run check` después de refactorizar: 68/68, TypeScript y Vite correctos. Fuentes, antes/después y límites en [contribución de Adel](adel/REFACTOR_BACKEND.md). Revisión humana e integración pendientes de acreditar.
 
-## ADR-016 — Integridad temporal incremental sin reemplazar SQLite
+## ADR-018 — Integridad temporal incremental sin reemplazar SQLite
 
 - **Fecha:** 2026-11-17, America/Lima. HU-03/HU-04; tarea técnica de integridad.
 - **Problema demostrado:** `001_initial.sql` sólo compara fechas y horas como texto. Un INSERT directo en una base ficticia en memoria aceptó `2027-02-30` y horas `25:00`/`26:00`, aunque Zod ya las rechazaba en la API.
@@ -180,7 +197,7 @@ Fecha de elaboración: 2026-11-12, America/Lima. Las decisiones de implementaci�
 - **Reversión:** con escritores detenidos y respaldo consistente, ejecutar en la conexión correcta `BEGIN IMMEDIATE`, eliminar ambos triggers, eliminar únicamente `version='002_training_dates.sql'` de `schema_migrations` y `COMMIT`; ante error, `ROLLBACK`. No se borran filas. El código actual reaplica 002 al reabrir, por lo que una reversión operativa requiere usar el código anterior. SQL completo en [procedimiento](adel/REFACTOR_BACKEND.md#7-ejecución-y-migración).
 - **Verificación:** `node --test --test-concurrency=1 tests/training-migration.test.js tests/persistence.test.js`: 8/8, código 0. Incluye datos/IDs/auditoría/personalizaciones/FK, formatos y calendarios inválidos, históricos inválidos sin pérdida, reversión fallida atómica y reversión/reaplicación. Sólo bases ficticias aisladas.
 
-## ADR-017 — Reevaluación de State en la segunda etapa
+## ADR-019 — Reevaluación de State en la segunda etapa
 
 - **Fecha:** 2026-11-17, America/Lima. HU-04; complementa ADR-009 y ADR-013.
 - **Problema:** comprobar transiciones autorizadas y rechazar ediciones de capacitaciones finalizadas/canceladas. La referencia `eb00464` ya utiliza `TRANSITIONS` y guardas en el servicio.
@@ -191,7 +208,7 @@ Fecha de elaboración: 2026-11-12, America/Lima. Las decisiones de implementaci�
 - **Ventajas:** lectura directa y matriz de pruebas exhaustiva. **Limitaciones:** reconsiderar si futuras reglas confirmadas de cierre, inscripción o certificación introducen comportamientos complejos; no se anticipan esas funciones en este incremento.
 - **Impacto y verificación:** `tests/trainings.test.js` comprueba los 25 pares de los cinco estados con expectativas explícitas, sin copiar el mapa de producción. El grafo y el bloqueo terminal siguen siendo supuestos pendientes de validación por Paz Sur, no reglas aprobadas por el cliente.
 
-## ADR-018 — Retirar entorno y bases locales del índice conservando los archivos
+## ADR-020 — Retirar entorno y bases locales del índice conservando los archivos
 
 - **Fecha:** 2026-11-17, America/Lima. Tarea técnica de seguridad y conservación del trabajo local.
 - **Problema observado sin leer contenidos:** `.env`, `data/paz-sur.sqlite`, su WAL y su SHM ya estaban rastreados en `eb00464` a pesar de `.gitignore`. El árbol inicial tenía modificaciones locales WAL/SHM. Ignorar una ruta no deja de rastrear archivos previamente incorporados.
@@ -202,7 +219,7 @@ Fecha de elaboración: 2026-11-12, America/Lima. Las decisiones de implementaci�
 - **Limitaciones:** los commits anteriores y su copia remota siguen conteniendo los archivos históricos; desindexar no sanea ni elimina ese historial y no permite afirmar que las credenciales históricas eran ficticias, válidas o revocadas. Esta etapa no inspeccionó su contenido ni reescribió historia.
 - **Impacto:** nuevos clones deben configurar `.env` localmente a partir de `.env.example` y generar su base con las migraciones/semilla. La operación se limita a seguimiento Git; no aplica migraciones ni elimina bases existentes.
 
-## ADR-019 — Arranque conjunto local y destino coherente de la API
+## ADR-021 — Arranque conjunto local y destino coherente de la API
 
 - **Fecha:** 2026-11-17, America/Lima. Tarea técnica RNF-06/07/10; soporte transversal de HU-01/02/03/04/16. Solicitud: hacer funcionar los componentes juntos.
 - **Problema:** `npm start` requiere una compilación previa; en desarrollo Vite fijaba el proxy en 3001, mientras Express aceptaba otro `PORT` de `.env`. El archivo de ejemplo también contenía un valor de contraseña que no cumplía el mínimo de la semilla.
