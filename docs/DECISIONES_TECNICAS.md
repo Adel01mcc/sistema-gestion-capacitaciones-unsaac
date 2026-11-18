@@ -155,3 +155,60 @@ Fecha de elaboración: 2026-11-12, America/Lima. Las decisiones de implementaci�
 - **Ventajas:** el informe referencia implementaciones existentes y deja preparado el escudo sin inventarlo.
 - **Limitaciones:** validación visual del PDF pendiente si no se dispone de XeLaTeX; nombres de facultad/escuela y apellidos faltantes deben confirmar los estudiantes.
 - **Impacto:** después de cambios importantes actualizar capítulos, bitácora y evidencia; no publicar datos privados ni atribuir revisiones inexistentes.
+
+## ADR-015 — Separar validación y persistencia de capacitaciones
+
+- **Fecha:** 2026-11-17, America/Lima. HU-04 y soporte HU-03.
+- **Referencia real:** `eb004641b114d8c71f86af08b05f0f9e073baf73`, versión funcional conservada; rama de trabajo `feature/adel-refactor-backend` desde `main`.
+- **Problema:** `server/services/training-service.js` reúne esquemas Zod, construcción de consultas, SQL de escritura, alcance de lectura, transiciones y coordinación transaccional. Las rutas ya delegan y autorizan correctamente; no se inventa un controlador monolítico previo.
+- **Alternativas:** mantener todas las responsabilidades en el servicio; extraer módulos concretos; introducir repositorio genérico e interfaces para varios motores sin otro consumidor.
+- **Decisión:** `server/validation/training-validation.js` exporta `parseTrainingInput` y `parseTrainingQuery`; `server/repositories/training-repository.js` contiene SQL parametrizado; el servicio conserva políticas de alcance, reglas, transacción y auditoría.
+- **Justificación:** responsabilidad única y cohesión resuelven una concentración observable sin añadir dependencias, clases vacías ni abstracciones para tecnologías futuras. `isActiveInstructor` consulta la condición requerida sin hidratar todo el usuario.
+- **Ventajas:** reglas y consultas pueden revisarse por separado; se conserva la firma pública del servicio, POST/GET/PUT y el contrato JSON del frontend. El servicio mantiene el límite atómico de capacitación y auditoría.
+- **Limitaciones:** el repositorio sigue siendo específico de SQLite y recibe fragmentos de alcance definidos internamente por el servicio; no admite texto SQL del cliente ni promete portabilidad automática a PostgreSQL.
+- **Impacto y verificación:** no se requiere modificar `src/Trainings.tsx`. Regresión inicial 28/28; `npm.cmd run check` después de refactorizar: 68/68, TypeScript y Vite correctos. Fuentes, antes/después y límites en [contribución de Adel](adel/REFACTOR_BACKEND.md). Revisión humana e integración pendientes de acreditar.
+
+## ADR-016 — Integridad temporal incremental sin reemplazar SQLite
+
+- **Fecha:** 2026-11-17, America/Lima. HU-03/HU-04; tarea técnica de integridad.
+- **Problema demostrado:** `001_initial.sql` sólo compara fechas y horas como texto. Un INSERT directo en una base ficticia en memoria aceptó `2027-02-30` y horas `25:00`/`26:00`, aunque Zod ya las rechazaba en la API.
+- **Alternativas:** confiar sólo en el servicio; reconstruir `trainings` con restricciones nuevas; añadir triggers mediante una migración incremental.
+- **Decisión:** `002_training_dates.sql` comprueba primero los datos históricos con una tabla temporal y crea `trainings_validate_dates_insert` y `trainings_validate_dates_update`. Valida formato ISO, existencia del día y horario `HH:mm`; conserva los CHECK de orden temporal existentes. No modifica 001, el motor, los IDs, las filas o sus relaciones.
+- **Justificación:** protege también escrituras directas sin reconstruir tablas ni arriesgar referencias. Si hay históricos inválidos, la transacción de migración aborta sin modificarlos ni registrar 002; la corrección exige una decisión explícita.
+- **Ventajas:** preservación de datos y reversión pequeña y comprobable. La migración se aplica sólo una vez al abrir cada base y mantiene personalizaciones de roles/permisos.
+- **Limitaciones:** las mismas invariantes se expresan con Zod y SQLite por responsabilidades diferentes; deben mantenerse equivalentes. El preflight puede detener la apertura de una base con históricos inválidos. No se ejecutó esta migración contra la base de trabajo del usuario.
+- **Reversión:** con escritores detenidos y respaldo consistente, ejecutar en la conexión correcta `BEGIN IMMEDIATE`, eliminar ambos triggers, eliminar únicamente `version='002_training_dates.sql'` de `schema_migrations` y `COMMIT`; ante error, `ROLLBACK`. No se borran filas. El código actual reaplica 002 al reabrir, por lo que una reversión operativa requiere usar el código anterior. SQL completo en [procedimiento](adel/REFACTOR_BACKEND.md#7-ejecución-y-migración).
+- **Verificación:** `node --test --test-concurrency=1 tests/training-migration.test.js tests/persistence.test.js`: 8/8, código 0. Incluye datos/IDs/auditoría/personalizaciones/FK, formatos y calendarios inválidos, históricos inválidos sin pérdida, reversión fallida atómica y reversión/reaplicación. Sólo bases ficticias aisladas.
+
+## ADR-017 — Reevaluación de State en la segunda etapa
+
+- **Fecha:** 2026-11-17, America/Lima. HU-04; complementa ADR-009 y ADR-013.
+- **Problema:** comprobar transiciones autorizadas y rechazar ediciones de capacitaciones finalizadas/canceladas. La referencia `eb00464` ya utiliza `TRANSITIONS` y guardas en el servicio.
+- **Alternativas:** State con una clase por estado; condicionales repetidos; conservar un mapa pequeño y las comprobaciones centrales.
+- **Decisión:** conservar `TRANSITIONS` en `server/constants.js`, el límite de alta en `createTraining` y las guardas de `updateTraining`. No introducir State con clases.
+- **Justificación:** cinco estados y un grafo reducido no presentan comportamientos extensos distintos por estado. Una jerarquía añadiría delegación y archivos sin reducir una complejidad existente.
+- **Ejemplo:** `planificada → programada → en_curso → finalizada` es válido; `planificada → finalizada` devuelve 409. `finalizada` y `cancelada` rechazan también ediciones que conservan su estado.
+- **Ventajas:** lectura directa y matriz de pruebas exhaustiva. **Limitaciones:** reconsiderar si futuras reglas confirmadas de cierre, inscripción o certificación introducen comportamientos complejos; no se anticipan esas funciones en este incremento.
+- **Impacto y verificación:** `tests/trainings.test.js` comprueba los 25 pares de los cinco estados con expectativas explícitas, sin copiar el mapa de producción. El grafo y el bloqueo terminal siguen siendo supuestos pendientes de validación por Paz Sur, no reglas aprobadas por el cliente.
+
+## ADR-018 — Retirar entorno y bases locales del índice conservando los archivos
+
+- **Fecha:** 2026-11-17, America/Lima. Tarea técnica de seguridad y conservación del trabajo local.
+- **Problema observado sin leer contenidos:** `.env`, `data/paz-sur.sqlite`, su WAL y su SHM ya estaban rastreados en `eb00464` a pesar de `.gitignore`. El árbol inicial tenía modificaciones locales WAL/SHM. Ignorar una ruta no deja de rastrear archivos previamente incorporados.
+- **Alternativas:** dejar los archivos rastreados; borrarlos del disco; retirarlos sólo del índice; reescribir el historial remoto.
+- **Decisión ejecutada:** retirar los cuatro archivos del índice con `git rm --cached`, manteniéndolos en disco y conservando sus cambios. Commit real **`63cdbd9`**, `chore(security): excluir entorno y bases locales del seguimiento`. Se verificó que los archivos locales seguían presentes; no se leyeron contraseñas, tokens ni datos de la base.
+- **Justificación:** evita incorporarlos a los nuevos árboles y preserva el entorno del usuario sin comandos destructivos, cambio de identidad, fuerza ni reescritura de historia.
+- **Ventajas:** los cambios posteriores de entorno y SQLite quedan locales conforme a `.gitignore`. No se incluyen contenidos sensibles en documentación ni pruebas.
+- **Limitaciones:** los commits anteriores y su copia remota siguen conteniendo los archivos históricos; desindexar no sanea ni elimina ese historial y no permite afirmar que las credenciales históricas eran ficticias, válidas o revocadas. Esta etapa no inspeccionó su contenido ni reescribió historia.
+- **Impacto:** nuevos clones deben configurar `.env` localmente a partir de `.env.example` y generar su base con las migraciones/semilla. La operación se limita a seguimiento Git; no aplica migraciones ni elimina bases existentes.
+
+## ADR-019 — Arranque conjunto local y destino coherente de la API
+
+- **Fecha:** 2026-11-17, America/Lima. Tarea técnica RNF-06/07/10; soporte transversal de HU-01/02/03/04/16. Solicitud: hacer funcionar los componentes juntos.
+- **Problema:** `npm start` requiere una compilación previa; en desarrollo Vite fijaba el proxy en 3001, mientras Express aceptaba otro `PORT` de `.env`. El archivo de ejemplo también contenía un valor de contraseña que no cumplía el mínimo de la semilla.
+- **Alternativas:** ajustar manualmente el proxy y ejecutar comandos separados; añadir otro servicio/orquestador; reutilizar Express y la compilación existente con un script npm.
+- **Decisión:** `npm.cmd run local` ejecuta build y start, sirviendo interfaz y `/api` desde el mismo proceso. Vite lee exclusivamente `.env` mediante `parseEnv` nativo, con prioridad del entorno del proceso, igual que el backend; valida el puerto y convierte listeners comodín a loopback para el proxy. `.env.example` deja la contraseña vacía para que se configure localmente; `.env` existente no se modifica.
+- **Justificación:** resuelve fallos de ejecución concretos sin dependencias nuevas, cambios de contratos, mezcla de ramas ni sustitución del almacenamiento.
+- **Ventajas:** una dirección para web/API, cookies de misma procedencia y configuración consistente en desarrollo; siete pruebas aisladas cubren precedencia, archivos por modo, valores vacíos, puertos, IPv6 y ausencia de secretos en la configuración cliente.
+- **Operación:** antes de arrancar sobre la base existente se creó un respaldo consistente con `backup` de `node:sqlite` en `.verification/backups/`. El arranque abre la base y aplica migraciones pendientes; no reinicializa datos, repite la semilla ni cambia contraseñas.
+- **Limitaciones:** se requieren dependencias instaladas y una cuenta preparada; `local` mantiene un proceso en ejecución y no es un despliegue. No fusiona aportes de otras ramas. Las pruebas de negocio continúan usando bases ficticias aisladas.

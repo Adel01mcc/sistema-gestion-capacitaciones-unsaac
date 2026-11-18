@@ -11,6 +11,7 @@
     "dev:api": "node --env-file-if-exists=.env --watch server/index.js",
     "dev:web": "vite",
     "start": "node --env-file-if-exists=.env server/index.js",
+    "local": "npm run build && npm start",
     "db:migrate": "node --env-file-if-exists=.env server/migrate.js",
     "db:seed": "node --env-file-if-exists=.env server/seed.js",
     "typecheck": "tsc --noEmit",

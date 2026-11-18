@@ -20,7 +20,7 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,babel}
 \usepackage{hyperref}
-\hypersetup{hypertexnames=false,colorlinks=true,linkcolor=blue!45!black,urlcolor=blue!55!black,citecolor=blue!45!black,
+\hypersetup{hypertexnames=false,colorlinks=true,linkcolor=black,urlcolor=black,citecolor=black,
   pdftitle={Sistema de Gestión de Capacitaciones -- Paz Sur},pdfauthor={Equipo UNSAAC}}
 \urlstyle{same}
 \setlength{\parskip}{0.45em}
@@ -35,11 +35,11 @@
 }
 \lstdefinestyle{codigo}{
   basicstyle=\ttfamily\footnotesize,
-  keywordstyle=\color{blue!60!black},commentstyle=\color{green!35!black},
-  stringstyle=\color{red!45!black},
+  keywordstyle=\color{black},commentstyle=\color{black},
+  stringstyle=\color{black},
   breaklines=true,breakatwhitespace=false,columns=fullflexible,
   keepspaces=true,showstringspaces=false,frame=single,
-  numbers=left,numberstyle=\tiny\color{gray},numbersep=7pt,
+  numbers=left,numberstyle=\tiny\color{black},numbersep=7pt,
   tabsize=2,captionpos=b,
   literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
     {ñ}{{\~n}}1 {ü}{{\"u}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1
@@ -136,6 +136,7 @@ Los resultados de ejecución se consignan en el capítulo de pruebas y en su tab
 \input{capitulos/07_implementacion}
 \input{capitulos/08_pruebas}
 \input{capitulos/09_refactorizacion}
+\input{capitulos/09_refactorizacion_adel}
 \input{capitulos/10_resultados}
 \input{capitulos/11_conclusiones}
 \bibliographystyle{plain}
