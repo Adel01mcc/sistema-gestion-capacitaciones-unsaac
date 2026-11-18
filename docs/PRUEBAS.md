@@ -137,3 +137,19 @@ La revisión técnica asistida por IA y las pruebas automatizadas no sustituyen 
 Commits reales de esta etapa ya creados: `63cdbd9` (seguridad), `36b2f2d` (extracción del backend), `1440c84` (migración temporal y sus pruebas) y `541a3bf` (regresión de API). El commit documental se registra fuera de sí mismo para evitar una referencia circular. La publicación y el PR sólo se acreditarán con sus resultados reales.
 
 Comprobación documental final (17/11/2026): `git diff --check` terminó sin errores. Un script local de verificación en `.verification/verificar-entrega.mjs` comprobó 13 inclusiones LaTeX presentes, seis copias de fuentes idénticas a `server/` y ausencia de `.env`/SQLite en el índice; terminó con código 0. Las dos copias del antes en `docs/adel/antes/` se compararon byte a byte con `git show eb00464:<ruta>`; coincidieron. El diff exportado y sus hashes están en `docs/adel/ANTES_DESPUES.diff` y `EVIDENCIAS_SHA256.txt`. Estos controles no sustituyen compilación ni revisión visual de PDF.
+
+## Arranque conjunto solicitado — 17/11/2026, America/Lima
+
+Tarea técnica RNF-06/07/10 y soporte transversal HU-01/02/03/04/16. La solicitud posterior autoriza ejecutar los componentes juntos. Se añade `npm.cmd run local` (build seguido de start), se alinea el proxy de Vite con HOST/PORT del proceso o exclusivamente de `.env`, y se deja sin contraseña el archivo de ejemplo. La configuración privada existente no se cambió ni se imprimió; una comprobación sólo informó si la contraseña de semilla cumplía sus reglas, sin revelar su valor.
+
+Antes de arrancar sobre la base existente se ejecutó `node --env-file-if-exists=.env .verification/respaldar-local.mjs`, utilizando `backup` de `node:sqlite` con conexión origen de sólo lectura. Se creó el respaldo consistente `.verification/backups/paz-sur-pre-arranque-2026-11-18T04-19-01-225Z.sqlite`; el nombre registra UTC, correspondiente al 17/11 en Lima. Es un archivo local ignorado, sin contenido publicado. La aplicación abrió la base mediante sus migraciones habituales, sin reinicializarla, ejecutar la semilla ni cambiar contraseñas. Esto es una operación local solicitada; las pruebas automatizadas siguientes utilizan sus propias bases y archivos ficticios.
+
+| Comando/comprobación | Resultado esperado | Resultado obtenido | Estado |
+| --- | --- | --- | --- |
+| `npm.cmd run local` | Compilar y mantener web/API/SQLite disponibles bajo la misma procedencia | Build correcto y servidor iniciado en `http://127.0.0.1:3001` | Activo al cerrar la sesión de trabajo |
+| `node .verification/comprobar-disponibilidad.mjs` | Disponibilidad de web, health y recursos compilados, sin mutaciones de negocio | Web 200; `/api/health` 200, SQLite; dos recursos compilados con 200 | Aprobada, comprobación operativa de lectura |
+| `node --test --test-concurrency=1 tests/dev-config.test.js` | Destino coherente con backend sin exponer secretos | 7/7; ausencia de archivo, precedencia del proceso, vacíos, archivos por modo ignorados, puerto inválido y destinos IPv6/comodín | Aprobada; fixtures aisladas |
+| `npm.cmd run check` | Suite completa y build sin errores | 75/75, incluidos 25 subcasos; TypeScript/Vite correctos; código 0 | Aprobada |
+| `npm.cmd run test:ui` | Login/logout, panel, usuarios y registro/edición de capacitación completos | 4/4, código 0, servidor y base ficticia aislados en 3101 | Aprobada |
+
+El build conserva la advertencia del bundle de 504,11 kB; las fuentes frontend no cambiaron. Las nuevas capturas se conservan en `.verification/arranque-ui/`; las históricas se restauran desde Git. El servidor local en 3001 se mantiene separado de las pruebas en 3101. No se fusionan ramas ni se presenta el arranque como despliegue o revisión humana. No se compiló un nuevo PDF LaTeX.

@@ -201,3 +201,14 @@ Fecha de elaboración: 2026-11-12, America/Lima. Las decisiones de implementaci�
 - **Ventajas:** los cambios posteriores de entorno y SQLite quedan locales conforme a `.gitignore`. No se incluyen contenidos sensibles en documentación ni pruebas.
 - **Limitaciones:** los commits anteriores y su copia remota siguen conteniendo los archivos históricos; desindexar no sanea ni elimina ese historial y no permite afirmar que las credenciales históricas eran ficticias, válidas o revocadas. Esta etapa no inspeccionó su contenido ni reescribió historia.
 - **Impacto:** nuevos clones deben configurar `.env` localmente a partir de `.env.example` y generar su base con las migraciones/semilla. La operación se limita a seguimiento Git; no aplica migraciones ni elimina bases existentes.
+
+## ADR-019 — Arranque conjunto local y destino coherente de la API
+
+- **Fecha:** 2026-11-17, America/Lima. Tarea técnica RNF-06/07/10; soporte transversal de HU-01/02/03/04/16. Solicitud: hacer funcionar los componentes juntos.
+- **Problema:** `npm start` requiere una compilación previa; en desarrollo Vite fijaba el proxy en 3001, mientras Express aceptaba otro `PORT` de `.env`. El archivo de ejemplo también contenía un valor de contraseña que no cumplía el mínimo de la semilla.
+- **Alternativas:** ajustar manualmente el proxy y ejecutar comandos separados; añadir otro servicio/orquestador; reutilizar Express y la compilación existente con un script npm.
+- **Decisión:** `npm.cmd run local` ejecuta build y start, sirviendo interfaz y `/api` desde el mismo proceso. Vite lee exclusivamente `.env` mediante `parseEnv` nativo, con prioridad del entorno del proceso, igual que el backend; valida el puerto y convierte listeners comodín a loopback para el proxy. `.env.example` deja la contraseña vacía para que se configure localmente; `.env` existente no se modifica.
+- **Justificación:** resuelve fallos de ejecución concretos sin dependencias nuevas, cambios de contratos, mezcla de ramas ni sustitución del almacenamiento.
+- **Ventajas:** una dirección para web/API, cookies de misma procedencia y configuración consistente en desarrollo; siete pruebas aisladas cubren precedencia, archivos por modo, valores vacíos, puertos, IPv6 y ausencia de secretos en la configuración cliente.
+- **Operación:** antes de arrancar sobre la base existente se creó un respaldo consistente con `backup` de `node:sqlite` en `.verification/backups/`. El arranque abre la base y aplica migraciones pendientes; no reinicializa datos, repite la semilla ni cambia contraseñas.
+- **Limitaciones:** se requieren dependencias instaladas y una cuenta preparada; `local` mantiene un proceso en ejecución y no es un despliegue. No fusiona aportes de otras ramas. Las pruebas de negocio continúan usando bases ficticias aisladas.

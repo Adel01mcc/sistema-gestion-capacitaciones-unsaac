@@ -21,13 +21,21 @@ npm.cmd run db:seed
 npm.cmd run dev
 ```
 
-Abre **http://127.0.0.1:5173**. La API escucha en **http://127.0.0.1:3001/api**. El proxy Vite permite usar cookies y `/api` desde la misma procedencia. Si cambias `PORT`, ajusta también el destino en `vite.config.ts`. Mantén el mismo hostname durante la sesión.
+Abre **http://127.0.0.1:5173**. La API escucha por defecto en **http://127.0.0.1:3001/api**. El proxy Vite toma `PORT` y `HOST` de la configuración local para conservar la conexión con la API. Mantén el mismo hostname durante la sesión.
 
 La semilla crea cuatro cuentas: el administrador indicado en `.env`, `coordinacion@demo.test`, `instructor@demo.test` y `participante@demo.test`. Todas reciben la contraseña de demostración definida localmente. Repetir la semilla conserva cuentas y contraseñas existentes; cambiar `.env` no cambia sus contraseñas. También se crean dos capacitaciones ficticias.
 
 En Linux/macOS usa `npm` y `cp .env.example .env` en lugar de `npm.cmd` y `Copy-Item`.
 
 ## Comprobar y demostrar
+
+Para ejecutar **interfaz, API y SQLite juntas**, con dependencias y cuenta local ya preparadas:
+
+```powershell
+npm.cmd run local
+```
+
+Este comando compila el frontend y arranca Express, que sirve la web y `/api` desde **http://127.0.0.1:3001** (o el puerto configurado). No necesitas iniciar Vite aparte. Conserva la terminal abierta; `Ctrl+C` detiene el servidor. Las migraciones pendientes se aplican al abrir la base. El comando conserva las cuentas y datos existentes, sin cambiar sus contraseñas ni repetir la semilla. Para la primera instalación sigue los pasos de configuración y semilla anteriores.
 
 ```powershell
 npm.cmd test

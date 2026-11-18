@@ -62,7 +62,14 @@ npm.cmd run db:seed
 npm.cmd run dev
 \end{lstlisting}
 
-La dirección y las variables exactas se consultan en el README y en el archivo de ejemplo que acompaña al incremento. Para comprobar tipos, API y compilación:
+La dirección y las variables exactas se consultan en el README y en el archivo de ejemplo que acompaña al incremento.
+
+\subsection{Arranque conjunto local: actualización del 17/11/2026}
+Con dependencias y cuenta local preparadas, \texttt{npm.cmd run local} compila la interfaz y arranca Express para servir web y API desde una sola dirección, normalmente \url{http://127.0.0.1:3001}. No requiere iniciar Vite por separado. Conserva cuentas y contraseñas; la conexión aplica las migraciones pendientes. Antes del arranque de esta sesión se creó un respaldo consistente de SQLite en \path{.verification/backups/}.
+
+En desarrollo, \path{vite.config.ts} obtiene HOST y PORT del proceso o exclusivamente de \path{.env}, igual que el backend. Se evita que los archivos por modo de Vite cambien sólo el destino del frontend. Siete pruebas con archivos ficticios aislados comprueban esa coherencia. Esta actualización no mezcla ramas ni acredita revisión humana o despliegue.
+
+Para comprobar tipos, API y compilación:
 
 \begin{lstlisting}[language={},numbers=none]
 npm.cmd run typecheck

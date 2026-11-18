@@ -72,6 +72,8 @@ No deben mostrarse como funciones disponibles si no están implementadas.
 
 ## Registro de evidencia y cierre
 
+Actualización de ejecución conjunta (17/11/2026, RNF-06/07/10; soporte HU-01/02/03/04/16): `package.json` añade `local` para compilar y servir web/API juntas. `vite.config.ts` alinea HOST/PORT con el backend; siete casos en `tests/dev-config.test.js` usan sólo archivos ficticios. `.env.example` queda sin contraseña. Antes de abrir la base local se creó respaldo consistente; no se sembraron cuentas ni cambiaron contraseñas. La comprobación de disponibilidad observó web, `/api/health` y dos recursos compilados con 200 en `http://127.0.0.1:3001`. La suite completa y build aprobaron 75 pruebas. Detalles de ejecución en `PRUEBAS.md`; esta operación local no constituye integración de ramas ni cierre de la DoD.
+
 Actualización de publicación, 17/11/2026: push de `feature/adel-refactor-backend` confirmado, [PR #2 abierto como borrador hacia main](https://github.com/Adel01mcc/sistema-gestion-capacitaciones-unsaac/pull/2), documentación inicial en `2441af0`. Se publicó evidencia en AD-4 mediante el comentario `10039`; no se cambiaron estados ni datos del Sprint. [Entrega de los quince resultados](adel/ENTREGA.md). La revisión humana y la integración real continúan pendientes.
 
 Para cada ejecución conservar: fecha Lima, comando, versión del entorno,
