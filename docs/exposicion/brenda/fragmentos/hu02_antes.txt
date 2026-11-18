@@ -1,0 +1,1 @@
+    try { await request(`/users/${user.id}/roles`, { method: 'PUT', body: JSON.stringify({ roles: selected }) }); onSaved(); }

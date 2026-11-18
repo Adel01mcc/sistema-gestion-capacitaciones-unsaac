@@ -1,0 +1,6 @@
+async function saveRolePermissions(roleId: Role['id'], name: string, permissions: string[]): Promise<void> {
+  await request(`/roles/${roleId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ name, permissions }),
+  });
+}

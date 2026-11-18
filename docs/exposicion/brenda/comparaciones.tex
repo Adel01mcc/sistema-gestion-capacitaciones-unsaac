@@ -1,0 +1,56 @@
+\documentclass[10pt]{article}
+\usepackage[paperwidth=280mm,paperheight=175mm,margin=12mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\definecolor{paz}{RGB}{22,62,81}
+\definecolor{acento}{RGB}{0,125,137}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\newenvironment{diapositiva}[1]{\clearpage\begingroup\large\ifx\relax#1\relax\else{\color{paz}\LARGE\bfseries #1\par}\vspace{2mm}\hrule\vspace{3mm}\fi}{\par\endgroup}
+\newenvironment{block}[1]{\par{\color{acento}\bfseries #1}\par\vspace{-1mm}}{\par}
+\newenvironment{columns}[1][]{\par\noindent}{\par}
+\newenvironment{column}[1]{\begin{minipage}[t]{#1}}{\end{minipage}\hfill}
+\newcommand{\institute}[1]{\def\institucion{#1}}
+\newcommand{\subtitle}[1]{\def\subtitulo{#1}}
+\makeatletter
+\renewcommand{\maketitle}{\begin{center}\vspace*{7mm}{\color{paz}\large\institucion\par}\vspace{8mm}{\color{paz}\LARGE\bfseries\@title\par}\vspace{4mm}{\large\subtitulo\par}\vspace{8mm}{\large\@author\par}\vspace{5mm}\@date\end{center}}
+\makeatother
+\lstset{basicstyle=\ttfamily\scriptsize,breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,frame=single,rulecolor=\color{black!15},backgroundcolor=\color{black!2},tabsize=2}
+\newcommand{\codigo}[1]{\lstinputlisting{fragmentos/#1.txt}}
+\newcommand{\fuente}[1]{{\scriptsize\color{paz}Fuente: \texttt{src/Users.tsx}; #1. Rangos exactos en MANIFIESTO.json.}\par}
+\begin{document}
+\begin{diapositiva}{HU-01: del envío mezclado a tareas identificables}
+\begin{block}{ANTES · eb00464 · preparación y petición dentro de submit}
+\codigo{hu01_antes}
+\end{block}
+\begin{block}{DESPUÉS · 4cab7eb · submit coordina el guardado}
+\codigo{hu01_despues}
+\end{block}
+\fuente{eb00464 y 4cab7eb}
+\small Cambio: extraer preparación y envío. Mejora: localizar cada tarea y leer el flujo con mayor facilidad. Las reglas de documento, contraseña y roles se conservan.
+\end{diapositiva}
+\begin{diapositiva}{HU-02: separar la asignación de roles del formulario}
+\begin{block}{ANTES · 4cab7eb · petición HTTP dentro de submit}
+\codigo{hu02_antes}
+\end{block}
+\begin{columns}[T]
+\begin{column}{.38\textwidth}
+\begin{block}{DESPUÉS · 6ccf4ca · llamada}
+\codigo{hu02_despues}
+\end{block}
+\end{column}
+\begin{column}{.59\textwidth}
+\begin{block}{DESPUÉS · función extraída}
+\codigo{hu02_guardar_roles}
+\end{block}
+\end{column}
+\end{columns}
+\fuente{4cab7eb y 6ccf4ca}
+\small Cambio: concentrar URL, método y JSON en una función. El formulario mantiene la validación, mensajes y estado de guardado.
+\end{diapositiva}
+\end{document}

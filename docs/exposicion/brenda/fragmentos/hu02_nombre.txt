@@ -1,0 +1,6 @@
+    const cleanName = name.trim();
+    if (!cleanName) {
+      setError('Escribe un nombre para el rol.');
+      return;
+    }
+

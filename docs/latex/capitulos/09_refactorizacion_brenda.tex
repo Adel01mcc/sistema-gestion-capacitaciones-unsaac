@@ -1,0 +1,155 @@
+\section{Contribución individual de Brenda Lucía Mayhuire Chacón}
+\label{sec:brenda-refactorizacion}
+\subsection{Responsabilidad y contexto histórico}
+Según la identificación y contribución declaradas por Brenda, su responsabilidad es Product Owner y desarrolladora frontend. Como Product Owner relaciona necesidades, prioridades e historias con sus criterios de aceptación; como desarrolladora frontend, su contribución aquí documentada corresponde a HU-01 (registro de usuarios) y HU-02 (asignación de roles y gestión de permisos). Esto no acredita entrevistas, ceremonias ni aceptación de Paz Sur. La distribución inicialmente propuesta en los documentos históricos no se convierte en un acuerdo previo.
+
+La situación inicial descrita al comienzo del capítulo corresponde al momento anterior al primer incremento, sin implementación ejecutable. Posteriormente se creó la versión funcional \texttt{eb00464}, base real de las refactorizaciones. La base pertenece al proyecto y no se atribuye toda V1 a Brenda. No se reconstruye código anterior inexistente.
+
+Se reutilizaron las comparaciones y evidencias de \path{docs/exposicion/brenda/}, conservando su presentación y documentos. Los listados siguientes son extractos literales de \path{src/Users.tsx}, con numeración original y ajuste visual de líneas mediante el estilo \texttt{codigo} del informe. Se incorporan aquí para que no dependan de archivos externos al informe al compilar.
+
+\subsection{HU-01: registro de usuarios, ANTES y DESPUÉS}
+\label{sec:brenda-hu01}
+En la base, \texttt{submit} preparaba los datos y enviaba la petición. Convertía el documento vacío en \texttt{null}, omitía la contraseña vacía al editar y asignaba roles iniciales solo al registrar. El problema observado era concentrar preparación, transporte y coordinación visual en el mismo bloque; no se demuestra un defecto funcional de ese registro.
+\begin{lstlisting}[style=codigo,language=JavaScript,firstnumber=21,caption={HU-01 ANTES: preparación y envío en submit (eb00464).}]
+    const payload: Record<string, unknown> = { ...form, document: form.document.trim() || null };
+    if (user && !form.password) delete payload.password;
+    if (!user) payload.roles = canAssignRoles ? selectedRoles : ['participante'];
+    try { await request(`/users${user ? `/${user.id}` : ''}`, { method: user ? 'PUT' : 'POST', body: JSON.stringify(payload) }); onSaved(); }
+\end{lstlisting}
+En HU-01 se extraen \texttt{prepareUserPayload} y \texttt{saveUser}. El manejador coordina esas llamadas y confirma el éxito solo tras completar la petición; conserva el manejo de errores y el estado de guardado.
+\begin{lstlisting}[style=codigo,language=JavaScript,firstnumber=86,caption={HU-01 DESPUÉS: coordinación del guardado (4cab7eb).}]
+      const payload = prepareUserPayload(form, user, selectedRoles, canAssignRoles);
+      await saveUser(user, payload);
+      onSaved();
+\end{lstlisting}
+La preparación copia el formulario sin modificarlo y conserva las reglas anteriores: omisión de contraseña vacía únicamente al editar y roles iniciales únicamente al crear. La autorización definitiva continua en el servidor.
+\begin{lstlisting}[style=codigo,language=JavaScript,firstnumber=34,caption={HU-01 DESPUÉS: preparación del cuerpo de la solicitud (4cab7eb).}]
+function prepareUserPayload(
+  form: UserFormData,
+  user: User | null,
+  selectedRoles: string[],
+  canAssignRoles: boolean,
+): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    ...form,
+    document: form.document.trim() || null,
+  };
+
+  // En una edicion, no cambiar la contrasena cuando se deja vacia.
+  if (user && !form.password) {
+    delete payload.password;
+  }
+
+  // La asignacion inicial de roles solo corresponde al registro.
+  if (!user) {
+    payload.roles = canAssignRoles ? selectedRoles : ['participante'];
+  }
+
+  return payload;
+}
+\end{lstlisting}
+\begin{lstlisting}[style=codigo,language=JavaScript,firstnumber=59,caption={HU-01 DESPUÉS: transporte HTTP del usuario (4cab7eb).}]
+async function saveUser(user: User | null, payload: Record<string, unknown>): Promise<void> {
+  await request(`/users${user ? `/${user.id}` : ''}`, {
+    method: user ? 'PUT' : 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+\end{lstlisting}
+Además, \texttt{UserFormData} explicita los campos y \texttt{initialUserForm} reúne los valores iniciales para alta y edición. El estado utiliza inicialización diferida. Esto organiza responsabilidades; no demuestra una mejora de rendimiento.
+
+\subsection{HU-02: asignación de roles y permisos, ANTES y DESPUÉS}
+\label{sec:brenda-hu02}
+Se muestra el original \texttt{eb00464} para mantener la base común solicitada. El antecedente inmediato de HU-02 es \texttt{4cab7eb}, que conserva las mismas instrucciones de envío de roles y permisos. El diff incremental permite aislar el cambio de HU-02.
+
+Antes, ambos formularios conocían las URLs, el método y la serialización. Después delegan el transporte en auxiliares; conservan la validación de selección obligatoria de roles, los errores y el estado de guardado.
+\begin{lstlisting}[style=codigo,language=JavaScript,firstnumber=50,caption={HU-02 ANTES: envío de roles (eb00464).}]
+    try { await request(`/users/${user.id}/roles`, { method: 'PUT', body: JSON.stringify({ roles: selected }) }); onSaved(); }
+\end{lstlisting}
+\begin{lstlisting}[style=codigo,language=JavaScript,firstnumber=105,caption={HU-02 ANTES: envío de permisos (eb00464).}]
+    try { await request(`/roles/${role.id}`, { method: 'PUT', body: JSON.stringify({ name, permissions: selected }) }); onSaved(); }
+\end{lstlisting}
+\begin{lstlisting}[style=codigo,language=JavaScript,firstnumber=174,caption={HU-02 DESPUÉS: delegación de asignación de roles (6ccf4ca).}]
+      await saveUserRoles(user.id, selected);
+      onSaved();
+\end{lstlisting}
+\begin{lstlisting}[style=codigo,language=JavaScript,firstnumber=75,caption={HU-02 DESPUÉS: transporte de roles y permisos (6ccf4ca).}]
+async function saveUserRoles(userId: User['id'], roles: string[]): Promise<void> {
+  await request(`/users/${userId}/roles`, {
+    method: 'PUT',
+    body: JSON.stringify({ roles }),
+  });
+}
+
+async function saveRolePermissions(roleId: Role['id'], name: string, permissions: string[]): Promise<void> {
+  await request(`/roles/${roleId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ name, permissions }),
+  });
+}
+\end{lstlisting}
+\texttt{RoleForm.submit} utiliza ahora \texttt{saveRolePermissions} con el nombre preparado y los permisos seleccionados. También se extrae \texttt{loadRoleCatalog}, que devuelve ambos catálogos; el componente mantiene la actualización de estado y la protección frente a respuestas tras desmontarse. Las consultas ya usaban \texttt{Promise.all}: no es una optimización nueva.
+
+La selección compartida se concentra en \texttt{toggleSelection}, consumida por los selectores de roles y permisos. Evitar agregar un código ya presente es un ajuste de comportamiento además de reutilización.
+\begin{lstlisting}[style=codigo,language=JavaScript,firstnumber=67,caption={HU-02 DESPUÉS: selección reutilizable (6ccf4ca).}]
+function toggleSelection(selected: string[], code: string, checked: boolean): string[] {
+  if (checked) {
+    return selected.includes(code) ? selected : [...selected, code];
+  }
+  return selected.filter((item) => item !== code);
+}
+\end{lstlisting}
+El nombre del rol se recorta con \texttt{trim}; se rechaza localmente si solo contiene espacios. Antes se enviaba \texttt{name} directamente y ahora se envía \texttt{cleanName}. Este cambio funcional se distingue de la extracción estructural y no reemplaza la validación del servidor.
+\begin{lstlisting}[style=codigo,language=JavaScript,firstnumber=263,caption={HU-02 DESPUÉS: nombre validado y guardado de permisos (6ccf4ca).}]
+    const cleanName = name.trim();
+    if (!cleanName) {
+      setError('Escribe un nombre para el rol.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await saveRolePermissions(role.id, cleanName, selected);
+      onSaved();
+    } catch (failure) {
+\end{lstlisting}
+\subsection{Principios aplicados y límites}
+\begin{description}
+\item[Responsabilidad única.] Preparar datos, transportarlos y coordinar la interfaz tienen funciones identificables. El cuerpo de usuario se localiza en \texttt{prepareUserPayload}; el endpoint, en su función de guardado.
+\item[Cohesión.] Cada auxiliar reúne instrucciones de un propósito. El manejador conserva evento, mensajes, guardado y confirmación visual.
+\item[Bajo acoplamiento.] Los manejadores dejan de contener URLs y serialización; usan auxiliares con argumentos explícitos. Estos siguen dependiendo de \texttt{request} y del contrato HTTP: el acoplamiento con la API no desaparece.
+\item[Reutilización.] \texttt{toggleSelection} tiene consumidores reales en ambos selectores. Las funciones de inicialización, preparación y guardado organizan el formulario compartido por alta y edición.
+\end{description}
+Las funciones permanecen en \path{src/Users.tsx}; no son módulos nuevos. Los dos commits de refactorización no añaden librerías ni modifican el backend. No se acredita una mejora de velocidad.
+
+Observer podría evaluarse para avisos con consumidores reales y eventos posteriores al commit de la transacción. State sería candidato si los estados de capacitación requieren encapsular comportamientos distintos; usar \texttt{useState} no demuestra ese patrón. Strategy podría servir ante políticas alternativas de evaluación o certificación confirmadas. Ninguno de estos patrones fue implementado por Brenda en los cambios examinados. Extraer funciones auxiliares no equivale a introducir patrones GoF.
+
+\subsection{Pruebas funcionales y alcance de la comprobación}
+Brenda reportó comprobaciones manuales de registro de usuario, asignación de roles y edición de permisos, recogidas en \path{docs/exposicion/brenda/GUION.md} y \path{docs/exposicion/brenda/VERIFICACION.md}. Son resultados declarados, sin log nuevo adjunto; no se repitieron esas pruebas manuales en esta adaptación.
+
+El 15 de noviembre de 2026 (America/Lima) se ejecutó nuevamente \texttt{npm.cmd run check}, equivalente aquí a \texttt{npm run check}: \textbf{28 pruebas automáticas aprobadas, 0 fallidas y compilación exitosa} con TypeScript y Vite. Son pruebas del proyecto completo de API, seguridad y persistencia, no 28 pruebas exclusivas del frontend. Usan datos ficticios, SQLite en memoria y bases temporales aisladas, sin utilizar la base de trabajo. Vite advirtió de un paquete mayor de 500 kB sin impedir el build. Véase el registro añadido en \path{docs/PRUEBAS.md}.
+
+Para HU-01 se verifican alta persistida, correo normalizado, duplicados y entradas inválidas. Para HU-02 se comprueban múltiples roles, protección del último administrador, permisos en sesiones existentes y rechazo de escalamiento. Estos casos protegen el contrato del servidor; no ejecutan directamente los auxiliares React ni acreditan todos los flujos del navegador. Esta sesión no ejecuta \texttt{test:ui}. La selección repetida y el nombre con espacios necesitan comprobación específica de interfaz. No se afirma una ejecución previa a cada refactorización ni TDD a partir del resultado actual.
+
+\subsection{Evidencias Git y trazabilidad}
+\begin{longtable}{P{2cm}P{2cm}P{8cm}}
+\caption{Referencias reales de la contribución documentada de Brenda.}\\
+\toprule Commit & Alcance & Evidencia \\ \midrule
+\endfirsthead
+\toprule Commit & Alcance & Evidencia \\ \midrule
+\endhead
+\texttt{eb00464} & Base & Primer incremento funcional; original de usuarios, roles y permisos. \\
+\texttt{4cab7eb} & HU-01 & Tipado, inicialización, preparación y guardado. Solo modifica \path{src/Users.tsx}. \\
+\texttt{6ccf4ca} & HU-02 & Transporte, catálogo, selección compartida, validación y formato JSX. Solo modifica \path{src/Users.tsx}. \\
+\bottomrule
+\end{longtable}
+Comandos de consulta desde la raíz, sin modificar referencias ni código:
+\begin{lstlisting}[language={},numbers=none,caption={Consultas reproducibles de la evidencia Git.}]
+git show eb00464:src/Users.tsx
+git diff eb00464 4cab7eb -- src/Users.tsx
+git diff 4cab7eb 6ccf4ca -- src/Users.tsx
+git diff eb00464 6ccf4ca -- src/Users.tsx
+\end{lstlisting}
+Los doce fragmentos preservados en la exposición se cotejaron con Git, sus rangos y las huellas SHA-256 de \path{docs/exposicion/brenda/MANIFIESTO.json}, sin modificarlos. Los commits de refactorización tienen un nombre de autor genérico: la identificación de la contribución de Brenda procede de su declaración y del encargo, no de ese nombre. No se alteran identidades Git.
+
+La revisión técnica asistida por IA comprende lectura del diff, cotejo de extractos y comprobaciones registradas. No equivale a revisión humana por otro integrante, aceptación de Paz Sur ni integración mediante merge. Conforme a la Definition of Done, las pruebas no bastan para declarar Hechas las historias completas. No se realizaron commits, merge ni push en esta adaptación.

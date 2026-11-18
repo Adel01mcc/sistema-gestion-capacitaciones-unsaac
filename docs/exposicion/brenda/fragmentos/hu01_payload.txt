@@ -1,0 +1,23 @@
+function prepareUserPayload(
+  form: UserFormData,
+  user: User | null,
+  selectedRoles: string[],
+  canAssignRoles: boolean,
+): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    ...form,
+    document: form.document.trim() || null,
+  };
+
+  // En una edicion, no cambiar la contrasena cuando se deja vacia.
+  if (user && !form.password) {
+    delete payload.password;
+  }
+
+  // La asignacion inicial de roles solo corresponde al registro.
+  if (!user) {
+    payload.roles = canAssignRoles ? selectedRoles : ['participante'];
+  }
+
+  return payload;
+}
