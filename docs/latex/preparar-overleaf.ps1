@@ -7,7 +7,10 @@ $raizRepositorio = (Resolve-Path -LiteralPath (Join-Path $raizInforme '..\..')).
 $archivosCodigo = @(
   'server/db.js',
   'server/security.js',
-  'server/services/training-service.js'
+  'server/services/training-service.js',
+  'server/validation/training-validation.js',
+  'server/repositories/training-repository.js',
+  'server/migrations/002_training_dates.sql'
 )
 $registros = @()
 foreach ($rutaRelativa in $archivosCodigo) {

@@ -1,0 +1,121 @@
+\chapter{Refactorización del backend y arquitectura del módulo de capacitaciones}
+\begingroup
+\color{black}
+\hypersetup{linkcolor=black,urlcolor=black,citecolor=black}
+\lstset{keywordstyle=\color{black},commentstyle=\color{black},stringstyle=\color{black},numberstyle=\tiny\color{black}}
+
+\section{Responsabilidad y referencia verificable}
+La contribución de Adel Alejandro Merma Ccarhuarupay corresponde a arquitectura de software y desarrollo backend, principalmente HU-04 y soporte de HU-03. La implementación y revisión técnica fueron asistidas por Codex; no equivalen a revisión de otro integrante humano. Fecha de trabajo: 17 de noviembre de 2026, zona America/Lima.
+
+La segunda etapa parte de una aplicación funcional conservada en el commit \texttt{eb00464}, mensaje \textit{feat: subir sistema funcional de capacitaciones Paz Sur}. No debe confundirse con \texttt{cf6e720}, referencia documental anterior a la primera construcción. La rama \path{feature/adel-refactor-backend} se creó desde \texttt{main}. Se conservaron los cambios locales WAL/SHM y las ramas de compañeros; las pruebas no abrieron la base de trabajo.
+
+\section{Descripción del backend inicial}
+La primera versión ya dispone de Express, rutas que comprueban permisos, servicios de negocio, Zod y SQLite mediante \texttt{node:sqlite}. Las sesiones utilizan cookie HttpOnly y las mutaciones requieren CSRF. La capacitación y su auditoría ya se guardaban dentro de una misma transacción. Estos elementos son antecedentes conservados, no logros nuevos atribuidos a esta refactorización.
+
+\section{Problemas identificados y objetivos}
+\begin{longtable}{P{0.44\textwidth}P{0.49\textwidth}}
+\toprule
+Problema observado & Cambio y finalidad \\
+\midrule
+\endhead
+El servicio reúne esquemas Zod, consultas SQL, alcance de lectura, transiciones y coordinación transaccional. & Extraer validadores y repositorio para aislar responsabilidades concretas. \\
+El SQL inicial sólo compara fechas y horas como texto. Acepta escrituras directas como un día inexistente o una hora fuera de rango. & Añadir restricciones temporales mediante una migración incremental, preservando filas e identificadores. \\
+La regresión inicial no cubre la matriz completa de estados ni el fallo de auditoría al editar. & Comprobar contrato, atomicidad, estados y persistencia con datos ficticios aislados. \\
+\bottomrule
+\end{longtable}
+
+El objetivo es mejorar la mantenibilidad y la integridad dentro de HU-03/HU-04, sin incorporar inscripciones, certificados ni otros módulos futuros. No se añaden dependencias.
+
+\section{Principios de diseño aplicados}
+Se aplica responsabilidad única: los validadores describen entradas; el repositorio contiene SQL parametrizado; el servicio coordina el caso de uso y sus reglas. Se mejora la cohesión y se mantiene bajo acoplamiento con HTTP: el servicio no depende de Express y el frontend continúa dependiendo del contrato JSON.
+
+La conexión de base recibida como argumento ya permitía pruebas aisladas y se conserva. No se declara el cumplimiento de todos los principios SOLID ni se introducen interfaces o clases vacías para aparentarlo.
+
+\section{Refactorización de rutas y servicios}
+Las rutas existentes ya traducen HTTP y comprueban autorización, por lo que se mantienen sus contratos. El servicio conserva el control transaccional, el responsable derivado de la sesión y el bloqueo de ediciones terminales. La nueva separación ubica los esquemas en \path{server/validation/training-validation.js} y las consultas en \path{server/repositories/training-repository.js}.
+
+\section{Acceso a datos e integridad temporal}
+La migración \path{server/migrations/002_training_dates.sql} añade controles de calendario y horario al insertar o modificar capacitaciones. No reescribe la migración inicial ni reconstruye la tabla. Comprueba los registros existentes y aborta transaccionalmente si encuentra datos inválidos; no corrige valores históricos sin decisión explícita.
+
+Las relaciones con usuarios, el código único sin distinguir mayúsculas y la capacidad entre 1 y 10000 ya existían. Su conservación se verifica con pruebas. La aplicación de 002 a una base propia requiere respaldo consistente y control de los escritores. Las pruebas de esta etapa utilizan bases independientes, nunca la base local del usuario.
+
+La reversión comprobada en una base ficticia elimina ambos triggers y su registro de migración dentro de una transacción, sin borrar filas:
+\begin{lstlisting}[language={},caption={Reversión de la migración 002 en una conexión controlada}]
+BEGIN IMMEDIATE;
+DROP TRIGGER trainings_validate_dates_insert;
+DROP TRIGGER trainings_validate_dates_update;
+DELETE FROM schema_migrations WHERE version='002_training_dates.sql';
+COMMIT;
+\end{lstlisting}
+Ante un error previo al COMMIT corresponde ROLLBACK. El backend actual reaplica 002 al abrir la base si su versión está ausente; mantener una reversión requiere usar el código anterior. El procedimiento completo figura en \path{docs/adel/REFACTOR_BACKEND.md}.
+
+\section{API REST y compatibilidad}
+Se mantienen \texttt{POST}, \texttt{GET} y \texttt{PUT} bajo \path{/api/trainings}. POST devuelve 201; PUT y GET, 200. Los objetos conservan \texttt{data}; los listados, \texttt{data} y \texttt{meta}; los errores, \texttt{error.message} y campos cuando corresponde. PUT conserva al responsable y la fecha de creación originales.
+
+Se mantienen 422 para entradas inválidas, 404 para registros inexistentes o fuera del alcance y 409 para duplicados o cambios de estado prohibidos. Los errores inesperados reciben 500 genérico. La revisión del contrato no introduce rutas nuevas ni exige modificar el formulario existente.
+
+\section{Evaluación del patrón State}
+El problema consiste en aceptar una transición autorizada y rechazar ediciones terminales. La primera versión ya utiliza el mapa \texttt{TRANSITIONS} en \path{server/constants.js}. Las funciones relevantes son \texttt{createTraining} y \texttt{updateTraining}.
+
+Se decide conservar el mapa y las guardas: existen cinco estados y reglas pequeñas, sin comportamientos extensos distintos por estado. State con clases aumentaría delegación y archivos sin resolver una necesidad adicional. La alternativa directa facilita lectura y pruebas; su límite aparece si futuras reglas de cierre o certificación agregan comportamiento complejo o duplicado.
+
+\begin{longtable}{P{0.28\textwidth}P{0.64\textwidth}}
+\toprule
+Estado actual & Destinos admitidos al editar \\
+\midrule
+\endhead
+\texttt{planificada} & planificada, programada, cancelada. \\
+\texttt{programada} & programada, planificada, en\_curso, cancelada. \\
+\texttt{en\_curso} & en\_curso, finalizada, cancelada. \\
+\texttt{finalizada} & Ninguno; tampoco admite modificar otros campos. \\
+\texttt{cancelada} & Ninguno; tampoco admite modificar otros campos. \\
+\bottomrule
+\end{longtable}
+
+Ejemplo: planificada, programada, en curso y finalizada forman una secuencia válida. Saltar de planificada a finalizada devuelve 409. El grafo, el bloqueo terminal y el horario diario son supuestos existentes pendientes de validación con Paz Sur; no se acredita aprobación del cliente.
+
+\section{Comparación real del código}
+El siguiente fragmento se obtuvo de \texttt{git show eb00464:server/services/training-service.js}; muestra la validación dentro del servicio original:
+
+\begin{lstlisting}[language=JavaScript,caption={Antes: validación dentro del servicio en eb00464}]
+const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use una fecha YYYY-MM-DD.').refine(value => {
+  const date = new Date(`${value}T12:00:00Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}, 'La fecha no existe.');
+\end{lstlisting}
+
+Después, la validación se consulta directamente en su fuente real:
+\fragmentocodigo{server/validation/training-validation.js}{1}{40}{Después: validación separada de capacitaciones}
+
+Antes, la persistencia estaba dentro de \texttt{updateTraining}:
+\begin{lstlisting}[language=JavaScript,caption={Antes: actualización y auditoría dentro del servicio}]
+db.prepare('UPDATE trainings SET code=?,title=?,description=?,start_date=?,end_date=?,start_time=?,end_time=?,modality=?,location=?,capacity=?,status=?,instructor_id=?,updated_at=? WHERE id=?').run(value.code, value.title, value.description, value.start_date, value.end_date, value.start_time, value.end_time, value.modality, value.location, value.capacity, value.status, value.instructor_id, now(), id);
+audit(db, user.id, 'update', 'training', id);
+return getTraining(db, id, user);
+\end{lstlisting}
+
+La transacción y la auditoría permanecen coordinadas por el servicio refactorizado; el SQL se consulta en el repositorio real:
+\fragmentocodigo{server/services/training-service.js}{1}{100}{Después: coordinación del caso de uso}
+\fragmentocodigo{server/repositories/training-repository.js}{1}{60}{Después: consultas parametrizadas separadas}
+
+En el esquema anterior, \texttt{end\_date >= start\_date} y \texttt{end\_time > start\_time} sólo comparaban textos. La migración nueva refuerza esos controles sin cambiar el motor. La evidencia completa y los comandos de comparación se conservan en \path{docs/adel/REFACTOR_BACKEND.md}. El historial permite comparar versiones reales; no demuestra quién tecleó cada línea manualmente.
+
+\section{Pruebas ejecutadas y resultados}
+Antes de la refactorización se ejecutó \texttt{npm.cmd test} el 17/11/2026: 28 pruebas aprobadas y ningún fallo. Después, \texttt{npm.cmd run check} aprobó 68 pruebas, incluidos los 25 subcasos de estados, y compiló TypeScript y Vite con código cero. La advertencia de tamaño del paquete no bloqueó la compilación; las fuentes frontend y las dependencias no cambiaron en esta etapa.
+
+La ejecución focal de migración y persistencia aprobó ocho pruebas; la revisión técnica independiente asistida por IA no identificó hallazgos bloqueantes y ejecutó 48 pruebas focales de capacitaciones y seguridad. Son resultados técnicos, no revisión de un estudiante humano. El registro completo está en \path{docs/PRUEBAS.md}.
+
+Playwright completó cuatro casos en el primer intento, pero el runner quedó trabado y se interrumpió con código 1. La repetición con permisos ampliados finalizó correctamente: cuatro aprobadas en 8,7 segundos, código cero. Las capturas nuevas se conservan fuera del seguimiento en \path{.verification/adel-ui/}; las históricas versionadas se restauraron desde \texttt{eb00464}.
+
+Los casos añadidos abarcan campos obligatorios, calendario y horarios, registros inexistentes, códigos duplicados, transiciones válidas e inválidas, reversión por fallo de auditoría y recuperación tras editar y reabrir SQLite. Las pruebas de migración verifican conservación de datos, rechazo de registros inválidos y aplicación incremental. No se utilizan datos personales reales.
+
+No se encontró compilador LaTeX en PATH ni en las ubicaciones MiKTeX consultadas. Se conservan fuentes para Overleaf y su preparador. El archivo \path{docs/latex/main.pdf} ya existía en \texttt{eb00464}; no se generó un PDF actualizado con este capítulo y no se presenta el anterior como resultado de esta etapa.
+
+El preparador Overleaf se ejecutó con código cero. Los commits reales de código y pruebas son \texttt{36b2f2d}, \texttt{1440c84} y \texttt{541a3bf}. El commit \texttt{63cdbd9} retiró sólo del índice el entorno y las bases que ya estaban rastreados, conservando sus archivos locales; no saneó ni reescribió el historial anterior.
+
+\section{Conclusiones individuales y pendientes}
+La contribución separa responsabilidades concretas y refuerza una invariante temporal demostrable, conservando el contrato del frontend y la atomicidad del caso de uso. State se evalúa y se descarta por falta de complejidad que lo justifique en esta entrega.
+
+La implementación asistida por Codex constituye evidencia técnica, no una revisión humana ni una integración. Según la definición de terminado, siguen pendientes la revisión por otro integrante, la integración autorizada y la validación de supuestos comerciales. Los textos para Jira y el guion oral están en \path{docs/adel/}; no se fabrican fechas de Sprint, reuniones o revisiones.
+
+\endgroup

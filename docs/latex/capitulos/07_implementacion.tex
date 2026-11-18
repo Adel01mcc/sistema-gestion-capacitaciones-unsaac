@@ -20,9 +20,12 @@ Las versiones resueltas en esta construcción son Express 5.3.0, React 19.3.1, Z
 \path{server/routes/trainings.js} & Entradas HTTP de capacitaciones y consultas iniciales \\
 \path{server/services/user-service.js} & Reglas de usuarios, roles e integridad administrativa \\
 \path{server/services/training-service.js} & Validación de planificación y transiciones \\
+\path{server/validation/training-validation.js} & Segunda etapa: esquemas de capacitación y filtros \\
+\path{server/repositories/training-repository.js} & Segunda etapa: consultas y escrituras parametrizadas \\
 \path{server/security.js} & Hashing, sesiones, CSRF y autorización \\
 \path{server/db.js} & Conexión, migraciones y transacciones \\
 \path{server/migrations/001_initial.sql} & Esquema inicial con restricciones persistentes \\
+\path{server/migrations/002_training_dates.sql} & Segunda etapa: integridad de calendario y horario \\
 \path{server/seed.js} & Datos ficticios de demostración y configuración de cuenta inicial \\
 \path{tests/api.test.js} & Casos HTTP de usuarios, roles y capacitaciones \\
 \path{tests/security.test.js} & Sesión, CSRF, límites y controles de privilegios \\

@@ -52,7 +52,8 @@ Consulta [PRUEBAS.md](docs/PRUEBAS.md) para resultados realmente ejecutados, lim
 |---|---|
 | `src/` | Interfaz React/TypeScript: formularios, sesión y peticiones HTTP |
 | `server/routes/` | Rutas Express, autorización y respuestas JSON |
-| `server/services/` | Validación y reglas de usuarios/capacitaciones, transacciones y SQL parametrizado |
+| `server/services/` | Reglas de negocio y transacciones; usuarios conserva su acceso SQL |
+| `server/validation/`, `server/repositories/` | Entradas Zod y SQL parametrizado de capacitaciones separados (HU-03/HU-04) |
 | `server/db.js`, `server/migrations/` | Conexión SQLite, integridad y migraciones versionadas |
 | `server/security.js` | Hash scrypt, sesiones opacas y protección CSRF |
 | `tests/` | Integración de API, seguridad y persistencia |
@@ -61,6 +62,10 @@ Consulta [PRUEBAS.md](docs/PRUEBAS.md) para resultados realmente ejecutados, lim
 
 Por ejemplo, guardar una capacitación envía JSON desde `src/Trainings.tsx` a `POST /api/trainings`; la ruta comprueba permisos y llama a `training-service.js`, que valida fechas/cupo y guarda capacitación y auditoría en una misma transacción. El formulario muestra éxito después de la respuesta real del servidor.
 
+La [segunda etapa de Adel](docs/adel/REFACTOR_BACKEND.md), del 17/11/2026, separa validadores y repositorio de capacitaciones, refuerza las fechas/horas mediante la migración incremental 002 y conserva el contrato HTTP. Las migraciones se aplican al abrir el backend o con `npm.cmd run db:migrate`; antes de abrir una base existente, consulta el [procedimiento de respaldo y reversión](docs/adel/REFACTOR_BACKEND.md). Si encuentra datos temporales inválidos, 002 aborta sin corregir ni borrar filas. Las pruebas de esta etapa no migraron la base de trabajo.
+
+`.env` y los archivos SQLite ya estaban rastreados en el commit inicial de esta etapa pese al `.gitignore`. Se retiraron del seguimiento conservando los archivos locales. Siguen presentes en el historial anterior; esta acción no elimina ni verifica los secretos que pudiera contener ese historial.
+
 ## Documentación
 
 - [Endpoints V1](docs/API.md) · [Arquitectura](docs/ARQUITECTURA.md) · [Decisiones](docs/DECISIONES_TECNICAS.md).
@@ -68,4 +73,4 @@ Por ejemplo, guardar una capacitación envía JSON desde `src/Trainings.tsx` a `
 - [Proceso propuesto](docs/PROCESO_DESARROLLO.md) · [Sprint 1](docs/SPRINT_1.md) · [Continuación](docs/ESTADO_SESION.md).
 - [Informe LaTeX](docs/latex/main.tex); comandos de compilación y resultados en `docs/PRUEBAS.md`.
 
-V2 propone participantes e instructores; V3, sesiones/asistencia/historial/evaluación; V4, integración y estabilización de prioridades acordadas. Certificados son opcionales y aún no están implementados. No hay tags, PR, revisiones humanas ni despliegues creados por esta sesión. El workflow CI está preparado; su ejecución en GitHub queda pendiente.
+V2 propone participantes e instructores; V3, sesiones/asistencia/historial/evaluación; V4, integración y estabilización de prioridades acordadas. Certificados son opcionales y aún no están implementados. El registro inicial de V1 no acreditaba tags, PR, revisión humana ni despliegue. Para los commits y la publicación de la segunda etapa, consulta [la entrega de Adel](docs/adel/REFACTOR_BACKEND.md). Un PR no implica revisión humana ni integración. La ejecución remota del workflow CI debe verificarse por separado.

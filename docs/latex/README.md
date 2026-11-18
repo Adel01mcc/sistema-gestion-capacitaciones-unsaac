@@ -2,6 +2,8 @@
 
 El informe describe el incremento real y el diseño candidato por separado. `main.tex` incluye once capítulos, bitácora, bibliografía y fuentes Mermaid. Los fragmentos se leen de archivos reales de `server/`; no son código de ejemplo presentado como evidencia.
 
+Actualización 17/11/2026: se añade el capítulo individual `capitulos/09_refactorizacion_adel.tex` a los capítulos anteriores, sin sustituirlos. Incluye el antes real en `eb00464`, el refactor HU-03/HU-04, la migración 002, evaluación de State y resultados de pruebas. Enlaces y listados usan letras negras. El preparador también copia los nuevos validadores, repositorio y migración. En esta sesión no se encontró `xelatex`, `pdflatex`, `latexmk` ni `bibtex` en PATH ni una instalación MiKTeX en las ubicaciones habituales consultadas; no se compiló un PDF actualizado. `main.pdf` ya existía en `eb00464` y conserva su contenido anterior.
+
 ## Compilar desde el repositorio
 
 Ejecutar desde `docs/latex/`, conservando el árbol del repositorio:
