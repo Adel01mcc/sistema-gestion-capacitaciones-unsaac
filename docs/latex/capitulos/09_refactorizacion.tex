@@ -25,4 +25,47 @@ Strategy puede tener sentido si el cliente confirma diferentes algoritmos de eva
 
 La prioridad de mantenimiento es corregir defectos reales al encontrarlos. No se preserva un error deliberadamente para producir una historia académica de mejora.
 
+\section{Primera refactorización de HU-03}
+La etiqueta \path{daniela-base-v1} conserva el formulario original en \path{src/Trainings.tsx} (commit \path{eb00464}). Allí se reunían los campos, la validación y la selección del método HTTP. La comparación de horas solo ocurría cuando coincidían las fechas, por lo que el formulario enviaba un horario diario invertido entre fechas distintas y la API lo rechazaba.
+
+\path{src/TrainingForm.tsx} conserva los campos y muestra el error junto al control asociado. \path{src/trainingForm.ts} concentra los valores iniciales, la conversión al formato de la API y la comparación independiente de fechas y horas. La página proporciona una función de guardado tipada y actualiza el listado tras la respuesta. Esta separación de responsabilidades permite cambiar una regla de entrada sin modificar la navegación o la petición HTTP.
+
+\path{tests/ui.spec.ts} comprueba que el horario invertido se rechaza antes de enviar, que el error de código duplicado se asocia al campo y que el alta válida y la edición funcionan con la API real. Los resultados y las incidencias de ejecución están en \path{docs/PRUEBAS.md}.
+
+\section{Segunda refactorización de HU-04}
+La comparación parte del commit \path{0647086}, que contiene HU-03. La etiqueta
+\path{daniela-base-v1} (commit \path{eb00464}) permite consultar la evolución
+desde la primera versión. En \path{src/Trainings.tsx}, el formulario anterior
+recibía la fila del listado:
+
+\begin{verbatim}
+{editing !== undefined && <TrainingForm training={editing}
+  onClose={() => setEditing(undefined)} onSubmit={saveTraining} />}
+\end{verbatim}
+
+El siguiente fragmento muestra la lectura que ahora realiza
+\path{TrainingEditor} antes de montar el formulario. Al cerrar la edición, la
+limpieza del efecto impide aplicar una respuesta tardía.
+
+\begin{verbatim}
+request<{ data: Training }>(`/trainings/${id}`)
+  .then(({ data }) => { if (active) setTraining(data); })
+  .catch((failure) => { if (active) setError(errorMessage(failure)); });
+return () => { active = false; };
+\end{verbatim}
+
+Se aplicó responsabilidad única al separar la carga del detalle, las opciones
+de estado en \path{src/trainingForm.ts} y el manejo del borrador en
+\path{src/TrainingForm.tsx}. La asignación inactiva permanece identificada por
+nombre y exige seleccionar un instructor elegible o retirar la asignación.
+Un fallo del catálogo deja la asignación sin verificar. Si un cambio de estado
+origina un rechazo, el usuario puede consultar el detalle junto al
+borrador. El servidor aplica las reglas vigentes y el PUT carece de control de
+versión para cambios concurrentes posteriores a la carga.
+
+La prueba de precarga reprodujo el problema en el build de \path{0647086}.
+Mostró «Sala original» pese a que la API ya había guardado un lugar nuevo.
+\path{docs/PRUEBAS.md} registra los resultados antes y después, incluidos el
+build, las regresiones de edición y la comprobación del alta de HU-03.
+
 \input{capitulos/09_refactorizacion_brenda}
