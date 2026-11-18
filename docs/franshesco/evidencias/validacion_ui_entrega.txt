@@ -1,0 +1,24 @@
+
+> paz-sur-capacitaciones@0.1.0 test:ui
+> playwright test
+
+npm.cmd : [WebServer] (node:12060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+En línea: 2 Carácter: 1
++ npm.cmd run test:ui *> ../validacion-entrega-ui.txt; $resultadoUi = $ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:27044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 tests\ui.spec.ts:16:1 › rechaza credenciales incorrectas y permite entrar y cerrar la sesión (1.2s)
+  ok 2 tests\ui.spec.ts:33:1 › muestra el panel en escritorio y móvil y obtiene capturas del navegador real (1.4s)
+  ok 3 tests\ui.spec.ts:57:1 › registra y modifica un usuario y explica el rechazo de un correo duplicado (3.3s)
+  ok 4 tests\ui.spec.ts:92:1 › valida horarios y guarda y edita una capacitación desde el formulario (1.8s)
+  ok 5 tests\ui.spec.ts:128:1 › Fran: programar genera avisos reales, permite leerlos y funciona en móvil (885ms)
+
+  5 passed (12.0s)

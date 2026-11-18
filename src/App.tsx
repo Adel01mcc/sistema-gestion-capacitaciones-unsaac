@@ -4,8 +4,9 @@ import { Field, Icon, Loading, Notice, type IconName } from './components';
 import { DashboardPage, TrainingsPage } from './Trainings';
 import { RolesPage, UsersPage } from './Users';
 import { roleLabels, type User } from './types';
+import { NotificationsPage } from './Notifications';
 
-type View = 'dashboard' | 'trainings' | 'users' | 'roles';
+type View = 'dashboard' | 'trainings' | 'users' | 'roles' | 'notifications';
 type AuthResponse = { data: { user: User; csrfToken: string } };
 
 function Login({ onLogin, initialError }: { onLogin: (result: AuthResponse) => void; initialError: string }) {
@@ -74,6 +75,7 @@ export default function App() {
     { id: 'trainings', label: 'Capacitaciones', icon: 'calendar', visible: true },
     { id: 'users', label: 'Usuarios', icon: 'users', visible: can('users.manage') },
     { id: 'roles', label: 'Roles y permisos', icon: 'shield', visible: can('roles.manage') },
+    { id: 'notifications', label: 'Avisos', icon: 'book', visible: true },
   ];
   const activeView = nav.find((item) => item.id === view && item.visible)?.id ?? 'dashboard';
   const navigate = (next: View) => { setView(next); setMenuOpen(false); };
@@ -91,6 +93,7 @@ export default function App() {
         {activeView === 'trainings' && <TrainingsPage user={user} />}
         {activeView === 'users' && <UsersPage currentUser={user} onSessionRefresh={refreshSession} />}
         {activeView === 'roles' && <RolesPage onSessionRefresh={refreshSession} />}
+        {activeView === 'notifications' && <NotificationsPage user={user} />}
       </main><footer className="workspace-footer"><span>Paz Sur · Gestión de capacitaciones</span><span>Demostración académica con datos ficticios</span></footer>
     </div>
   </div>;

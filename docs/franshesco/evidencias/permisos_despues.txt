@@ -1,0 +1,18 @@
+  5  export function createRoleService({ roles, users, runInTransaction, writeAudit }) {
+  6    return {
+  7      list: () => roles.list(),
+  8      permissions: () => roles.permissions(),
+  9      update(id, input, actorId) {
+ 10        const value = parseRoleInput(input, roles.permissions().map(permission => permission.code));
+ 11        return runInTransaction(() => {
+ 12          assertPermission(users.find(actorId), 'roles.manage');
+ 13          const role = roles.find(id);
+ 14          if (!role) throw new HttpError(404, 'El rol no existe.');
+ 15          if (role.code === 'administrador') throw new HttpError(409, 'El rol administrador está protegido.');
+ 16          roles.update(id, value);
+ 17          writeAudit(actorId, 'update_permissions', 'role', id);
+ 18          return roles.list().find(item => item.id === id);
+ 19        });
+ 20      },
+ 21    };
+ 22  }

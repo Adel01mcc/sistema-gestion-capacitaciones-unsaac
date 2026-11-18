@@ -1,0 +1,328 @@
+{
+  "generatedAt": "2026-11-18T16:38:29.267Z",
+  "method": "Capturas originales incluidas sin modificación; rótulos editoriales separados",
+  "comparisons": [
+    {
+      "key": "01_login",
+      "title": "Inicio de sesión · continuidad del acceso",
+      "before": "login_antes.png",
+      "after": "login_despues.png",
+      "design": "SRP + DIP · inyección de dependencias",
+      "change": "La ruta delega el caso de uso a auth-service; el repositorio accede a las credenciales y sesiones.",
+      "preserved": "Se conserva el ingreso por correo y contraseña. Las imágenes muestran el mismo diseño; las pruebas acreditan la separación interna.",
+      "image": "comparacion_visual_01_login.png",
+      "sha256": "977bba3ec66ab02920aef950e8378c932bdbd773bc2a00b088cae3083e17e2f2",
+      "sources": [
+        {
+          "image": "login_antes.png",
+          "sha256": "d5006966f3121756218d28d2459b1554e33b4ed83ec9b736fd269205cf4d9437",
+          "path": "docs/franshesco/evidencias/archivo_png/login_antes.png"
+        },
+        {
+          "image": "login_despues.png",
+          "sha256": "d5006966f3121756218d28d2459b1554e33b4ed83ec9b736fd269205cf4d9437",
+          "path": "docs/franshesco/evidencias/archivo_png/login_despues.png"
+        }
+      ]
+    },
+    {
+      "key": "02_panel",
+      "title": "Panel general · integración con la aplicación existente",
+      "before": "panel_antes.png",
+      "after": "panel_despues.png",
+      "design": "Monolito modular por capas",
+      "change": "La versión refactorizada mantiene el panel y añade el acceso a Avisos en el menú.",
+      "preserved": "No se rediseña el panel de los compañeros. Ambas capturas usan las mismas cuatro cuentas ficticias y dos capacitaciones de semilla.",
+      "image": "comparacion_visual_02_panel.png",
+      "sha256": "55c30ed0977e58c3df259e5b826f91b60f2b9d4273347fad1193ddcba23efbb5",
+      "sources": [
+        {
+          "image": "panel_antes.png",
+          "sha256": "f4c62c636378b4ae4b635a60ae5c307c9bb362bc2a3f9f12349ccebbdf16a27a",
+          "path": "docs/franshesco/evidencias/archivo_png/panel_antes.png"
+        },
+        {
+          "image": "panel_despues.png",
+          "sha256": "4754328f0ad7b8cfe89bdf9d2ae91874509cb5830a45188a9ea772756e64ddd9",
+          "path": "docs/franshesco/evidencias/archivo_png/panel_despues.png"
+        }
+      ]
+    },
+    {
+      "key": "03_usuarios",
+      "title": "Directorio de usuarios · mismo contrato, persistencia separada",
+      "before": "usuarios_antes.png",
+      "after": "usuarios_despues.png",
+      "design": "Repository + SRP + DIP",
+      "change": "Los perfiles, roles y permisos se consultan por lotes desde user-repository.",
+      "preserved": "El listado conserva sus campos y paginación. La reducción de 302 a cuatro SELECT se midió aparte; no se deduce de la apariencia.",
+      "image": "comparacion_visual_03_usuarios.png",
+      "sha256": "61389928c7cd170609028c3dcd07d11e71b7007969a7a0924d91af2e1de564e3",
+      "sources": [
+        {
+          "image": "usuarios_antes.png",
+          "sha256": "e487c1afd839253cde7f265d7112466a118953dbf06a621bf180a3111a90bd5a",
+          "path": "docs/franshesco/evidencias/archivo_png/usuarios_antes.png"
+        },
+        {
+          "image": "usuarios_despues.png",
+          "sha256": "0e1db9c79eed84941c9f9c813152cdc9d07c5fa1d492062fd78e3a5a0cacff97",
+          "path": "docs/franshesco/evidencias/archivo_png/usuarios_despues.png"
+        }
+      ]
+    },
+    {
+      "key": "04_registro",
+      "title": "Registro de usuarios · formulario compatible",
+      "before": "registro_usuario_antes.png",
+      "after": "registro_usuario_despues.png",
+      "design": "SRP + Repository + inyección de dependencias",
+      "change": "Validación, política, hashing y acceso SQL se separan en módulos con responsabilidades propias.",
+      "preserved": "Se conserva el formulario de Brenda. Esta captura muestra datos ficticios preparados; la contraseña todavía está vacía y la cuenta no se ha creado.",
+      "image": "comparacion_visual_04_registro.png",
+      "sha256": "e8d6966178442069b22d4f89329c40bc375a813e97fb6eb4b70230c2804dac0c",
+      "sources": [
+        {
+          "image": "registro_usuario_antes.png",
+          "sha256": "f3ab830361fdcebddf659d148a2ea25b6d0c008067fe07d96d347a7cf5fa0f60",
+          "path": "docs/franshesco/evidencias/archivo_png/registro_usuario_antes.png"
+        },
+        {
+          "image": "registro_usuario_despues.png",
+          "sha256": "510772706551cbf7edb6e751d12afc954ac36fb845282dda5f70fe3ec3d40938",
+          "path": "docs/franshesco/evidencias/archivo_png/registro_usuario_despues.png"
+        }
+      ]
+    },
+    {
+      "key": "05_duplicados",
+      "title": "Correo duplicado · rechazo real conservado",
+      "before": "registro_duplicado_antes.png",
+      "after": "registro_duplicado_despues.png",
+      "design": "Validación + regla de unicidad + error controlado",
+      "change": "La regla se coordina en el servicio y consulta el repositorio; la respuesta HTTP 409 conserva el mensaje al usuario.",
+      "preserved": "El rechazo ya existía. Se envía el mismo correo ficticio existente en las dos versiones, se recibe 409 y no se inserta otra cuenta.",
+      "image": "comparacion_visual_05_duplicados.png",
+      "sha256": "800eb9c6ebd073c5a0eb60fed442e0beefe03b46ee24ff6d0fea134fd432acca",
+      "sources": [
+        {
+          "image": "registro_duplicado_antes.png",
+          "sha256": "84b7921bdbabfc41f69a33463087305cc81a402eca82301fff40b74f2e3a9d4d",
+          "path": "docs/franshesco/evidencias/archivo_png/registro_duplicado_antes.png"
+        },
+        {
+          "image": "registro_duplicado_despues.png",
+          "sha256": "62d628917708c74530cd580189fbe38ed436af3df3c02f4721db30fb501de52b",
+          "path": "docs/franshesco/evidencias/archivo_png/registro_duplicado_despues.png"
+        }
+      ]
+    },
+    {
+      "key": "06_roles",
+      "title": "Roles y permisos · catálogo conservado",
+      "before": "roles_antes.png",
+      "after": "roles_despues.png",
+      "design": "Repository + SRP + DIP",
+      "change": "role-service aplica las reglas y role-repository concentra las consultas y escrituras.",
+      "preserved": "Se conservan seis roles y el administrador protegido. La captura visual no reemplaza las pruebas de autorización.",
+      "image": "comparacion_visual_06_roles.png",
+      "sha256": "6dc9cb8236b666424c05d29a641995b007801e89a659e7b02403e781d9f35fd3",
+      "sources": [
+        {
+          "image": "roles_antes.png",
+          "sha256": "b910c2c63948a3f9461babf81b9d4d55d976e96d3cfe90cfa521f1220bd963b5",
+          "path": "docs/franshesco/evidencias/archivo_png/roles_antes.png"
+        },
+        {
+          "image": "roles_despues.png",
+          "sha256": "eedd4eb4fd30d822667d613ea0e3eb056aece5ff2319caf07cb5802b407012d5",
+          "path": "docs/franshesco/evidencias/archivo_png/roles_despues.png"
+        }
+      ]
+    },
+    {
+      "key": "07_asignacion",
+      "title": "Asignación de roles · separación de responsabilidades",
+      "before": "asignar_roles_antes.png",
+      "after": "asignar_roles_despues.png",
+      "design": "Política de autorización + SRP",
+      "change": "El backend centraliza las reglas de asignación y la protección del último administrador activo.",
+      "preserved": "El diálogo y las opciones de Brenda permanecen. En estas capturas no se guarda ningún cambio de roles.",
+      "image": "comparacion_visual_07_asignacion.png",
+      "sha256": "773e78519b589c736d57af8cdd98280873898182b51d8856b5ff4a8df352f483",
+      "sources": [
+        {
+          "image": "asignar_roles_antes.png",
+          "sha256": "8714168664fc8dd8e260a8df85a57249a95914d892b92671c51bbb213892b3df",
+          "path": "docs/franshesco/evidencias/archivo_png/asignar_roles_antes.png"
+        },
+        {
+          "image": "asignar_roles_despues.png",
+          "sha256": "3cae332e5ee3315be19e5a56cfccfba24fab5ecbcc8f0a0aab962cc478483ea6",
+          "path": "docs/franshesco/evidencias/archivo_png/asignar_roles_despues.png"
+        }
+      ]
+    },
+    {
+      "key": "08_permisos",
+      "title": "Edición de permisos · autorización también en el servicio",
+      "before": "editar_permisos_antes.png",
+      "after": "editar_permisos_despues.png",
+      "design": "Repository + SRP + DIP",
+      "change": "El caso de uso exige roles.manage dentro de la transacción, aunque se invoque sin pasar por una ruta HTTP.",
+      "preserved": "El formulario sigue mostrando el mismo catálogo. Las pruebas verifican el rechazo 403 de una llamada directa no autorizada.",
+      "image": "comparacion_visual_08_permisos.png",
+      "sha256": "57b8b29291e303d47327fed0ef56fd29f9f9935b2c84abe5a2c726c40a6f4d60",
+      "sources": [
+        {
+          "image": "editar_permisos_antes.png",
+          "sha256": "5e7174c9fb4026e46a94560b62d279b978785eb092f6dba0f342d7d3f2db9e2f",
+          "path": "docs/franshesco/evidencias/archivo_png/editar_permisos_antes.png"
+        },
+        {
+          "image": "editar_permisos_despues.png",
+          "sha256": "667bd4f8f9d860ae13d6851349fdadcf4d71a1ee6a143a021f665214cdde534f",
+          "path": "docs/franshesco/evidencias/archivo_png/editar_permisos_despues.png"
+        }
+      ]
+    },
+    {
+      "key": "09_programacion",
+      "title": "Programación · punto que origina el evento",
+      "before": "programar_capacitacion_antes.png",
+      "after": "programar_capacitacion_despues.png",
+      "design": "Observer + outbox transaccional",
+      "change": "Guardar con estado Programada registra training.scheduled junto con capacitación y auditoría; después se publica.",
+      "preserved": "El formulario de capacitaciones conserva sus campos. Se mantienen los validadores, repositorio y estados de Adel.",
+      "image": "comparacion_visual_09_programacion.png",
+      "sha256": "0bf232f7971558b7a9b298369ea1717297a41afbb26e00fc2cbebb29278a500b",
+      "sources": [
+        {
+          "image": "programar_capacitacion_antes.png",
+          "sha256": "79c3cb8a80a5441560d2cc7ee3e54af6bd906391553724525f396168d9f5f218",
+          "path": "docs/franshesco/evidencias/archivo_png/programar_capacitacion_antes.png"
+        },
+        {
+          "image": "programar_capacitacion_despues.png",
+          "sha256": "d87df7932356fb41f3c5f176ba3a2cada0a5309bf479ccc1d3e7e303ae1ec2bc",
+          "path": "docs/franshesco/evidencias/archivo_png/programar_capacitacion_despues.png"
+        }
+      ]
+    },
+    {
+      "key": "10_capacitaciones",
+      "title": "Capacitaciones · registro real en ambas versiones",
+      "before": "capacitaciones_antes.png",
+      "after": "capacitaciones_despues.png",
+      "design": "Integración del puerto events con el servicio existente",
+      "change": "La operación conserva su respuesta 201 y produce un evento en la versión refactorizada.",
+      "preserved": "Las dos capturas muestran la misma capacitación ficticia creada desde el formulario. El aviso se demuestra en otra lámina.",
+      "image": "comparacion_visual_10_capacitaciones.png",
+      "sha256": "bcbc2719c3a9dfcd6fc1625f04aeab09c8170c598bd09ad88ebca9c1fd7109e9",
+      "sources": [
+        {
+          "image": "capacitaciones_antes.png",
+          "sha256": "2e35097a9409c600e927f7c6860184bbf8109b58849b50ae9831e13c06393ca6",
+          "path": "docs/franshesco/evidencias/archivo_png/capacitaciones_antes.png"
+        },
+        {
+          "image": "capacitaciones_despues.png",
+          "sha256": "4f92de55bb5ce00324e0c6c6b394ca7dec41b5ba33b158df6235264c3ec7a371",
+          "path": "docs/franshesco/evidencias/archivo_png/capacitaciones_despues.png"
+        }
+      ]
+    },
+    {
+      "key": "11_edicion",
+      "title": "Modificar una capacitación · evento de actualización",
+      "before": "editar_capacitacion_antes.png",
+      "after": "editar_capacitacion_despues.png",
+      "design": "Observer + registro durable de eventos",
+      "change": "Al guardar un cambio real se registra training.updated. Un PUT sin cambios no produce otro evento.",
+      "preserved": "Se modifica el mismo lugar en ambas versiones. La captura del formulario corresponde a la modificación preparada, antes de guardar.",
+      "image": "comparacion_visual_11_edicion.png",
+      "sha256": "cac1901f603e5048eba17af532cd98c73d61f3f03cefcadee8447a78ffd4dee6",
+      "sources": [
+        {
+          "image": "editar_capacitacion_antes.png",
+          "sha256": "7ac859662081e16ae60f22d3bbbbbc3a6e54674f25cc164675f4964f8591d93b",
+          "path": "docs/franshesco/evidencias/archivo_png/editar_capacitacion_antes.png"
+        },
+        {
+          "image": "editar_capacitacion_despues.png",
+          "sha256": "857f1157beea7d38a005cb247d6e09dc85eea9c389da30dde51ab729e8a9c4c5",
+          "path": "docs/franshesco/evidencias/archivo_png/editar_capacitacion_despues.png"
+        }
+      ]
+    },
+    {
+      "key": "12_detalle",
+      "title": "Detalle de capacitación · lectura conservada",
+      "before": "detalle_capacitacion_antes.png",
+      "after": "detalle_capacitacion_despues.png",
+      "design": "Contrato de API y alcance de lectura conservados",
+      "change": "La ampliación de eventos se integra sin cambiar los datos que usa este detalle.",
+      "preserved": "Se mantiene la interfaz de capacitaciones existente. No se presenta este diálogo como un rediseño realizado por Franshesco.",
+      "image": "comparacion_visual_12_detalle.png",
+      "sha256": "4a09433e8610e560edd413bf685bb186c5896096acafef4b09d36ae4a0cb1190",
+      "sources": [
+        {
+          "image": "detalle_capacitacion_antes.png",
+          "sha256": "b8d521d279e49e44cdf6d31dfd74714130c71dab6eb22e1f1d07522f65053b83",
+          "path": "docs/franshesco/evidencias/archivo_png/detalle_capacitacion_antes.png"
+        },
+        {
+          "image": "detalle_capacitacion_despues.png",
+          "sha256": "82774b69151a59333081fba7400f099844b13dcbf53c4ee028395657bb3fad3f",
+          "path": "docs/franshesco/evidencias/archivo_png/detalle_capacitacion_despues.png"
+        }
+      ]
+    },
+    {
+      "key": "13_observer",
+      "title": "Nueva capacidad · de guardar a recibir avisos",
+      "before": "capacitacion_guardada_antes.png",
+      "after": "avisos_despues.png",
+      "design": "Observer: un publicador y un consumidor real de avisos",
+      "change": "Antes la capacitación se guardaba sin bandeja de avisos. Después, programarla y modificarla genera dos avisos internos.",
+      "preserved": "La imagen anterior es el listado real tras guardar, porque no existía pantalla de Avisos (API 404). La imagen posterior sí es la nueva bandeja (API 200).",
+      "image": "comparacion_visual_13_observer.png",
+      "sha256": "0e4eb1565202aeda4111dbeb886e91335611b0aa47985cd16a6c0905572b5407",
+      "sources": [
+        {
+          "image": "capacitacion_guardada_antes.png",
+          "sha256": "f6c4098c9f3d9364c5a0466669bd3dbdd4fc071bca496e61dcdcdfbff2ed57e8",
+          "path": "docs/franshesco/evidencias/archivo_png/capacitacion_guardada_antes.png"
+        },
+        {
+          "image": "avisos_despues.png",
+          "sha256": "af7ee8109141ba73d5bc37d3670c95ff612f808f71dc8478fb01843e08459d70",
+          "path": "docs/franshesco/evidencias/archivo_png/avisos_despues.png"
+        }
+      ]
+    },
+    {
+      "key": "14_movil",
+      "title": "Acceso móvil · nueva bandeja integrada",
+      "before": "panel_movil_antes.png",
+      "after": "avisos_movil_despues.png",
+      "design": "Observer en backend + componente de presentación",
+      "change": "La versión nueva permite consultar avisos y distinguir Leído / Sin leer desde un ancho de 390 píxeles.",
+      "preserved": "Se compara el panel móvil inicial con la bandeja nueva: son pantallas distintas, identificadas de forma explícita. No había una bandeja móvil anterior.",
+      "image": "comparacion_visual_14_movil.png",
+      "sha256": "83483bc8f77c19b2f71a7f85a6cf87e03d59505f12e13b86631d912b14bdf530",
+      "sources": [
+        {
+          "image": "panel_movil_antes.png",
+          "sha256": "5c68fe0c65f525ad6d886e1ead8583f3719b90eefeb55bb71bab63b750e438dc",
+          "path": "docs/franshesco/evidencias/archivo_png/panel_movil_antes.png"
+        },
+        {
+          "image": "avisos_movil_despues.png",
+          "sha256": "02dbcc93b540ba8f8f181acb917185eaebe122112ea922e0d1ad3f5124ed5d34",
+          "path": "docs/franshesco/evidencias/archivo_png/avisos_movil_despues.png"
+        }
+      ]
+    }
+  ]
+}

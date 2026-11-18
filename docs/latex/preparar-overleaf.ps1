@@ -10,7 +10,12 @@ $archivosCodigo = @(
   'server/services/training-service.js',
   'server/validation/training-validation.js',
   'server/repositories/training-repository.js',
-  'server/migrations/002_training_dates.sql'
+  'server/migrations/002_training_dates.sql',
+  'server/services/user-management.js',
+  'server/services/role-service.js',
+  'server/services/auth-service.js',
+  'server/events/observer.js',
+  'server/composition.js'
 )
 $registros = @()
 foreach ($rutaRelativa in $archivosCodigo) {
@@ -25,6 +30,11 @@ foreach ($rutaRelativa in $archivosCodigo) {
   $hash = (Get-FileHash -LiteralPath $origen -Algorithm SHA256).Hash
   $registros += "$hash  codigo/$rutaRelativa"
 }
+
+$anteriorFran = Join-Path $raizInforme 'codigo/franshesco/antes'
+New-Item -ItemType Directory -Force -Path $anteriorFran | Out-Null
+Copy-Item -LiteralPath (Join-Path $raizRepositorio 'docs/franshesco/antes/server/services/user-service.js') -Destination (Join-Path $anteriorFran 'user-service.js') -Force
+$registros += "$( (Get-FileHash -LiteralPath (Join-Path $anteriorFran 'user-service.js') -Algorithm SHA256).Hash )  codigo/franshesco/antes/user-service.js"
 
 $carpetaDiagramas = Join-Path $raizInforme 'diagramas'
 New-Item -ItemType Directory -Path $carpetaDiagramas -Force | Out-Null

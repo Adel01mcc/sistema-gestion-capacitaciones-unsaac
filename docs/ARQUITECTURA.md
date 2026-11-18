@@ -167,3 +167,22 @@ V2 deberá verificar el incremento real, revisión humana y capacidad del equipo
 SQLite tiene concurrencia de escritura limitada y su archivo exige copia de respaldo consistente. El despliegue en un disco efímero perdería persistencia. PostgreSQL/Supabase requiere una decisión posterior, credenciales externas no versionadas, migración comprobada y pruebas de equivalencia. Ninguna plataforma fue configurada en este incremento.
 
 Quedan por validar: capacidades administrativas reales, tratamiento de datos personales, perfiles sin cuenta, reglas de cupo y reapertura, campañas y sedes, evaluación y certificados. Los nombres, correos y capacitaciones de la semilla son ficticios. La revisión del equipo y del cliente sigue pendiente hasta que se registre expresamente.
+# Actualización de Franshesco - 18/11/2026
+
+Esta sección actualiza las descripciones históricas que siguen más abajo: usuarios
+ya separa validación, políticas, casos de uso y repositorios. Se conserva el
+monolito modular y el contrato de la API. `server/composition.js` conecta objetos
+SQLite, hashing, reloj, auditoría y transacción con servicios que dependen de sus
+operaciones, sin importar Express ni SQLite.
+
+`server/events/observer.js` implementa suscripción/publicación. Las rutas inyectan
+un puerto de eventos al servicio de capacitaciones de Adel. Capacitación,
+auditoría y evento pendiente se confirman juntos; después se publica al consumidor
+de avisos. La creación de avisos y la marca de procesado son otra transacción.
+Un fallo deja el evento recuperable; unicidad evento/destinatario impide duplicados
+internos al reintentar. No hay worker ni canal externo implementado.
+
+La migración aditiva 003 crea `training_events` y `notifications`, con índices y
+claves foráneas. El acceso a la bandeja exige propietario y alcance vigente de
+capacitación. La política de destinatarios es un supuesto pendiente de validación.
+Arquitectura, procedimiento y límites: [Franshesco](franshesco/README.md).

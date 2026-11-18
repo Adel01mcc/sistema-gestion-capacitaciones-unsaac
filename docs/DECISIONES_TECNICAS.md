@@ -212,3 +212,24 @@ Fecha de elaboración: 2026-11-12, America/Lima. Las decisiones de implementaci�
 - **Ventajas:** una dirección para web/API, cookies de misma procedencia y configuración consistente en desarrollo; siete pruebas aisladas cubren precedencia, archivos por modo, valores vacíos, puertos, IPv6 y ausencia de secretos en la configuración cliente.
 - **Operación:** antes de arrancar sobre la base existente se creó un respaldo consistente con `backup` de `node:sqlite` en `.verification/backups/`. El arranque abre la base y aplica migraciones pendientes; no reinicializa datos, repite la semilla ni cambia contraseñas.
 - **Limitaciones:** se requieren dependencias instaladas y una cuenta preparada; `local` mantiene un proceso en ejecución y no es un despliegue. No fusiona aportes de otras ramas. Las pruebas de negocio continúan usando bases ficticias aisladas.
+
+## ADR-020 — Refactorización de identidad con puertos inyectados
+
+- **Fecha:** 18/11/2026, America/Lima. HU-01/02/16; referencia integrada `punto-inicio-fran`, `98f8d5a`.
+- **Problema:** usuarios y login mezclan validación, reglas y SQL; permisos comprobados antes de esperas de hashing; hidratación por persona en listados.
+- **Alternativas:** conservar concentración; extraer responsabilidades concretas; introducir un framework o repositorio genérico para motores hipotéticos.
+- **Decisión:** validadores, políticas, casos de uso y repositorios específicos. `composition.js` conecta reloj, hash, auditoría y transacción; fachadas conservan consumidores V1. Revalidación dentro de la transacción tras hashing, y comprobación de autorización dentro del servicio de roles.
+- **Justificación:** SRP y DIP permiten probar negocio sin Express/SQLite; no se agregan dependencias ni interfaces vacías. Cuatro SELECT por página no vacía sustituyen 2+3N, medido con las dos versiones.
+- **Límites:** repositorios siguen siendo SQLite; no implica migración automática, autorregistro o cambio de identificador. Se conservan sesiones, CSRF y reglas administrativas previas.
+- **Verificación:** 95 pruebas backend y cinco escenarios Chrome aprobados, con bases ficticias aisladas; manifiestos, guion y fuentes anteriores en `docs/franshesco/`. El cierre posterior autorizado se identifica mediante `Punto final fran 1`; referencia y controles en `docs/franshesco/ENTREGA.md`. La revisión humana sigue pendiente.
+
+## ADR-021 — Observer para avisos internos y eventos recuperables
+
+- **Fecha:** 18/11/2026, America/Lima. HU-26 parcial y soporte HU-03/04.
+- **Problema:** no existe consumidor de notificaciones; llamar directamente a un canal desde capacitaciones produciría acoplamiento y una ventana de pérdida entre guardar y avisar.
+- **Alternativas:** llamada directa; Observer sólo en memoria; Observer con evento pendiente guardado transaccionalmente; broker/worker externo.
+- **Decisión:** inyectar `events` en el servicio de Adel desde las rutas. Capacitación, auditoría y evento se guardan juntos. Después del commit, Observer llama al consumidor de avisos; avisos y procesado forman otra transacción. Fallos conservan el evento pendiente sin devolver error para un guardado confirmado. Migración aditiva 003 y unicidad evento/destinatario; reintento manual autorizado, hasta 50 eventos por llamada.
+- **Justificación:** el consumidor real es una bandeja interna. Observer desacopla publicación y consumo; el registro durable (outbox) permite recuperación e idempotencia interna. No se confunden ambos conceptos.
+- **Política provisional:** gestores activos con acceso global e instructor asignado con teaching.manage; lectura/marcado por propietario y alcance vigente. No difundir a participantes sin inscripciones implementadas. Pendiente de validación del cliente.
+- **Límites:** síncrono, local, sin cron, worker, tiempo real, canales externos ni retención automática. No se garantiza entrega exactamente una vez para proveedores externos. La semilla y llamadas directas históricas sin puerto de eventos no notifican. No se completa HU-26 ni se cambia la evaluación de State de Adel.
+- **Verificación:** evento/aviso al programar y modificar; ausencia ante validación/rollback; fallo del registro de evento revierte capacitación; fallo del observador revierte avisos parciales y conserva capacitación; reintento sin duplicado, reinicio, propiedad, CSRF, reasignación y revocación comprobados.

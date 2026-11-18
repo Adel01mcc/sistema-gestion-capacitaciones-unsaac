@@ -1,0 +1,19 @@
+  2  export function createObserver() {
+  3    const listeners = new Map();
+  4    return {
+  5      subscribe(type, listener) {
+  6        if (!listeners.has(type)) listeners.set(type, new Set());
+  7        listeners.get(type).add(listener);
+  8        return () => listeners.get(type)?.delete(listener);
+  9      },
+ 10      publish(event) {
+ 11        for (const listener of [...(listeners.get(event.type) || [])]) {
+ 12          const result = listener(event);
+ 13          if (result?.then) {
+ 14            result.catch(() => {});
+ 15            throw new TypeError('Los observadores transaccionales deben ser síncronos.');
+ 16          }
+ 17        }
+ 18      },
+ 19    };
+ 20  }

@@ -1,0 +1,227 @@
+{
+  "phase": "antes",
+  "capturedAt": "2026-11-18T16:36:53.427Z",
+  "revision": "98f8d5a2eb2e316c2b1c718987075058a37f482a",
+  "sourceViews": [
+    {
+      "key": "registro",
+      "sourcePath": "server/services/user-service.js",
+      "firstLine": 53,
+      "lastLine": 69,
+      "sourceSha256LF": "e1a93ccc1666f6a43fd612128ab8603572967eed9cea3cb4827055d677980fcd",
+      "versionLabel": "Punto Inicio Fran | punto-inicio-fran | 98f8d5a",
+      "explanation": {
+        "before": "Una función combina validación Zod, consulta de privilegios, cálculo del hash, INSERT SQL y auditoría.",
+        "after": "El caso de uso coordina validación, política, hashing y repositorio mediante colaboradores recibidos por inyección.",
+        "tags": [
+          "Repository",
+          "SRP",
+          "DIP",
+          "Inyección de dependencias"
+        ],
+        "benefit": "La persistencia cambia en el repositorio. La lógica puede probarse con objetos en memoria, sin Express ni SQLite.",
+        "proof": "Se conserva el contrato del formulario de Brenda. Después del await se comprueban otra vez los permisos antes de guardar.",
+        "focus": [
+          "validate(",
+          "db.prepare(",
+          "await hashPassword",
+          "parseUserInput",
+          "assertUserCreation",
+          "users.insert",
+          "passwordHasher",
+          "writeAudit"
+        ]
+      }
+    },
+    {
+      "key": "autenticacion",
+      "sourcePath": "server/routes/auth.js",
+      "firstLine": 13,
+      "lastLine": 39,
+      "sourceSha256LF": "16a3232996e46e77c8fb83d1f64e5f5e630d3912058fa2849a3a514371e7c8dd",
+      "versionLabel": "Punto Inicio Fran | punto-inicio-fran | 98f8d5a",
+      "explanation": {
+        "before": "La ruta HTTP valida credenciales, limita intentos, consulta usuarios, verifica hashes y escribe sesiones.",
+        "after": "La ruta conserva cookies y HTTP. auth-service coordina autenticación; validadores, limitador y repositorio tienen módulos propios.",
+        "tags": [
+          "SRP",
+          "DIP",
+          "Inyección de dependencias"
+        ],
+        "benefit": "La autenticación puede verificarse con colaboradores controlados. Las sesiones siguen siendo opacas y HttpOnly.",
+        "proof": "Se comprueba de nuevo que la cuenta siga activa y conserve el mismo hash después de esperar la verificación. Login sigue usando correo.",
+        "focus": [
+          "validate(",
+          "db.prepare(",
+          "parseLogin",
+          "limiter.check",
+          "verifyPassword",
+          "const current",
+          "current?.active",
+          "insertSession"
+        ]
+      }
+    },
+    {
+      "key": "permisos",
+      "sourcePath": "server/services/user-service.js",
+      "firstLine": 103,
+      "lastLine": 116,
+      "sourceSha256LF": "e1a93ccc1666f6a43fd612128ab8603572967eed9cea3cb4827055d677980fcd",
+      "versionLabel": "Punto Inicio Fran | punto-inicio-fran | 98f8d5a",
+      "explanation": {
+        "before": "updateRole valida y modifica roles con SQL. La autorización de esta operación depende de la ruta que lo invoca.",
+        "after": "El servicio autoriza roles.manage dentro de la transacción, aplica reglas y delega la escritura al repositorio.",
+        "tags": [
+          "Repository",
+          "SRP",
+          "DIP",
+          "Política de autorización"
+        ],
+        "benefit": "La regla también protege una llamada directa al servicio. La edición conserva el bloqueo del rol administrador.",
+        "proof": "users.manage y roles.manage siguen siendo permisos distintos. La prueba de autorización directa espera 403 sin escritura.",
+        "focus": [
+          "db.prepare(",
+          "validate(",
+          "assertPermission",
+          "roles.update",
+          "administrador",
+          "runInTransaction"
+        ]
+      }
+    },
+    {
+      "key": "eventos",
+      "sourcePath": "server/services/training-service.js",
+      "firstLine": 30,
+      "lastLine": 53,
+      "sourceSha256LF": "0ebec7e157317997c6bf97b5e69a76d6c57141dcdb626443be8448f069391933",
+      "versionLabel": "Punto Inicio Fran | punto-inicio-fran | 98f8d5a",
+      "explanation": {
+        "before": "El servicio de Adel ya valida, usa repositorio, controla estados y guarda auditoría. No registra ni publica eventos de avisos.",
+        "after": "Se añade el puerto events. El evento se guarda con la capacitación y se publica después de que termina la transacción.",
+        "tags": [
+          "Observer",
+          "Outbox transaccional",
+          "Inyección de dependencias"
+        ],
+        "benefit": "Capacitaciones no importa notificaciones. Un suscriptor crea avisos internos y los pendientes pueden reintentarse sin duplicarlos.",
+        "proof": "Observer desacopla publicación y consumo; outbox conserva el evento. Se mantienen las reglas de Adel y no se añade State.",
+        "focus": [
+          "events",
+          "transaction(",
+          "audit(",
+          "return getTraining"
+        ]
+      }
+    }
+  ],
+  "database": ":memory: (datos ficticios)",
+  "browser": "157.0.8103.52",
+  "api": {
+    "createStatus": 201,
+    "updateStatus": 200,
+    "notificationsStatus": 404,
+    "notifications": {
+      "error": {
+        "message": "La ruta solicitada no existe en este incremento."
+      }
+    }
+  },
+  "paginationMeasurement": {
+    "fictionalUsers": 404,
+    "pageSize": 100,
+    "selects": 302,
+    "includesAuthentication": false
+  },
+  "imagesAndSources": [
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/login_antes.png",
+      "sha256": "d5006966f3121756218d28d2459b1554e33b4ed83ec9b736fd269205cf4d9437"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/panel_movil_antes.png",
+      "sha256": "5c68fe0c65f525ad6d886e1ead8583f3719b90eefeb55bb71bab63b750e438dc"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/panel_antes.png",
+      "sha256": "f4c62c636378b4ae4b635a60ae5c307c9bb362bc2a3f9f12349ccebbdf16a27a"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/usuarios_antes.png",
+      "sha256": "e487c1afd839253cde7f265d7112466a118953dbf06a621bf180a3111a90bd5a"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/registro_usuario_antes.png",
+      "sha256": "f3ab830361fdcebddf659d148a2ea25b6d0c008067fe07d96d347a7cf5fa0f60"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/registro_duplicado_antes.png",
+      "sha256": "84b7921bdbabfc41f69a33463087305cc81a402eca82301fff40b74f2e3a9d4d"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/asignar_roles_antes.png",
+      "sha256": "8714168664fc8dd8e260a8df85a57249a95914d892b92671c51bbb213892b3df"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/roles_antes.png",
+      "sha256": "b910c2c63948a3f9461babf81b9d4d55d976e96d3cfe90cfa521f1220bd963b5"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/editar_permisos_antes.png",
+      "sha256": "5e7174c9fb4026e46a94560b62d279b978785eb092f6dba0f342d7d3f2db9e2f"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/programar_capacitacion_antes.png",
+      "sha256": "79c3cb8a80a5441560d2cc7ee3e54af6bd906391553724525f396168d9f5f218"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/capacitaciones_antes.png",
+      "sha256": "2e35097a9409c600e927f7c6860184bbf8109b58849b50ae9831e13c06393ca6"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/detalle_capacitacion_antes.png",
+      "sha256": "b8d521d279e49e44cdf6d31dfd74714130c71dab6eb22e1f1d07522f65053b83"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/editar_capacitacion_antes.png",
+      "sha256": "7ac859662081e16ae60f22d3bbbbbc3a6e54674f25cc164675f4964f8591d93b"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/capacitacion_guardada_antes.png",
+      "sha256": "f6c4098c9f3d9364c5a0466669bd3dbdd4fc071bca496e61dcdcdfbff2ed57e8"
+    },
+    {
+      "path": "docs/franshesco/evidencias/registro_antes.txt",
+      "sha256": "9cf96eb22fb05288379fbe36cce5a9d95f8bcfe9e464bbf18e0db29e41b6421f"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/codigo_antes.png",
+      "sha256": "a88fc54e2b09c370de0489805098927398c31ca18a3c77ad06a6fef46bdc2a78"
+    },
+    {
+      "path": "docs/franshesco/evidencias/autenticacion_antes.txt",
+      "sha256": "abc95599d78851c9fd5786ad4dc8c7844c17ebe8016c454b2b145bb379ecbd57"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/codigo_autenticacion_antes.png",
+      "sha256": "48566b8e2c0e4c75ede26a6c1fa093b34f79c051d1cee0f0d29b3fc0ee7291ef"
+    },
+    {
+      "path": "docs/franshesco/evidencias/permisos_antes.txt",
+      "sha256": "30a7141df8bfa91f0d7c1efdba0916a8df6ee1581d8b29321529cade0ae9c4e6"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/codigo_permisos_antes.png",
+      "sha256": "2da335721fe36b9ca83a17b208f8bc8b126e0872faddea7b2a6f3c9511799164"
+    },
+    {
+      "path": "docs/franshesco/evidencias/eventos_antes.txt",
+      "sha256": "430cbe24e5287db0b7c884132a237665c0c80a3bb1ec7727f3a817401579fa29"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/codigo_eventos_antes.png",
+      "sha256": "8c766003aa147a73f7aba5715584356e99166c6855c4fd8dd248fd1081485e0c"
+    }
+  ]
+}

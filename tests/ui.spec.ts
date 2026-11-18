@@ -124,3 +124,30 @@ test('valida horarios y guarda y edita una capacitación desde el formulario', a
   await row.getByRole('button', { name: 'Ver detalle', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('heading', { name: 'Capacitación E2E actualizada', exact: true })).toBeVisible();
 });
+
+test('Fran: programar genera avisos reales, permite leerlos y funciona en móvil', async ({ page }) => {
+  await login(page);
+  const result = await page.evaluate(async () => {
+    const session = await fetch('/api/auth/me').then(response => response.json());
+    const response = await fetch('/api/trainings', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': session.data.csrfToken },
+      body: JSON.stringify({ code: 'FRAN-E2E', title: 'Aviso de capacitación E2E', description: 'Prueba ficticia', start_date: '2027-02-01', end_date: '2027-02-01', start_time: '09:00', end_time: '10:00', modality: 'presencial', location: 'Sala ficticia', capacity: 20, status: 'programada', instructor_id: null }),
+    });
+    return response.status;
+  });
+  expect(result).toBe(201);
+  await page.getByRole('button', { name: 'Avisos', exact: true }).click();
+  const item = page.locator('.notification-item').filter({ hasText: 'FRAN-E2E' });
+  await expect(item).toContainText('Capacitación programada');
+  await expect(item).toContainText('Sin leer');
+  await item.getByRole('button', { name: 'Marcar como leído', exact: true }).click();
+  await expect(item.locator('.notification-state')).toHaveText('Leído');
+  await page.reload();
+  await page.getByRole('button', { name: 'Avisos', exact: true }).click();
+  await expect(item.locator('.notification-state')).toHaveText('Leído');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('heading', { name: 'Avisos', exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.getByRole('button', { name: 'Reintentar avisos pendientes', exact: true }).click();
+  await expect(page.getByRole('status').filter({ hasText: /Eventos procesados:/ })).toBeVisible();
+});

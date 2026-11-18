@@ -1,0 +1,21 @@
+  7      async login(input, { ip, previousTokenHash } = {}) {
+  8        const value = parseLogin(input);
+  9        limiter.check(ip);
+ 10        dummyHash ??= credentials.hashPassword(credentials.randomToken());
+ 11        const row = sessions.credentials(value.email);
+ 12        const correct = await credentials.verifyPassword(value.password, row?.password_hash || await dummyHash);
+ 13        if (!correct || !row?.active) throw new HttpError(401, 'Correo o contraseña incorrectos.');
+ 14        const token = credentials.randomToken();
+ 15        const csrfToken = credentials.randomToken();
+ 16        const expiresAt = new Date(new Date(clock()).getTime() + 8 * 60 * 60 * 1000).toISOString();
+ 17        return runInTransaction(() => {
+ 18          // Una desactivación/cambio de clave durante scrypt no debe abrir una sesión.
+ 19          const current = sessions.credentials(value.email);
+ 20          if (!current?.active || current.id !== row.id || current.password_hash !== row.password_hash) throw new HttpError(401, 'Correo o contraseña incorrectos.');
+ 21          sessions.deleteExpired(clock());
+ 22          if (previousTokenHash) sessions.revoke(previousTokenHash);
+ 23          sessions.insertSession({ tokenHash: credentials.tokenHash(token), userId: row.id, csrfToken, expiresAt });
+ 24          writeAudit(row.id, 'login', 'user', row.id);
+ 25          return { token, csrfToken, user: users.find(row.id) };
+ 26        });
+ 27      },
