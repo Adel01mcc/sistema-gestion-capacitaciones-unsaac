@@ -2,6 +2,8 @@
 
 Fecha real de trabajo: **17/11/2026, America/Lima**. Las referencias HU-03/HU-04 son identificadores del repositorio; no se convierten automáticamente en claves Jira. No se modifican Story Points, fechas de Sprint ni historial del Burndown.
 
+**Actualización publicada:** el conector confirmó la creación del comentario **10039** en [AD-4](https://unsaac-team-vkzuhjfb.atlassian.net/browse/AD-4), con evidencia, commits y [PR #2 en borrador](https://github.com/Adel01mcc/sistema-gestion-capacitaciones-unsaac/pull/2). Usa los resultados finales 68/68, build y 4/4 de navegador. Los textos siguientes se conservan como material para Lab8; no se publicó comentario en AD-3 ni se cambiaron estados.
+
 Se verificó en el conector que **AD-4 corresponde a HU-04 y está asignada a Adel**, con estado remoto `Listo` ya existente antes de esta actualización. Las subtareas AD-35 a AD-39 aparecían sin asignación y `Por hacer`; ese estado no se cambia para simular cierre. **AD-3 pertenece a Daniela**: el texto de soporte de HU-03 se conserva como material de coordinación y no autoriza atribuirse ni actualizar su tarea.
 
 ## Comentario para HU-04 — Modificar capacitación

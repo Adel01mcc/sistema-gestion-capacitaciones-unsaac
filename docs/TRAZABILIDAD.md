@@ -72,6 +72,8 @@ No deben mostrarse como funciones disponibles si no están implementadas.
 
 ## Registro de evidencia y cierre
 
+Actualización de publicación, 17/11/2026: push de `feature/adel-refactor-backend` confirmado, [PR #2 abierto como borrador hacia main](https://github.com/Adel01mcc/sistema-gestion-capacitaciones-unsaac/pull/2), documentación inicial en `2441af0`. Se publicó evidencia en AD-4 mediante el comentario `10039`; no se cambiaron estados ni datos del Sprint. [Entrega de los quince resultados](adel/ENTREGA.md). La revisión humana y la integración real continúan pendientes.
+
 Para cada ejecución conservar: fecha Lima, comando, versión del entorno,
 base/datos aislados, resultado/errores y criterios cubiertos. Un resultado de
 API no demuestra automáticamente que la interfaz fue probada en navegador.
