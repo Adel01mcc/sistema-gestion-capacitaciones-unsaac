@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { createDatabase, transaction } from '../server/db.js';
 import { seedDemo } from '../server/seed.js';
@@ -24,7 +24,8 @@ test('Persistencia real: migraciones/seed idempotentes y datos conservados al re
     const training = createTraining(db, trainingInput({ code: 'PERSISTENTE' }), admin);
     db.close();
     db = createDatabase(path);
-    assert.equal(db.prepare('SELECT COUNT(*) AS n FROM schema_migrations').get().n, 1);
+    const expectedMigrations = readdirSync(new URL('../server/migrations/', import.meta.url)).filter(name => name.endsWith('.sql')).sort();
+    assert.deepEqual(db.prepare('SELECT version FROM schema_migrations ORDER BY version').all().map(row => row.version), expectedMigrations);
     assert.equal(db.prepare('SELECT title FROM trainings WHERE id=?').get(training.id).title, training.title);
     assert.equal(db.prepare('PRAGMA foreign_keys').get().foreign_keys, 1);
     assert.throws(() => db.prepare('UPDATE trainings SET capacity=0 WHERE id=?').run(training.id), /CHECK constraint/);
