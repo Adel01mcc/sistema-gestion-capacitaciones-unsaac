@@ -49,3 +49,7 @@ Al preparar la copia autónoma, `main.tex` utiliza los archivos copiados cuando 
 - Las fuentes Mermaid de inscripción y asistencia describen diseño futuro, no funcionalidades ejecutadas.
 
 Los diagramas de arquitectura y estados se dibujan con TikZ dentro del informe; las fuentes completas se incluyen como listados. El renderizado de los Mermaid no ha sido verificado con un motor Mermaid. Para sustituirlos o ampliar figuras se pueden exportar a SVG/PDF/PNG y añadirlos a `imagenes/`, conservando sus fuentes.
+
+## Franshesco - 18/11/2026
+
+Capitulo integrado: `capitulos/09_refactorizacion_franshesco.tex`. Documento individual: `franshesco.tex`. Ejecutar `preparar-overleaf.ps1` antes de exportar. Compilar con pdfLaTeX dos veces; el PDF individual verificado se entrega en `output/pdf/refactorizacion-franshesco.pdf` desde la raiz del repositorio. Las imagenes propias estan en `imagenes/franshesco/` y contienen version, archivo y lineas. Los manifiestos estan en `docs/franshesco/`.

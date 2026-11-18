@@ -1,0 +1,34 @@
+ 30  export function createTraining(db, input, user, { events } = {}) {
+ 31    const value = parseTrainingInput(input);
+ 32    if (!['planificada', 'programada'].includes(value.status)) throw new HttpError(422, 'Una capacitación nueva debe estar planificada o programada.', { status: 'Seleccione planificada o programada.' });
+ 33    const result = transaction(db, () => {
+ 34      checkInstructor(db, value.instructor_id);
+ 35      assertCode(db, value.code);
+ 36      const id = insertTraining(db, value, user.id, now());
+ 37      audit(db, user.id, 'create', 'training', id);
+ 38      const training = getTraining(db, id, user);
+ 39      const eventId = value.status === 'programada' ? events?.record('training.scheduled', training) : null;
+ 40      return { training, eventId };
+ 41    });
+ 42    if (result.eventId) events.dispatch(result.eventId);
+ 43    return result.training;
+ 44  }
+ 45  export function updateTraining(db, id, input, user, { events } = {}) {
+ 46    const value = parseTrainingInput(input);
+ 47    const result = transaction(db, () => {
+ 48      const current = getTraining(db, id, user);
+ 49      if (['finalizada', 'cancelada'].includes(current.status)) throw new HttpError(409, 'Una capacitación finalizada o cancelada no admite cambios.');
+ 50      if (value.status !== current.status && !TRANSITIONS[current.status].includes(value.status)) throw new HttpError(409, 'El cambio de estado solicitado no está permitido.', { status: 'Revise las transiciones documentadas.' });
+ 51      checkInstructor(db, value.instructor_id);
+ 52      assertCode(db, value.code, id);
+ 53      saveTraining(db, id, value, now());
+ 54      audit(db, user.id, 'update', 'training', id);
+ 55      const training = getTraining(db, id, user);
+ 56      const changed = Object.keys(value).some(key => value[key] !== current[key]);
+ 57      const type = current.status !== 'programada' && value.status === 'programada' ? 'training.scheduled' : 'training.updated';
+ 58      const eventId = changed ? events?.record(type, training) : null;
+ 59      return { training, eventId };
+ 60    });
+ 61    if (result.eventId) events.dispatch(result.eventId);
+ 62    return result.training;
+ 63  }

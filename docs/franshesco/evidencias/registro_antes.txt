@@ -1,0 +1,17 @@
+ 53  export async function createUser(db, input, actorId) {
+ 54    const user = validate(createSchema, input);
+ 55    if (actorId !== null && !getUser(db, actorId).permissions.includes('roles.manage')) {
+ 56      const privilegedParticipant = db.prepare("SELECT 1 FROM role_permissions rp JOIN roles r ON r.id=rp.role_id WHERE r.code='participante' AND rp.permission_code IN ('users.manage','roles.manage')").get();
+ 57      if (user.roles.some(role => role !== 'participante') || privilegedParticipant) throw new HttpError(403, 'Asignar roles adicionales o administrativos requiere el permiso de gestionar roles.');
+ 58    }
+ 59    const hash = await hashPassword(user.password);
+ 60    return transaction(db, () => {
+ 61      assertUnique(db, user);
+ 62      const timestamp = now();
+ 63      const result = db.prepare('INSERT INTO users (first_name,last_name,email,document,password_hash,active,department,specialty,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)').run(user.first_name, user.last_name, user.email, user.document, hash, Number(user.active), user.department, user.specialty, timestamp, timestamp);
+ 64      const id = Number(result.lastInsertRowid);
+ 65      setRoles(db, id, user.roles);
+ 66      audit(db, actorId, 'create', 'user', id);
+ 67      return hydrateUser(db, id);
+ 68    });
+ 69  }

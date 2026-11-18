@@ -199,3 +199,82 @@ Antes de arrancar sobre la base existente se ejecutó `node --env-file-if-exists
 | `npm.cmd run test:ui` | Login/logout, panel, usuarios y registro/edición de capacitación completos | 4/4, código 0, servidor y base ficticia aislados en 3101 | Aprobada |
 
 El build conserva la advertencia del bundle de 504,11 kB; las fuentes frontend no cambiaron. Las nuevas capturas se conservan en `.verification/arranque-ui/`; las históricas se restauran desde Git. El servidor local en 3001 se mantiene separado de las pruebas en 3101. No se fusionan ramas ni se presenta el arranque como despliegue o revisión humana. No se compiló un nuevo PDF LaTeX.
+# Verificación de Franshesco - 18/11/2026
+
+Referencia inicial: `punto-inicio-fran`, commit `98f8d5a`, con Brenda y Adel ya
+integrados. `npm.cmd run check` en copia aislada: 75/75 pruebas, TypeScript y Vite
+correctos. `npm.cmd run test:ui`: 4/4 escenarios, código 0.
+
+Después de refactorizar: `npm.cmd run check`, 95/95 (70 pruebas de primer nivel y
+25 subcasos), cero fallos, tipos/build correctos, código 0. Las 20 pruebas propias
+están en `tests/franshesco-{users,auth,events}.test.js`. Incluyen inyección de
+dependencias, registro simultáneo sin duplicado, permisos revocados durante
+hashing, autorización directa, rollback, lotes, errores y eventos/avisos.
+
+`npm.cmd run build` y `npm.cmd run test:ui` en una copia aislada actual: cinco
+escenarios correctos, código 0; se preservaron las capturas históricas originales.
+El nuevo escenario verifica programación real, aviso, marcado, persistencia al
+recargar y ancho móvil. La migración 003 conserva datos ficticios y recupera un
+evento pendiente después de reabrir SQLite, sin duplicar avisos.
+
+Captura comparativa ejecutada con `scripts/capture-franshesco.mjs`: antes la ruta
+de avisos responde 404; después responde 200 y devuelve dos avisos tras programar
+y modificar. Medición de página 100/404: 302 SELECT antes, cuatro después,
+excluyendo autenticación; no es una prueba de 400 conexiones simultáneas.
+Metadatos y SHA-256: `docs/franshesco/evidencias/`. Verificación reproducible:
+`node scripts/verify-franshesco.mjs`.
+
+Build aislado sin `.env`: 266,99 kB JS. Build en raíz con el entorno local
+development: 508,76 kB y advertencia de tamaño sin fallo. No se alteró `.env` ni
+se ejecutaron pruebas contra la base de trabajo. No se acredita revisión humana,
+cliente, despliegue ni ejecución remota de CI por estos resultados locales.
+
+## Revisión posterior de imágenes de Franshesco
+
+Se regeneraron las imágenes de código con notas de refactorización, principios y
+patrones, líneas resaltadas y referencias de versión; se añadió el código real
+Observer. Nueve fragmentos son transcripciones literales verificables.
+Se ejecutaron los recorridos de captura en ambas versiones con Chrome, API y
+SQLite en memoria: registro duplicado 409, creación programada 201, modificación
+200; avisos 404 antes y 200 después con dos mensajes. También marcado como leído,
+reintento con cero pendientes y vistas móviles. Se conservaron los formularios de
+los compañeros y no se modificó código del producto en esta revisión.
+
+Resultado gráfico: 33 capturas originales, nueve imágenes de código explicado y
+14 láminas comparativas (56 PNG). Las láminas conservan sus capturas de origen y
+las anotaciones se ubican fuera de la interfaz. Manifiestos por fase y
+comparaciones_visuales.json con SHA-256; comprobación reproducible mediante
+node scripts/verify-franshesco.mjs. Índice en
+docs/latex/imagenes/franshesco/README.md. PDF individual recompilado y revisión
+visual realizada sobre su renderizado. Los resultados 95/95 y 5/5 anteriores
+corresponden a la implementación; no se atribuyen como una nueva ejecución aquí.
+
+## Selección final de imágenes solicitada
+
+La carpeta de Franshesco conserva 14 comparacion_visual_* con los mismos hashes
+anteriores y contiene nueve comparacion_codigo_* nuevas: cada una reúne código
+anterior y refactorizado con sus versiones y explicación del diseño. Los 42 PNG
+individuales anteriores se apartaron a docs/franshesco/evidencias/archivo_png/ para
+conservar su procedencia, sin mezclarlos con las láminas finales. Se actualizaron
+las rutas de manifiestos e informe. El verificador compara archivos originales,
+fragmentos literales de Git/árbol actual y hashes de las 14 visuales intactas.
+No se modificó el código del producto ni se atribuye una nueva ejecución de la
+suite backend a esta reorganización de documentación.
+
+## Cierre de Franshesco — Punto final fran 1
+
+18/11/2026, America/Lima. Se volvió a ejecutar la verificación sobre una copia
+actual de la entrega, sin `.env` ni datos de trabajo. `npm.cmd run check`:
+95/95 pruebas backend, cero fallos, TypeScript y Vite correctos, código 0.
+`npm.cmd run test:ui`: cinco escenarios aprobados, código 0. Salidas preservadas
+en `docs/franshesco/evidencias/validacion_*_entrega.txt` y resumen estructurado
+en `validacion_entrega.json`. Las advertencias de color del navegador no cambian
+el resultado de salida.
+
+Se revisaron las 23 láminas contra código y manifiestos. Las 14 visuales permanecen
+intactas y los 29 fragmentos literales de los manifiestos coinciden con la
+referencia inicial o los archivos de entrega. El informe individual se reorganizó
+por problema, solución, diseño y comprobación, con alcance parcial de HU-26 y
+contribuciones de compañeros diferenciadas. Las imágenes conservan sus rótulos
+históricos anteriores al commit; la entrega se identifica por el mensaje
+`Punto final fran 1`. No se acredita revisión humana ni integración por PR.

@@ -60,10 +60,10 @@ Consulta [PRUEBAS.md](docs/PRUEBAS.md) para resultados realmente ejecutados, lim
 |---|---|
 | `src/` | Interfaz React/TypeScript: formularios, sesión y peticiones HTTP |
 | `server/routes/` | Rutas Express, autorización y respuestas JSON |
-| `server/services/` | Reglas de negocio y transacciones; usuarios conserva su acceso SQL |
-| `server/validation/`, `server/repositories/` | Entradas Zod y SQL parametrizado de capacitaciones separados (HU-03/HU-04) |
+| `server/services/` | Casos de uso, reglas y coordinación de transacciones; usuarios y autenticación reciben colaboradores por inyección |
+| `server/validation/`, `server/repositories/` | Entradas Zod y SQL parametrizado separados para usuarios, roles, autenticación, capacitaciones y avisos |
 | `server/db.js`, `server/migrations/` | Conexión SQLite, integridad y migraciones versionadas |
-| `server/security.js` | Hash scrypt, sesiones opacas y protección CSRF |
+| `server/security.js`, `server/auth/` | Fachada compatible, hash scrypt, sesiones opacas y protección CSRF |
 | `tests/` | Integración de API, seguridad y persistencia |
 | `docs/` | Requisitos, backlog, diagramas, decisiones, proceso y evidencia |
 | `docs/latex/` | Informe universitario y bitácora continua |
@@ -82,3 +82,7 @@ La [segunda etapa de Adel](docs/adel/REFACTOR_BACKEND.md), del 17/11/2026, separ
 - [Informe LaTeX](docs/latex/main.tex); comandos de compilación y resultados en `docs/PRUEBAS.md`.
 
 V2 propone participantes e instructores; V3, sesiones/asistencia/historial/evaluación; V4, integración y estabilización de prioridades acordadas. Certificados son opcionales y aún no están implementados. El registro inicial de V1 no acreditaba tags, PR, revisión humana ni despliegue. Para los commits y la publicación de la segunda etapa, consulta [la entrega de Adel](docs/adel/REFACTOR_BACKEND.md). Un PR no implica revisión humana ni integración. La ejecución remota del workflow CI debe verificarse por separado.
+
+## Segunda etapa de Franshesco (18/11/2026)
+
+[Analisis, arquitectura, pruebas y limites](docs/franshesco/README.md). Punto Inicio Fran: etiqueta local `punto-inicio-fran` en `98f8d5a`. Usuarios y autenticacion separan validacion, reglas y SQL; los servicios reciben colaboradores por inyeccion. Observer publica programacion/modificacion a una bandeja interna con eventos recuperables. Migracion aditiva 003; `npm run db:migrate` antes de iniciar la nueva version. No repita la semilla si ya tiene cuenta. [Guion para el profesor](docs/franshesco/GUION_PROFESOR.md).

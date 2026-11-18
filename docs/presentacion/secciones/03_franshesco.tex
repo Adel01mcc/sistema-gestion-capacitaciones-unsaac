@@ -1,15 +1,33 @@
-% RESPONSABLE: FRANSHESCO. No atribuir Observer sin evidencia.
+﻿% Evidencia local del 18/11/2026; no atribuye commits ni revisión humana pendientes.
 \begin{frame}{Franshesco | Usuarios, autenticación y permisos}
-\begin{columns}[T,onlytextwidth]
-\column{0.56\textwidth}
-{\large\bfseries Apartado pendiente de integrar}\par\vspace{0.26cm}
-\begin{itemize}\setlength\itemsep{0.22cm}
-\item Seleccionar una refactorización del backend real.
-\item Añadir código ANTES y DESPUÉS.
-\item Explicar validación, permisos o separación de servicios.
-\item Mostrar resultados de pruebas y commits.
+\begin{itemize}
+\item Base: Punto Inicio Fran, etiqueta \texttt{punto-inicio-fran}, commit \texttt{98f8d5a}; ya incluye a Brenda y Adel.
+\item Antes: validación, reglas, hashing y SQL reunidos en usuarios y login.
+\item Después: validadores, políticas, casos de uso y repositorios específicos.
+\item SRP: responsabilidades separadas. DIP: servicios reciben repositorios, reloj, hashing, auditoría y transacción.
+\item Permisos comprobados en servidor y revalidados después de esperar el hash; se conserva el último administrador activo.
 \end{itemize}
-\column{0.40\textwidth}
-\cajaclara{\textbf{Enfoque}\par\vspace{0.10cm}Control de acceso, seguridad y servicios.\\[0.24cm]\textit{Observer: candidato; no afirmarlo implementado sin demostrarlo.}}
-\end{columns}
+\small Entrega: \texttt{Punto final fran 1} en \texttt{dev/franshesco}. Los rótulos sin commit describen capturas previas al cierre. Se conservan contratos y reglas de los compañeros.
+\end{frame}
+
+\begin{frame}{Franshesco | Observer con un consumidor real}
+\begin{itemize}
+\item Capacitaciones publica hechos mediante un puerto \texttt{events}; no conoce al servicio de avisos.
+\item Un observador crea avisos internos para gestores e instructor asignado, según acceso vigente.
+\item Transacción 1: capacitación, auditoría y evento pendiente. Publicación después del commit.
+\item Transacción 2: avisos y evento procesado. Fallo: pendiente recuperable, sin avisos parciales.
+\item Reintento manual hasta 50 eventos; unicidad evento/destinatario evita duplicados internos.
+\end{itemize}
+\small Observer organiza suscriptores; outbox conserva eventos. HU-26 parcial, sin WhatsApp, correo, worker ni tiempo real. Destinatarios pendientes de confirmar.
+\end{frame}
+
+\begin{frame}{Franshesco | Cómo se comprobó}
+\begin{itemize}
+\item Antes: 75 pruebas backend y cuatro casos Chrome. Después: 95 y cinco, aprobados localmente.
+\item Casos: registro simultáneo, rollback, revocación durante hashing, propiedad/CSRF, fallo de observador, reintento y reinicio.
+\item Listado de 100 entre 404 cuentas ficticias: 302 SELECT antes y cuatro después, excluyendo autenticación; no es una prueba de carga.
+\item Nueve imágenes de código con versión, archivo, líneas y hashes.
+\item Demostración: programar, abrir Avisos, modificar, actualizar y marcar como leído.
+\end{itemize}
+\small Pruebas aisladas. Fuentes y guion en \texttt{docs/franshesco/}. Revisión humana, cliente e integración por PR pendientes.
 \end{frame}

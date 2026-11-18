@@ -95,3 +95,21 @@ Usuarios: `search`, `role`, `page`, `pageSize`. Capacitaciones: `search`, `statu
 | 500 | Error interno con mensaje genérico; detalle sólo servidor |
 
 No se implementan todavía /enrollments, /sessions, /history, /reports ni /certificates. Consultar su diseño en los diagramas y backlog sin confundirlos con rutas disponibles.
+# Ampliación de Franshesco - 18/11/2026
+
+Se conservan las rutas y respuestas de usuarios, roles y autenticación. La
+implementación separa sus responsabilidades sin cambiar el login por correo.
+
+| Ruta | Autorización | Respuesta |
+|---|---|---|
+| `GET /api/notifications?page=1&pageSize=10` | Sesión activa, propietario y alcance actual de capacitación | `{data:[{id,training_id,title,message,created_at,read_at}],meta}` |
+| `PATCH /api/notifications/:id/read` con `{}` | Sesión, CSRF, propietario y alcance actual | `{data:{message}}`; 404 si es ajeno/no disponible, idempotente |
+| `POST /api/notifications/retry` con `{}` | Sesión, CSRF, `trainings.manage` | `{data:{processed,pending}}`; procesa hasta 50 eventos por llamada |
+
+Las nuevas rutas no aceptan `user_id` del cliente para escoger destinatario.
+Se generan avisos al crear en programada, al programar o al modificar datos
+realmente. Crear planificada y repetir un PUT idéntico no generan eventos.
+Los avisos no se envían por correo/WhatsApp ni se entregan en tiempo real.
+Un fallo del consumidor conserva el evento para reintento y no convierte en
+error una capacitación ya confirmada. Política y límites en
+[documentación individual](franshesco/README.md).

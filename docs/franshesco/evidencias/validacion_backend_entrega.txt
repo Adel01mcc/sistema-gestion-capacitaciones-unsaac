@@ -1,0 +1,126 @@
+
+> paz-sur-capacitaciones@0.1.0 check
+> npm run test && npm run build
+
+
+> paz-sur-capacitaciones@0.1.0 test
+> node --test --test-concurrency=1 tests/*.test.js
+
+✔ HU-16: health comprueba conexión y autenticación restaura sesión sin exponer hash (1001.4575ms)
+✔ HU-01: alta persiste perfil, roles y auditoría; correo se normaliza (193.9956ms)
+✔ HU-01: rechaza correo/documento duplicado sin insertar usuarios ni auditoría (365.8318ms)
+✔ HU-01: valida nombres, correo, clave corta, rol desconocido y campos inesperados (18.0345ms)
+✔ HU-01: búsqueda literal, filtro por rol y paginación con límites (20.8073ms)
+✔ HU-01/HU-02: edición actualiza perfil y asignación explícita de múltiples roles (179.6722ms)
+✔ HU-02: impide retirar el último administrador activo o desactivarlo (6.6154ms)
+✔ HU-03/HU-04: crea, consulta y edita capacitación con responsable autenticado (12.9613ms)
+✔ HU-03: rechaza duplicados, cupos inválidos, fechas inexistentes y horarios invertidos (24.235ms)
+✔ HU-04: transiciones válidas y bloqueo terminal sin alterar información (18.2887ms)
+✔ HU-03/HU-04: filtros y dashboard usan datos persistidos (64.3257ms)
+✔ Agenda: después de las 19:00 conserva actividades de hoy en America/Lima (2.1898ms)
+✔ Integración dev: sin configuración el proxy usa la API local predeterminada (5.7251ms)
+✔ Integración dev: PORT/HOST del archivo configuran el destino sin exponer secretos al cliente (5.1259ms)
+✔ Integración dev: el entorno del proceso prevalece sobre el archivo igual que en Node (2.6425ms)
+✔ Integración dev: los archivos locales y por modo no sustituyen el .env que carga el backend (4.5494ms)
+✔ Integración dev: variables existentes vacías usan los mismos valores predeterminados que Node (2.9906ms)
+✔ Integración dev: los listeners comodín se conectan por loopback e IPv6 conserva su dirección (7.1047ms)
+✔ Integración dev: un puerto inválido falla con mensaje claro antes de iniciar Vite (3.6615ms)
+✔ Fran/auth-DIP: cambio de credenciales o desactivación durante scrypt no abre sesión (4.2433ms)
+✔ Fran/auth: ventana de intentos vence sin depender de esperas reales (0.3224ms)
+✔ Fran/errores: sólo códigos SQLite reales se traducen; fallos inesperados no filtran datos (0.3083ms)
+✔ Fran/Observer: suscribe por tipo, publica a varios y permite desuscribirse (1.2961ms)
+✔ Fran/eventos: planificar no avisa; programar crea un evento y avisos sólo para gestores e instructor (938.1829ms)
+✔ Fran/eventos: alta programada avisa; modificación real avisa; PUT idéntico no duplica (887.0516ms)
+✔ Fran/eventos: validación, duplicado y fallo de auditoría no generan eventos ni avisos (1047.8889ms)
+✔ Fran/outbox: si no se puede registrar el evento se revierte también la capacitación y auditoría (1637.3412ms)
+✔ Fran/outbox: un observador falla después del commit; reintento atómico e idempotente sin perder la capacitación (1637.0388ms)
+✔ Fran/avisos: sesión, CSRF, paginación y propiedad protegen lectura y marcado (2048.4961ms)
+✔ Fran/avisos: una reasignación o revocación elimina acceso a los avisos anteriores (2292.996ms)
+✔ Fran/migración: 003 conserva datos y permisos; evento pendiente sobrevive al reinicio y se procesa una sola vez (1725.7592ms)
+✔ Fran/SRP-DIP: alta con colaboradores inyectados, sin SQLite ni Express (3.166ms)
+✔ Fran/permisos: una revocación durante el hash impide crear la cuenta (0.9534ms)
+✔ Fran/permisos: revocar roles.manage durante el hash protege también una edición (1.8037ms)
+✔ Fran/permisos: llamar al servicio de roles directamente también exige autorización (1.0673ms)
+✔ Fran/usuarios: dos altas simultáneas del mismo correo crean una sola cuenta (1092.5763ms)
+✔ Fran/usuarios: fallo de auditoría revierte perfil, roles y nueva cuenta (1057.636ms)
+✔ Fran/rendimiento: 400 personas, página de 100 con cuatro SELECT y permisos sin duplicar (1088.1137ms)
+✔ Fran/auth: hashes malformados se rechazan de forma controlada (0.4192ms)
+✔ Persistencia real: migraciones/seed idempotentes y datos conservados al reabrir SQLite (789.7742ms)
+✔ Integridad: rollback revierte toda operación y las restricciones SQL protegen referencias (5.2385ms)
+✔ Migraciones incrementales: una segunda migración conserva roles y permisos personalizados (19.9196ms)
+✔ HU-16: cookie HttpOnly SameSite y token opaco se guarda con hash (890.3581ms)
+✔ HU-16: requiere sesión y devuelve mensaje genérico para credenciales inválidas (349.2183ms)
+✔ CSRF: rechaza token ausente, ajeno y Unicode; no modifica la base (9.3231ms)
+✔ Entrada HTTP: rechaza formularios, JSON mal formado, payload excesivo e inyección de filtros (16.6047ms)
+✔ HU-02: coordinador puede administrar capacitaciones y no usuarios ni roles (183.898ms)
+✔ Alcance: instructor sólo ve asignadas y participante no obtiene datos ajenos (357.8143ms)
+✔ HU-02: cambios de permisos se aplican a sesiones existentes y administrador está protegido (193.5145ms)
+✔ HU-02: users.manage delegado no permite elevar roles ni editar cuentas privilegiadas (358.1959ms)
+✔ HU-02: la protección de altas delegadas respeta los permisos actuales del rol participante (182.7979ms)
+✔ HU-16: cambio de contraseña y desactivación invalidan sesiones (865.7209ms)
+✔ HU-16: logout y vencimiento eliminan acceso (349.3298ms)
+✔ HU-16: once intentos por IP se limitan; cookie Secure configurable (1931.6859ms)
+✔ HU-16: un login correcto no reinicia el límite de intentos por IP (1721.2711ms)
+✔ HU-03/HU-04: migrar desde 001 conserva registros, auditoría, permisos personalizados y FK; reapertura idempotente (30.2085ms)
+✔ HU-03/HU-04: SQL rechaza INSERT y UPDATE de fechas/horas inválidas sin alterar registros (26.8485ms)
+✔ HU-03/HU-04: histórico con fecha imposible aborta migración completa y conserva datos (24.7671ms)
+✔ HU-03/HU-04: histórico con hora inválida aborta migración completa y conserva datos (22.0383ms)
+✔ HU-03/HU-04: reversión transaccional de 002 conserva datos y permite reaplicar la migración (26.7144ms)
+✔ HU-03/HU-04: cada campo obligatorio ausente produce 422 sin registro ni auditoría parcial (936.2732ms)
+✔ HU-03/HU-04: fechas reales, años bisiestos y horas de frontera mantienen el contrato (16.6083ms)
+✔ HU-03/HU-04: rechaza calendario, formatos e intervalos inválidos en alta y edición sin efectos (66.8891ms)
+✔ HU-04: GET y PUT distinguen identificador inválido de capacitación inexistente (30.1211ms)
+✔ HU-04: PUT conserva ID, responsable y creación aunque otro gestor envíe responsable arbitrario (177.5059ms)
+✔ HU-04: conflicto de código sin distinguir mayúsculas preserva registro y auditoría (9.8584ms)
+▶ HU-04: matriz completa de 25 pares de estados respeta transiciones y bloqueos terminales
+  ✔ planificada -> planificada (6.9274ms)
+  ✔ planificada -> programada (7.0287ms)
+  ✔ planificada -> en_curso (5.9987ms)
+  ✔ planificada -> finalizada (5.5032ms)
+  ✔ planificada -> cancelada (5.1508ms)
+  ✔ programada -> planificada (8.1414ms)
+  ✔ programada -> programada (7.4291ms)
+  ✔ programada -> en_curso (9.5807ms)
+  ✔ programada -> finalizada (12.2817ms)
+  ✔ programada -> cancelada (10.3316ms)
+  ✔ en_curso -> planificada (13.5584ms)
+  ✔ en_curso -> programada (13.5122ms)
+  ✔ en_curso -> en_curso (15.3269ms)
+  ✔ en_curso -> finalizada (13.72ms)
+  ✔ en_curso -> cancelada (14.7364ms)
+  ✔ finalizada -> planificada (16.6945ms)
+  ✔ finalizada -> programada (14.0868ms)
+  ✔ finalizada -> en_curso (13.9127ms)
+  ✔ finalizada -> finalizada (12.7931ms)
+  ✔ finalizada -> cancelada (21.463ms)
+  ✔ cancelada -> planificada (8.8971ms)
+  ✔ cancelada -> programada (7.0621ms)
+  ✔ cancelada -> en_curso (7.4355ms)
+  ✔ cancelada -> finalizada (7.1493ms)
+  ✔ cancelada -> cancelada (6.837ms)
+✔ HU-04: matriz completa de 25 pares de estados respeta transiciones y bloqueos terminales (268.917ms)
+✔ HU-03/HU-04: fallo de auditoría devuelve 500 genérico y revierte alta y edición completas (15.6738ms)
+✔ HU-03/HU-04: búsqueda literal y paginación conservan data/meta y filtros de fecha inclusivos (25.1343ms)
+✔ HU-04: actualización y auditoría persisten al cerrar y reabrir SQLite y la aplicación (1065.0957ms)
+ℹ tests 95
+ℹ suites 0
+ℹ pass 95
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31934.8269
+
+> paz-sur-capacitaciones@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v8.3.8 building client environment for production...
+transforming...
+✓ 23 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.61 kB │ gzip:  0.37 kB
+dist/assets/index-Df0DN6ZJ.css   33.11 kB │ gzip:  7.91 kB
+dist/assets/index-BDkn9z66.js   266.99 kB │ gzip: 80.27 kB
+
+✓ built in 187ms

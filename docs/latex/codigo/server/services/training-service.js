@@ -27,20 +27,24 @@ function checkInstructor(db, id) {
 function assertCode(db, code, id = 0) {
   if (trainingCodeExists(db, code, id)) throw new HttpError(409, 'Ya existe una capacitación con ese código.', { code: 'Use otro código.' });
 }
-export function createTraining(db, input, user) {
+export function createTraining(db, input, user, { events } = {}) {
   const value = parseTrainingInput(input);
   if (!['planificada', 'programada'].includes(value.status)) throw new HttpError(422, 'Una capacitación nueva debe estar planificada o programada.', { status: 'Seleccione planificada o programada.' });
-  return transaction(db, () => {
+  const result = transaction(db, () => {
     checkInstructor(db, value.instructor_id);
     assertCode(db, value.code);
     const id = insertTraining(db, value, user.id, now());
     audit(db, user.id, 'create', 'training', id);
-    return getTraining(db, id, user);
+    const training = getTraining(db, id, user);
+    const eventId = value.status === 'programada' ? events?.record('training.scheduled', training) : null;
+    return { training, eventId };
   });
+  if (result.eventId) events.dispatch(result.eventId);
+  return result.training;
 }
-export function updateTraining(db, id, input, user) {
+export function updateTraining(db, id, input, user, { events } = {}) {
   const value = parseTrainingInput(input);
-  return transaction(db, () => {
+  const result = transaction(db, () => {
     const current = getTraining(db, id, user);
     if (['finalizada', 'cancelada'].includes(current.status)) throw new HttpError(409, 'Una capacitación finalizada o cancelada no admite cambios.');
     if (value.status !== current.status && !TRANSITIONS[current.status].includes(value.status)) throw new HttpError(409, 'El cambio de estado solicitado no está permitido.', { status: 'Revise las transiciones documentadas.' });
@@ -48,8 +52,14 @@ export function updateTraining(db, id, input, user) {
     assertCode(db, value.code, id);
     saveTraining(db, id, value, now());
     audit(db, user.id, 'update', 'training', id);
-    return getTraining(db, id, user);
+    const training = getTraining(db, id, user);
+    const changed = Object.keys(value).some(key => value[key] !== current[key]);
+    const type = current.status !== 'programada' && value.status === 'programada' ? 'training.scheduled' : 'training.updated';
+    const eventId = changed ? events?.record(type, training) : null;
+    return { training, eventId };
   });
+  if (result.eventId) events.dispatch(result.eventId);
+  return result.training;
 }
 export function dashboard(db, user) {
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Lima', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());

@@ -1,0 +1,58 @@
+﻿[
+    {
+        "Name":  "comparacion_visual_01_login.png",
+        "SHA256":  "977BBA3EC66AB02920AEF950E8378C932BDBD773BC2A00B088CAE3083E17E2F2"
+    },
+    {
+        "Name":  "comparacion_visual_02_panel.png",
+        "SHA256":  "55C30ED0977E58C3DF259E5B826F91B60F2B9D4273347FAD1193DDCBA23EFBB5"
+    },
+    {
+        "Name":  "comparacion_visual_03_usuarios.png",
+        "SHA256":  "61389928C7CD170609028C3DCD07D11E71B7007969A7A0924D91AF2E1DE564E3"
+    },
+    {
+        "Name":  "comparacion_visual_04_registro.png",
+        "SHA256":  "E8D6966178442069B22D4F89329C40BC375A813E97FB6EB4B70230C2804DAC0C"
+    },
+    {
+        "Name":  "comparacion_visual_05_duplicados.png",
+        "SHA256":  "800EB9C6EBD073C5A0EB60FED442E0BEEFE03B46EE24FF6D0FEA134FD432ACCA"
+    },
+    {
+        "Name":  "comparacion_visual_06_roles.png",
+        "SHA256":  "6DC9CB8236B666424C05D29A641995B007801E89A659E7B02403E781D9F35FD3"
+    },
+    {
+        "Name":  "comparacion_visual_07_asignacion.png",
+        "SHA256":  "773E78519B589C736D57AF8CDD98280873898182B51D8856B5FF4A8DF352F483"
+    },
+    {
+        "Name":  "comparacion_visual_08_permisos.png",
+        "SHA256":  "57B8B29291E303D47327FED0EF56FD29F9F9935B2C84ABE5A2C726C40A6F4D60"
+    },
+    {
+        "Name":  "comparacion_visual_09_programacion.png",
+        "SHA256":  "0BF232F7971558B7A9B298369EA1717297A41AFBB26E00FC2CBEBB29278A500B"
+    },
+    {
+        "Name":  "comparacion_visual_10_capacitaciones.png",
+        "SHA256":  "BCBC2719C3A9DFCD6FC1625F04AEAB09C8170C598BD09AD88EBCA9C1FD7109E9"
+    },
+    {
+        "Name":  "comparacion_visual_11_edicion.png",
+        "SHA256":  "CAC1901F603E5048EBA17AF532CD98C73D61F3F03CEFCADEE8447A78FFD4DEE6"
+    },
+    {
+        "Name":  "comparacion_visual_12_detalle.png",
+        "SHA256":  "4A09433E8610E560EDD413BF685BB186C5896096ACAFEF4B09D36AE4A0CB1190"
+    },
+    {
+        "Name":  "comparacion_visual_13_observer.png",
+        "SHA256":  "0E4EB1565202AEDA4111DBEB886E91335611B0AA47985CD16A6C0905572B5407"
+    },
+    {
+        "Name":  "comparacion_visual_14_movil.png",
+        "SHA256":  "83483BC8F77C19B2F71A7F85A6CF87E03D59505F12E13B86631D912B14BDF530"
+    }
+]

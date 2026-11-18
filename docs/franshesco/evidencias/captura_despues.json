@@ -1,0 +1,299 @@
+{
+  "phase": "despues",
+  "capturedAt": "2026-11-18T16:36:59.311Z",
+  "revision": "árbol de trabajo posterior a punto-inicio-fran (sin commit de entrega)",
+  "sourceViews": [
+    {
+      "key": "registro",
+      "sourcePath": "server/services/user-management.js",
+      "firstLine": 26,
+      "lastLine": 40,
+      "sourceSha256LF": "86059bdda328d5e161a4799299cd359889cde7bc7cbaba53a550d5d438bda2ec",
+      "versionLabel": "Refactorización de Franshesco | dev/franshesco | sobre 98f8d5a, cambios sin commit",
+      "explanation": {
+        "before": "Una función combina validación Zod, consulta de privilegios, cálculo del hash, INSERT SQL y auditoría.",
+        "after": "El caso de uso coordina validación, política, hashing y repositorio mediante colaboradores recibidos por inyección.",
+        "tags": [
+          "Repository",
+          "SRP",
+          "DIP",
+          "Inyección de dependencias"
+        ],
+        "benefit": "La persistencia cambia en el repositorio. La lógica puede probarse con objetos en memoria, sin Express ni SQLite.",
+        "proof": "Se conserva el contrato del formulario de Brenda. Después del await se comprueban otra vez los permisos antes de guardar.",
+        "focus": [
+          "validate(",
+          "db.prepare(",
+          "await hashPassword",
+          "parseUserInput",
+          "assertUserCreation",
+          "users.insert",
+          "passwordHasher",
+          "writeAudit"
+        ]
+      }
+    },
+    {
+      "key": "autenticacion",
+      "sourcePath": "server/services/auth-service.js",
+      "firstLine": 7,
+      "lastLine": 27,
+      "sourceSha256LF": "3c911b959188d6fd6a5a4559036f4b8e88e5083f72a49fc320d0a9c7e355f95f",
+      "versionLabel": "Refactorización de Franshesco | dev/franshesco | sobre 98f8d5a, cambios sin commit",
+      "explanation": {
+        "before": "La ruta HTTP valida credenciales, limita intentos, consulta usuarios, verifica hashes y escribe sesiones.",
+        "after": "La ruta conserva cookies y HTTP. auth-service coordina autenticación; validadores, limitador y repositorio tienen módulos propios.",
+        "tags": [
+          "SRP",
+          "DIP",
+          "Inyección de dependencias"
+        ],
+        "benefit": "La autenticación puede verificarse con colaboradores controlados. Las sesiones siguen siendo opacas y HttpOnly.",
+        "proof": "Se comprueba de nuevo que la cuenta siga activa y conserve el mismo hash después de esperar la verificación. Login sigue usando correo.",
+        "focus": [
+          "validate(",
+          "db.prepare(",
+          "parseLogin",
+          "limiter.check",
+          "verifyPassword",
+          "const current",
+          "current?.active",
+          "insertSession"
+        ]
+      }
+    },
+    {
+      "key": "permisos",
+      "sourcePath": "server/services/role-service.js",
+      "firstLine": 5,
+      "lastLine": 22,
+      "sourceSha256LF": "d6597e2e508b6cb87f440db251d9b21926815f3aa86421f0213e340c2d362876",
+      "versionLabel": "Refactorización de Franshesco | dev/franshesco | sobre 98f8d5a, cambios sin commit",
+      "explanation": {
+        "before": "updateRole valida y modifica roles con SQL. La autorización de esta operación depende de la ruta que lo invoca.",
+        "after": "El servicio autoriza roles.manage dentro de la transacción, aplica reglas y delega la escritura al repositorio.",
+        "tags": [
+          "Repository",
+          "SRP",
+          "DIP",
+          "Política de autorización"
+        ],
+        "benefit": "La regla también protege una llamada directa al servicio. La edición conserva el bloqueo del rol administrador.",
+        "proof": "users.manage y roles.manage siguen siendo permisos distintos. La prueba de autorización directa espera 403 sin escritura.",
+        "focus": [
+          "db.prepare(",
+          "validate(",
+          "assertPermission",
+          "roles.update",
+          "administrador",
+          "runInTransaction"
+        ]
+      }
+    },
+    {
+      "key": "eventos",
+      "sourcePath": "server/services/training-service.js",
+      "firstLine": 30,
+      "lastLine": 63,
+      "sourceSha256LF": "921ce36a1499d4111bb948043064afa99882e8fee841b041e7fa0c2ec8364fb7",
+      "versionLabel": "Refactorización de Franshesco | dev/franshesco | sobre 98f8d5a, cambios sin commit",
+      "explanation": {
+        "before": "El servicio de Adel ya valida, usa repositorio, controla estados y guarda auditoría. No registra ni publica eventos de avisos.",
+        "after": "Se añade el puerto events. El evento se guarda con la capacitación y se publica después de que termina la transacción.",
+        "tags": [
+          "Observer",
+          "Outbox transaccional",
+          "Inyección de dependencias"
+        ],
+        "benefit": "Capacitaciones no importa notificaciones. Un suscriptor crea avisos internos y los pendientes pueden reintentarse sin duplicarlos.",
+        "proof": "Observer desacopla publicación y consumo; outbox conserva el evento. Se mantienen las reglas de Adel y no se añade State.",
+        "focus": [
+          "events",
+          "transaction(",
+          "audit(",
+          "return getTraining"
+        ]
+      }
+    },
+    {
+      "key": "observer",
+      "sourcePath": "server/events/observer.js",
+      "firstLine": 2,
+      "lastLine": 20,
+      "sourceSha256LF": "e91694c96a2461aa88ec15e7a6c27e71485d208677e472dba58b6c8991447fe1",
+      "versionLabel": "Refactorización de Franshesco | dev/franshesco | sobre 98f8d5a, cambios sin commit",
+      "explanation": {
+        "after": "El publicador guarda suscriptores por tipo. subscribe registra una función, publish llama a las registradas y el retorno de subscribe permite desuscribirse.",
+        "tags": [
+          "Observer · patrón de diseño"
+        ],
+        "benefit": "El publicador conoce funciones suscritas. La composición conecta el observador que crea avisos sin introducir ese detalle en capacitaciones.",
+        "proof": "Este archivo implementa Observer. El outbox se implementa en otros módulos para conservar eventos ante fallos; son responsabilidades distintas.",
+        "focus": [
+          "subscribe(",
+          "listeners.get(type).add",
+          "return ()",
+          "publish(event)",
+          "listener(event)"
+        ]
+      }
+    }
+  ],
+  "database": ":memory: (datos ficticios)",
+  "browser": "157.0.8103.52",
+  "api": {
+    "createStatus": 201,
+    "updateStatus": 200,
+    "notificationsStatus": 200,
+    "notifications": {
+      "data": [
+        {
+          "id": 4,
+          "training_id": 3,
+          "title": "Capacitación modificada",
+          "message": "FRAN-EVIDENCIA · Atención al cliente - evidencia ficticia. Inicio: 2027-02-10, 09:00. Fin: 2027-02-10, 11:00. Estado: programada.",
+          "created_at": "2026-11-18T16:36:57.847Z",
+          "read_at": null
+        },
+        {
+          "id": 1,
+          "training_id": 3,
+          "title": "Capacitación programada",
+          "message": "FRAN-EVIDENCIA · Atención al cliente - evidencia ficticia. Inicio: 2027-02-10, 09:00. Fin: 2027-02-10, 11:00. Estado: programada.",
+          "created_at": "2026-11-18T16:36:57.493Z",
+          "read_at": null
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "pageSize": 20,
+        "total": 2,
+        "totalPages": 1
+      }
+    }
+  },
+  "paginationMeasurement": {
+    "fictionalUsers": 404,
+    "pageSize": 100,
+    "selects": 4,
+    "includesAuthentication": false
+  },
+  "imagesAndSources": [
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/login_despues.png",
+      "sha256": "d5006966f3121756218d28d2459b1554e33b4ed83ec9b736fd269205cf4d9437"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/panel_movil_despues.png",
+      "sha256": "5c68fe0c65f525ad6d886e1ead8583f3719b90eefeb55bb71bab63b750e438dc"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/panel_despues.png",
+      "sha256": "4754328f0ad7b8cfe89bdf9d2ae91874509cb5830a45188a9ea772756e64ddd9"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/usuarios_despues.png",
+      "sha256": "0e1db9c79eed84941c9f9c813152cdc9d07c5fa1d492062fd78e3a5a0cacff97"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/registro_usuario_despues.png",
+      "sha256": "510772706551cbf7edb6e751d12afc954ac36fb845282dda5f70fe3ec3d40938"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/registro_duplicado_despues.png",
+      "sha256": "62d628917708c74530cd580189fbe38ed436af3df3c02f4721db30fb501de52b"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/asignar_roles_despues.png",
+      "sha256": "3cae332e5ee3315be19e5a56cfccfba24fab5ecbcc8f0a0aab962cc478483ea6"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/roles_despues.png",
+      "sha256": "eedd4eb4fd30d822667d613ea0e3eb056aece5ff2319caf07cb5802b407012d5"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/editar_permisos_despues.png",
+      "sha256": "667bd4f8f9d860ae13d6851349fdadcf4d71a1ee6a143a021f665214cdde534f"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/avisos_vacios_despues.png",
+      "sha256": "f2c9faf2bb96a21b63ca80651838d1befa981f556b56bfe83ac78b0cc1de3a93"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/programar_capacitacion_despues.png",
+      "sha256": "d87df7932356fb41f3c5f176ba3a2cada0a5309bf479ccc1d3e7e303ae1ec2bc"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/capacitaciones_despues.png",
+      "sha256": "4f92de55bb5ce00324e0c6c6b394ca7dec41b5ba33b158df6235264c3ec7a371"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/detalle_capacitacion_despues.png",
+      "sha256": "82774b69151a59333081fba7400f099844b13dcbf53c4ee028395657bb3fad3f"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/editar_capacitacion_despues.png",
+      "sha256": "857f1157beea7d38a005cb247d6e09dc85eea9c389da30dde51ab729e8a9c4c5"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/capacitacion_guardada_despues.png",
+      "sha256": "db69a9c1ee186ac73ca8048f8c6f76a4ca482c3f37e7da4e60d442c9dea48e8d"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/avisos_despues.png",
+      "sha256": "af7ee8109141ba73d5bc37d3670c95ff612f808f71dc8478fb01843e08459d70"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/aviso_leido_despues.png",
+      "sha256": "98e050f2c8919104658fa7da1f4b5c06c57f2d29ae932a8419f582606b617860"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/avisos_reintento_despues.png",
+      "sha256": "4c0323d57feb21e7b3a1c4daedb4e77024b84b6aa133195bc8a465451e68f726"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/avisos_movil_despues.png",
+      "sha256": "02dbcc93b540ba8f8f181acb917185eaebe122112ea922e0d1ad3f5124ed5d34"
+    },
+    {
+      "path": "docs/franshesco/evidencias/registro_despues.txt",
+      "sha256": "b54c4cec3a0390d73d3844d86169ccebf81ce5b783be303f9f43cd56ebc11aee"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/codigo_despues.png",
+      "sha256": "6a612ffad530e2606e38dffa783f7dbb59a8328fa8699e35bf040d829e593daa"
+    },
+    {
+      "path": "docs/franshesco/evidencias/autenticacion_despues.txt",
+      "sha256": "061ca4c0f2f8c42feb86497fe5e23845c422f000f50c44c9d182e4d89d9a91fc"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/codigo_autenticacion_despues.png",
+      "sha256": "0f64d0c0bee9dd6bff2ff595b3e2b576564fd54c3e2cd0467c3c5e2404e255ef"
+    },
+    {
+      "path": "docs/franshesco/evidencias/permisos_despues.txt",
+      "sha256": "5e8b61dd5c673c097aa02a40116134c4eeb7ef0c551051730b0f6af5cc2b8f19"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/codigo_permisos_despues.png",
+      "sha256": "4934257119aefa09de0aa02507ab143bdae53d0246761bad6427fdf5bc8d0946"
+    },
+    {
+      "path": "docs/franshesco/evidencias/eventos_despues.txt",
+      "sha256": "95828249812931ec157fc88a05da23b8c735305fa3d8fb79f4b9735ece864e62"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/codigo_eventos_despues.png",
+      "sha256": "31645381d5fce120bbe4a35706fb7f2c76d01302130c8cf1a25b05b32a9eb62d"
+    },
+    {
+      "path": "docs/franshesco/evidencias/observer_despues.txt",
+      "sha256": "a66f4a7ec85709079b25c278a79740e56c3a96a22ac2b2c403b5c76a27cd2273"
+    },
+    {
+      "path": "docs/franshesco/evidencias/archivo_png/codigo_observer_despues.png",
+      "sha256": "31b98498fdf95c4b657ef63d9ebaff272954b0d28bf2c689bd6df7a311ac2e60"
+    }
+  ]
+}

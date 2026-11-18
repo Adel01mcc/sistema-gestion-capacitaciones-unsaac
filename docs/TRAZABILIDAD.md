@@ -108,3 +108,23 @@ Commits reales: `63cdbd9` (seguridad), `36b2f2d` (extracción del backend), `144
 La consulta autorizada de Jira verificó **AD-4, HU-04, asignada a Adel**, con estado `Listo` ya existente. Las subtareas AD-35 a AD-39 estaban sin asignación y `Por hacer`; AD-3 corresponde a Daniela y no se atribuye a Adel. La preparación de `docs/adel/JIRA_LAB8.md` no acredita por sí misma que se haya publicado un comentario. El estado de publicación se registrará cuando exista la respuesta real del conector; no se cambian estados, puntos ni fechas para simular el trabajo.
 
 No se considera que una historia haya cumplido la DoD por aprobar pruebas. La revisión humana, la validación de supuestos y la integración real siguen requiriendo evidencia propia. Las referencias de esta sección actualizan el estado observado el 17/11 y no alteran retrospectivamente el registro del 12/11.
+# Actualización de Franshesco - 18/11/2026
+
+Base integrada: `98f8d5a`, etiqueta `punto-inicio-fran` (Punto Inicio Fran).
+Entrega en `dev/franshesco`, identificada mediante el mensaje `Punto final fran 1`.
+El usuario autorizó su publicación; alcance y verificación final en
+[ENTREGA.md](franshesco/ENTREGA.md). Las imágenes anteriores al cierre conservan
+su rótulo histórico de cambios sin commit y se vinculan mediante hashes.
+
+| Alcance | Implementación | Evidencia |
+|---|---|---|
+| HU-01 registro y perfiles | validación, user-management, user-repository | pruebas existentes + franshesco-users, altas simultáneas, atomicidad, lotes |
+| HU-02 permisos/roles | user-policy, role-service, role-repository | regresión, autorización directa y revocación durante hashing |
+| HU-16 autenticación | auth-service, auth-repository, credentials, login-limiter | regresión, invalidación, límite y revalidación de credenciales |
+| HU-26 parcial; soporte HU-03/04 | Observer, outbox 003, consumidor, API y bandeja | franshesco-events + caso UI, fallo/reintento/reinicio/propiedad |
+| Gestión de configuración | etiqueta, fuentes antes, manifiestos SHA-256 | script de verificación y capítulo individual |
+
+No se declara completa HU-26: no incluye anticipación, inscritos ni canales
+externos. Validación de destinatarios, revisión humana e integración por PR pendientes.
+Detalle: [README individual](franshesco/README.md),
+[tablero local](franshesco/SPRINT.md), [guion](franshesco/GUION_PROFESOR.md).

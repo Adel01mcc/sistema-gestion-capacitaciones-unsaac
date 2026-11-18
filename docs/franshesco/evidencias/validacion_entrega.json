@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-18",
+  "timezone": "America/Lima",
+  "environment": "Copia aislada .verification/franshesco/entrega; sin .env y con bases ficticias",
+  "baseline": "punto-inicio-fran / 98f8d5a",
+  "deliveryCommitMessage": "Punto final fran 1",
+  "checks": [
+    {
+      "command": "npm.cmd run check",
+      "exitCode": 0,
+      "backendTests": 95,
+      "pass": 95,
+      "fail": 0,
+      "typecheck": "pass",
+      "viteBuild": "pass",
+      "output": "validacion_backend_entrega.txt"
+    },
+    {
+      "command": "npm.cmd run test:ui",
+      "exitCode": 0,
+      "scenarios": 5,
+      "pass": 5,
+      "fail": 0,
+      "output": "validacion_ui_entrega.txt"
+    }
+  ],
+  "notes": [
+    "Las advertencias de color de Playwright aparecen en stderr; el proceso termino con codigo cero.",
+    "Los resultados no acreditan revision humana, cliente, despliegue o merge."
+  ]
+}

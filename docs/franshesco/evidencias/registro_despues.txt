@@ -1,0 +1,15 @@
+ 26      async create(input, actorId) {
+ 27        const value = parseUserInput(input);
+ 28        // null es exclusivamente la semilla local; ninguna ruta pública lo acepta.
+ 29        if (actorId !== null) assertUserCreation(get(actorId), value, roles.participantIsPrivileged());
+ 30        const hash = await passwordHasher(value.password);
+ 31        return runInTransaction(() => {
+ 32          // Se reevalúa tras el await: un permiso revocado no autoriza la escritura.
+ 33          if (actorId !== null) assertUserCreation(get(actorId), value, roles.participantIsPrivileged());
+ 34          assertUnique(value);
+ 35          const id = users.insert(value, hash, clock());
+ 36          users.setRoles(id, value.roles);
+ 37          writeAudit(actorId, 'create', 'user', id);
+ 38          return get(id);
+ 39        });
+ 40      },
