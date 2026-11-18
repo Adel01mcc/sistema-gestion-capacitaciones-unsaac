@@ -2,6 +2,14 @@ import type { Training, TrainingStatus } from './types';
 
 export const initialTrainingStatuses: readonly TrainingStatus[] = ['planificada', 'programada'];
 
+export const trainingEditStatuses: Readonly<Record<TrainingStatus, readonly TrainingStatus[]>> = {
+  planificada: ['planificada', 'programada', 'cancelada'],
+  programada: ['programada', 'planificada', 'en_curso', 'cancelada'],
+  en_curso: ['en_curso', 'finalizada', 'cancelada'],
+  finalizada: [],
+  cancelada: [],
+};
+
 export function initialTrainingValues(training: Training | null) {
   return {
     code: training?.code ?? '',

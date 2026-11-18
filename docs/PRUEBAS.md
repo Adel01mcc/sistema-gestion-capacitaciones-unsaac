@@ -79,6 +79,39 @@ La regresión usa inicio el 15/01/2027 a las 10:00 y fin el 16/01/2027 a las 09:
 
 Playwright informó el resultado de cada escenario, pero el servidor auxiliar de Windows quedó escuchando hasta que se terminó su proceso. Los comandos devolvieron código 0 para el escenario original y el refactorizado, y código 1 para la regresión contra V1. Se ejecutó solo el escenario filtrado para preservar las capturas versionadas. Vite avisó de un bloque JavaScript superior a 500 kB en ambos builds. La revisión humana queda pendiente.
 
+## HU-04 · Segunda refactorización · 2026-11-18 (America/Lima)
+
+La rama `feature/daniela-refactor-capacitaciones` comenzó en `0647086`, con
+HU-03 guardada. La etiqueta `daniela-base-v1` sigue en `eb00464`. Se usaron
+Node 24.18.0, Playwright con Chrome y datos ficticios. El servidor para
+Playwright usa SQLite en memoria. Las pruebas de Node usan bases aisladas.
+
+| Comprobación | Base `0647086` | Después de HU-04 |
+| --- | --- | --- |
+| `npm.cmd run check` | 28 pruebas aprobadas, TypeScript y build correctos. | 29 pruebas aprobadas, 0 fallidas u omitidas, TypeScript y build correctos. |
+| `npm.cmd run test:ui -- --grep "valida horarios y guarda y edita"` | 1 escenario aprobado. | 1 escenario aprobado. El alta inicia en planificada y ofrece planificada y programada. Conserva la validación de horario diario sin emitir POST, el código duplicado junto al campo, el alta válida y el detalle. |
+| `npm.cmd run test:ui -- --grep "HU-04 precarga el detalle vigente"` | La nueva regresión falló como se esperaba contra el build base. Después de un cambio en la API mostró «Sala original» en vez de «Sala actualizada antes de abrir». | Pasó al ejecutar la suite de HU-04. Conserva el lugar vigente al actualizar título y cupo, con el mismo ID y responsable. |
+| `npm.cmd run test:ui -- --grep "HU-04"` | Se reprodujo el caso de precarga indicado arriba. | 9 escenarios ejecutados y aprobados. |
+| `git diff --check` | No aplica a la línea base. | Código de salida 0. |
+
+Los nueve escenarios de HU-04 verifican precarga y persistencia, carga con
+reintento y cierre detectado, respuesta tardía, transiciones y estados
+terminales, sustitución del instructor inactivo, desasignación explícita,
+recuperación del catálogo tras un error de red, catálogo con 403 y consulta
+de la versión vigente tras un conflicto de estado. Las altas, actualizaciones
+y lecturas de persistencia usan la API real. Las pruebas de red y permisos
+simulan fallos de consulta en el navegador. La prueba de integración añade
+rechazos de PUT por horario, instructor, permiso y estado cancelado, con
+lectura posterior para comprobar que el registro se conservó.
+
+Se ejecutaron filtros de Playwright para preservar las capturas versionadas.
+En Windows el servidor auxiliar quedó escuchando tras pasar o fallar los
+escenarios. Se cerró su proceso aislado para que Playwright terminara y
+devolviera el resultado. Vite mantuvo el aviso por un bloque superior a
+500 kB. Queda pendiente la revisión humana de HU-04 y la recompilación del
+PDF versionado desde las fuentes LaTeX actualizadas.
+
+
 ## Cierre del informe y del entorno
 
 `docs/latex/main.pdf`: 50 páginas A4, 674909 bytes. SHA-256: `DB4F0F531C8E0C206C21F8E838C9E85B64F527C260BD10456A2BD12792469EAD`.

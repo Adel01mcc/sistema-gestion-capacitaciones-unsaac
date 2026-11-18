@@ -164,3 +164,12 @@ Fecha de elaboración: 2026-11-12, America/Lima. Las decisiones de implementaci�
 - **Decisión:** extraer un formulario compartido con una función tipada de guardado y un módulo de valores, validación y conversión. Mostrar los errores de la API junto a sus campos.
 - **Justificación:** el alta y la edición comparten datos de entrada. El módulo de validación se puede revisar sin depender de React ni del transporte, y la página puede coordinar el guardado y la actualización de la lista.
 - **Limitaciones e impacto:** la comprobación anticipada del horario diario se aplica a ambas historias. La API conserva la validación definitiva. La revisión de transiciones y de instructores inactivos corresponde a la siguiente refactorización de HU-04.
+
+## ADR-016 — Cargar el detalle vigente al editar una capacitación
+
+- **Fecha:** 2026-11-18 (America/Lima).
+- **Problema:** en el commit 0647086, la edición copiaba la fila del listado y podía reenviar datos anteriores en un PUT completo. El catálogo mostraba la asignación inactiva como opción normal, aunque la API la rechazaba.
+- **Alternativas:** reutilizar la fila del listado o consultar el detalle por ID al abrir. Consultar también las transiciones desde la API requeriría ampliar un contrato que actualmente solo expone los estados.
+- **Decisión:** cargar el detalle por ID antes de abrir los campos, comprobar si admite edición y centralizar las opciones de estado del frontend en `trainingForm.ts`. Distinguir una asignación no elegible de un catálogo sin verificar. Ante un conflicto de estado, conservar el borrador y ofrecer una consulta del detalle vigente.
+- **Principio:** responsabilidad única. `TrainingEditor` coordina la lectura y comprueba si puede abrir el formulario, `trainingForm.ts` mantiene las opciones de estado y `TrainingForm` conserva el borrador y muestra su validación.
+- **Límites:** el servidor conserva las reglas y los permisos existentes. El nuevo GET reduce la antigüedad de los datos al abrir. El PUT completo carece de control de versión, por lo que todavía puede sobrescribir cambios posteriores si el servidor acepta la actualización. Roles con `trainings.manage` sin permisos de catálogo pueden guardar una asignación sin verificar si el servidor la acepta, o retirarla explícitamente.

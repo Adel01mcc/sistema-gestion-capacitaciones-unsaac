@@ -1,17 +1,11 @@
-import { useEffect, useId, useState, type ChangeEvent, type ComponentProps, type FormEvent } from 'react';
+import { useEffect, useId, useState, type ChangeEvent, type ComponentProps, type FormEvent, type ReactNode } from 'react';
 import { ApiError, errorMessage, request } from './api';
 import { Field, Icon, Modal, Notice } from './components';
 import {
-  initialTrainingStatuses, initialTrainingValues, toTrainingPayload, validateTrainingForm,
+  initialTrainingStatuses, initialTrainingValues, toTrainingPayload, trainingEditStatuses, validateTrainingForm,
   type TrainingFieldErrors, type TrainingFieldName, type TrainingPayload,
 } from './trainingForm.ts';
-import { modalityLabels, statusLabels, type ListResponse, type Training, type TrainingStatus, type User } from './types';
-
-const transitions: Record<TrainingStatus, TrainingStatus[]> = {
-  planificada: ['planificada', 'programada', 'cancelada'],
-  programada: ['programada', 'planificada', 'en_curso', 'cancelada'],
-  en_curso: ['en_curso', 'finalizada', 'cancelada'], finalizada: ['finalizada'], cancelada: ['cancelada'],
-};
+import { modalityLabels, statusLabels, type ListResponse, type Training, type User } from './types';
 
 type InstructorOption = Pick<User, 'id' | 'first_name' | 'last_name' | 'active'>;
 type FieldFeedback = { id: string; message: string };
@@ -19,6 +13,8 @@ type TrainingFormProps = {
   training: Training | null;
   onClose: () => void;
   onSubmit: (payload: TrainingPayload) => Promise<void>;
+  onConsultCurrent?: () => void;
+  currentVersion?: ReactNode;
 };
 
 function TrainingField({ feedback, wide, ...props }: ComponentProps<typeof Field> & { feedback?: FieldFeedback }) {
@@ -30,14 +26,17 @@ function TrainingField({ feedback, wide, ...props }: ComponentProps<typeof Field
   );
 }
 
-export function TrainingForm({ training, onClose, onSubmit }: TrainingFormProps) {
+export function TrainingForm({ training, onClose, onSubmit, onConsultCurrent, currentVersion }: TrainingFormProps) {
   const [form, setForm] = useState(() => initialTrainingValues(training));
   const [instructors, setInstructors] = useState<InstructorOption[]>([]);
-  const [lookupError, setLookupError] = useState('');
+  const [lookupFailure, setLookupFailure] = useState<{ message: string; canRetry: boolean } | null>(null);
   const [lookupLoading, setLookupLoading] = useState(true);
+  const [lookupAttempt, setLookupAttempt] = useState(0);
+  const [rejectedInstructorId, setRejectedInstructorId] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<TrainingFieldErrors>({});
+  const [stateConflict, setStateConflict] = useState(false);
   const fieldId = useId();
 
   useEffect(() => {
@@ -51,11 +50,37 @@ export function TrainingForm({ training, onClose, onSubmit }: TrainingFormProps)
       }
       return people;
     }
-    loadInstructors().then((people) => { if (active) setInstructors(people.filter((user) => user.active || user.id === training?.instructor_id)); })
-      .catch((failure) => { if (active) setLookupError(errorMessage(failure)); })
+    loadInstructors().then((people) => {
+      if (active) {
+        const eligible = people.filter((person) => person.active);
+        setInstructors(eligible);
+        setRejectedInstructorId((id) => eligible.some((person) => String(person.id) === id) ? '' : id);
+      }
+    })
+      .catch((failure) => {
+        if (active) setLookupFailure({
+          message: errorMessage(failure),
+          canRetry: !(failure instanceof ApiError && failure.status === 403),
+        });
+      })
       .finally(() => { if (active) setLookupLoading(false); });
     return () => { active = false; };
-  }, [training?.instructor_id]);
+  }, [lookupAttempt]);
+
+  const assignedId = training?.instructor_id?.toString() ?? '';
+  const assignedName = training?.instructor_name ?? `Instructor #${assignedId}`;
+  const eligibleInstructors = instructors.filter((person) => String(person.id) !== rejectedInstructorId);
+  const assignmentUnavailable = Boolean(assignedId && (
+    assignedId === rejectedInstructorId ||
+    (!lookupLoading && !lookupFailure && !eligibleInstructors.some((person) => String(person.id) === assignedId))
+  ));
+  const selectedInstructorMissing = Boolean(form.instructor_id &&
+    !eligibleInstructors.some((person) => String(person.id) === form.instructor_id));
+  const instructorNeedsChange = Boolean(training && form.instructor_id && (
+    form.instructor_id === rejectedInstructorId || (!lookupLoading && !lookupFailure && selectedInstructorMissing)
+  ));
+  const submitBlocked = saving || stateConflict || instructorNeedsChange ||
+    Boolean(training && form.instructor_id && lookupLoading);
 
   function feedback(name: TrainingFieldName): FieldFeedback | undefined {
     const message = fieldErrors[name];
@@ -84,7 +109,7 @@ export function TrainingForm({ training, onClose, onSubmit }: TrainingFormProps)
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (saving) return;
+    if (submitBlocked) return;
     setError('');
     const errors = validateTrainingForm(form);
     setFieldErrors(errors);
@@ -94,6 +119,16 @@ export function TrainingForm({ training, onClose, onSubmit }: TrainingFormProps)
     try {
       await onSubmit(toTrainingPayload(form));
     } catch (failure) {
+      if (training && failure instanceof ApiError) {
+        if (failure.status === 409 && (failure.fields?.status || !failure.fields)) {
+          setStateConflict(true);
+          setError('El estado de la capacitación cambió mientras la editabas. El borrador sigue abierto. Consulta la versión vigente.');
+          return;
+        }
+        if (failure.status === 422 && failure.fields?.instructor_id) {
+          setRejectedInstructorId(form.instructor_id);
+        }
+      }
       if (failure instanceof ApiError && failure.fields) {
         const fields: TrainingFieldErrors = {};
         const generalMessages: string[] = [];
@@ -115,7 +150,7 @@ export function TrainingForm({ training, onClose, onSubmit }: TrainingFormProps)
     }
   }
 
-  const allowedStatuses = training ? transitions[training.status] : initialTrainingStatuses;
+  const allowedStatuses = training ? trainingEditStatuses[training.status] : initialTrainingStatuses;
   return (
     <Modal
       title={training ? 'Editar capacitación' : 'Nueva capacitación'}
@@ -125,7 +160,22 @@ export function TrainingForm({ training, onClose, onSubmit }: TrainingFormProps)
       <form onSubmit={submit}>
         <div className="modal-body">
           <Notice message={error} />
-          <Notice message={lookupError} kind="info" />
+          {stateConflict && (currentVersion || <button type="button" className="button secondary small" onClick={onConsultCurrent}>
+            Consultar versión vigente
+          </button>)}
+          {lookupFailure && <>
+            <Notice message={training
+              ? `No se pudo consultar el catálogo de instructores. ${lookupFailure.message}`
+              : lookupFailure.message} kind={training ? 'error' : 'info'} />
+            {training && lookupFailure.canRetry && <button type="button" className="button secondary small" onClick={() => {
+              setLookupLoading(true);
+              setLookupFailure(null);
+              setLookupAttempt((value) => value + 1);
+            }}>Reintentar catálogo</button>}
+          </>}
+          {assignmentUnavailable && <Notice kind="info" message={
+            `Asignación actual: ${assignedName}. El instructor está inactivo o ya no es elegible. Selecciona un instructor activo o «Sin asignar» para retirarlo.`
+          } />}
           <div className="form-grid">
             <TrainingField label="Código *" feedback={feedback('code')}>
               <input {...control('code')} required maxLength={30} placeholder="CAP-001" />
@@ -172,10 +222,11 @@ export function TrainingForm({ training, onClose, onSubmit }: TrainingFormProps)
             >
               <select {...control('instructor_id')} disabled={lookupLoading}>
                 <option value="">{lookupLoading ? 'Cargando instructores…' : 'Sin asignar'}</option>
-                {training?.instructor_id && !instructors.some((person) => person.id === training.instructor_id) && (
-                  <option value={training.instructor_id}>{training.instructor_name ?? `Instructor #${training.instructor_id}`}</option>
-                )}
-                {instructors.map((person) => <option key={person.id} value={person.id}>{person.first_name} {person.last_name}</option>)}
+                {selectedInstructorMissing && <option value={form.instructor_id} disabled={instructorNeedsChange}>
+                  {form.instructor_id === assignedId ? assignedName : `Instructor #${form.instructor_id}`}
+                  {instructorNeedsChange ? ' (no elegible)' : ' (sin verificar)'}
+                </option>}
+                {eligibleInstructors.map((person) => <option key={person.id} value={person.id}>{person.first_name} {person.last_name}</option>)}
               </select>
             </TrainingField>
           </div>
@@ -186,7 +237,7 @@ export function TrainingForm({ training, onClose, onSubmit }: TrainingFormProps)
         </div>
         <div className="modal-actions">
           <button type="button" className="button secondary" disabled={saving} onClick={onClose}>Cancelar</button>
-          <button type="submit" className="button primary" disabled={saving}>
+          <button type="submit" className="button primary" disabled={submitBlocked}>
             {saving ? 'Guardando…' : training ? 'Guardar cambios' : 'Crear capacitación'}<Icon name="check" size={18} />
           </button>
         </div>

@@ -85,9 +85,13 @@ test('HU-03/HU-04: crea, consulta y edita capacitación con responsable autentic
   assert.equal(training.responsible_id, admin.user.id);
   const read = await admin.agent.get(`/api/trainings/${training.id}`).expect(200);
   assert.equal(read.body.data.available_seats, 10);
-  const edited = await admin.agent.put(`/api/trainings/${training.id}`).set('X-CSRF-Token', admin.csrf).send(trainingInput({ title: 'Título editado', capacity: 1, status: 'programada' })).expect(200);
+  const edited = await admin.agent.put(`/api/trainings/${training.id}`).set('X-CSRF-Token', admin.csrf).send(trainingInput({ title: 'Título editado', capacity: 1, status: 'programada', responsible_id: 999999 })).expect(200);
   assert.equal(edited.body.data.title, 'Título editado');
-  assert.equal(context.db.prepare('SELECT capacity FROM trainings WHERE id=?').get(training.id).capacity, 1);
+  const saved = await admin.agent.get(`/api/trainings/${training.id}`).expect(200);
+  assert.deepEqual(saved.body.data, edited.body.data);
+  assert.equal(saved.body.data.id, training.id);
+  assert.equal(saved.body.data.responsible_id, training.responsible_id);
+  assert.equal(saved.body.data.capacity, 1);
 });
 
 test('HU-03: rechaza duplicados, cupos inválidos, fechas inexistentes y horarios invertidos', async () => {
@@ -109,6 +113,28 @@ test('HU-04: transiciones válidas y bloqueo terminal sin alterar información',
   await update('finalizada').expect(200);
   await update('finalizada').expect(409);
   assert.equal(context.db.prepare('SELECT status FROM trainings WHERE id=?').get(id).status, 'finalizada');
+});
+
+test('HU-04: rechaza PUT inválidos, sin permiso y sobre canceladas sin alterar el registro', async () => {
+  const input = trainingInput({ code: 'HU04-RECHAZOS' });
+  const created = await admin.agent.post('/api/trainings').set('X-CSRF-Token', admin.csrf).send(input).expect(201);
+  const path = `/api/trainings/${created.body.data.id}`;
+  const update = (changes, session = admin) => session.agent.put(path)
+    .set('X-CSRF-Token', session.csrf).send({ ...input, ...changes });
+
+  const invalidSchedule = await update({ end_time: '08:00' }).expect(422);
+  assert.ok(invalidSchedule.body.error.fields.end_time);
+  const invalidInstructor = await update({ instructor_id: admin.user.id }).expect(422);
+  assert.ok(invalidInstructor.body.error.fields.instructor_id);
+  const participant = await login(context.app, 'participante@demo.test');
+  await update({ title: 'Modificación sin permiso' }, participant).expect(403);
+  const unchanged = await admin.agent.get(path).expect(200);
+  assert.deepEqual(unchanged.body.data, created.body.data);
+
+  const cancelled = await update({ status: 'cancelada' }).expect(200);
+  await update({ status: 'cancelada', capacity: 1 }).expect(409);
+  const closed = await admin.agent.get(path).expect(200);
+  assert.deepEqual(closed.body.data, cancelled.body.data);
 });
 
 test('HU-03/HU-04: filtros y dashboard usan datos persistidos', async () => {
