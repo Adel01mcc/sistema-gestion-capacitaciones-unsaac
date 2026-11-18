@@ -25,3 +25,35 @@
 Cada entrada posterior debe indicar fecha, historia o tarea, archivos modificados, motivo, dificultad, comandos ejecutados, resultado, evidencia, revisión humana y pendiente. Cuando exista una refactorización, se conservarán referencias reales del antes y después y las pruebas correspondientes.
 
 Este registro describe asistencia de IA. No asigna a Brenda, Adel, Franshesco o Daniela pruebas, escritura manual, ceremonias o revisiones que no hayan confirmado.
+
+\section{Segunda etapa de Adel: 17 de noviembre de 2026}
+La nueva referencia inicial es la versión funcional \texttt{eb00464}; el diagnóstico de \texttt{cf6e720} se conserva como antecedente anterior a V1. Se creó \path{feature/adel-refactor-backend} desde \texttt{main} después de inspeccionar ramas, cambios locales e historial y actualizar las referencias con fetch. Los aportes remotos de Brenda permanecen separados. La solicitud actual autoriza refactorización, pruebas, documentación y commits propios; no se acredita integración por ese hecho.
+
+\begin{longtable}{P{2.2cm}P{2.6cm}P{7.5cm}}
+\caption{Actividades reales de la segunda etapa, zona America/Lima}\\
+\toprule Fecha Lima & Módulo & Actividad, motivo y resultado \\ \midrule
+\endfirsthead
+\toprule Fecha Lima & Módulo & Actividad, motivo y resultado \\ \midrule
+\endhead
+2026-11-17 & Git y seguridad & Se conservaron modificaciones locales WAL/SHM sin abrir la base. Se detectaron \path{.env} y tres archivos SQLite rastreados pese a las exclusiones; commit real \texttt{63cdbd9} los retiró sólo del índice. Se verificó que seguían en disco. La historia remota anterior no fue reescrita ni saneada. \\
+2026-11-17 & HU-03/HU-04 & Extracción de esquemas y filtros a \path{server/validation/training-validation.js} y SQL a \path{server/repositories/training-repository.js}. El servicio conserva reglas, alcance, transacción y auditoría; rutas y JSON siguen compatibles con el frontend. \\
+2026-11-17 & Integridad & Migración \path{002_training_dates.sql} para calendario y horario, con preflight histórico y triggers INSERT/UPDATE. Se conserva 001 y se comprueban datos, referencias, reversión y reaplicación en bases ficticias aisladas. Focal migración/persistencia: 8/8 aprobadas. \\
+2026-11-17 & Diseño & Se reevaluó State: cinco estados y reglas pequeñas se mantienen con \texttt{TRANSITIONS} y guardas. No se crean clases sin comportamiento suficiente. El grafo sigue pendiente de validación comercial. \\
+2026-11-17 & Regresión & Antes: \texttt{npm.cmd test}, 28/28. Nuevos casos focales antes de extraer módulos: 35/35. Después: \texttt{npm.cmd run check}, 68/68 (43 de primer nivel y 25 subcasos), cero fallos; TypeScript y Vite compilan con código cero. Advertencia de paquete de 504,11 kB; frontend y dependencias sin cambios en esta etapa. \\
+2026-11-17 & Revisión técnica & Revisión independiente asistida por IA sin hallazgos bloqueantes; 48 pruebas focales de capacitación y seguridad aprobadas. No equivale a revisión de otro estudiante ni cierre de la DoD. \\
+2026-11-17 & Navegador & Primer \texttt{npm.cmd run test:ui}: cuatro casos correctos, cierre trabado e interrupción con código 1. Repetición con permisos ampliados: cuatro aprobadas en 8,7 s, código cero. Capturas nuevas en \path{.verification/adel-ui/}; las históricas se restauraron desde \texttt{eb00464}. \\
+2026-11-17 & Informe & Capítulo individual, evidencia antes/después, guion y textos Jira/Lab8 en \path{docs/adel/}. Preparador Overleaf ejecutado con código cero. No se encontró compilador en PATH, ubicaciones MiKTeX o registro Windows. \path{main.pdf} ya existía y no fue actualizado. \\
+2026-11-17 & Commits propios & Referencias reales: \texttt{63cdbd9}, seguridad; \texttt{36b2f2d}, extracción del backend; \texttt{1440c84}, migración y pruebas; \texttt{541a3bf}, regresión API. La publicación y el PR se acreditarán con su respuesta real, sin integrar automáticamente. \\
+2026-11-17 & Trazabilidad & Se verificó AD-4/HU-04 asignada a Adel con estado Listo ya existente; no se atribuye AD-3 de Daniela. Preparar comentarios no acredita publicarlos. No se cambian puntos, fechas ni estados para simular el Sprint. \\
+\bottomrule
+\end{longtable}
+
+Las evidencias detalladas figuran en \path{docs/PRUEBAS.md}, \path{docs/TRAZABILIDAD.md}, ADR-015 a ADR-018 y \path{docs/adel/REFACTOR_BACKEND.md}. La implementación y revisión técnica fueron asistidas por Codex. La revisión humana, la validación del cliente y la integración real se registrarán cuando ocurran. Las entradas del 12/11 describen su propia sesión y no se sustituyen por este registro posterior.
+
+\subsection{Publicación y trazabilidad verificadas el 17/11/2026}
+Se confirmó el push de la rama y GitHub creó el PR 2, abierto como borrador hacia \texttt{main}, inicialmente en \texttt{2441af0}. El conector Jira confirmó el comentario \texttt{10039} en AD-4 con evidencias y resultados. No se cambiaron estados, subtareas sin asignación, puntos ni fechas. No se integró la rama ni se acredita revisión humana. El resumen y los enlaces están en \path{docs/adel/ENTREGA.md}.
+
+\subsection{Arranque conjunto solicitado el 17/11/2026}
+Se añadió \texttt{npm.cmd run local} para compilar y servir interfaz y API desde Express. Se corrigió el proxy de desarrollo para compartir HOST y PORT con el backend, leyendo sólo \path{.env} y respetando el entorno del proceso. El ejemplo queda sin contraseña; la configuración privada y las cuentas existentes se conservaron. Antes de abrir la base se creó un respaldo consistente con \texttt{node:sqlite}, en una carpeta local excluida de Git.
+
+Se inició el sistema en \url{http://127.0.0.1:3001}; web, health y dos recursos compilados respondieron 200. La suite automatizada aislada aprobó 75 pruebas, incluidos 25 subcasos, y el build terminó con código cero. Los cuatro escenarios de Chrome aprobaron con servidor y base ficticia en 3101. El servidor de uso local se mantiene activo. ADR-019 y \path{docs/PRUEBAS.md} registran alcance y límites; no hubo mezcla de ramas ni se acredita revisión humana, despliegue o PDF actualizado.

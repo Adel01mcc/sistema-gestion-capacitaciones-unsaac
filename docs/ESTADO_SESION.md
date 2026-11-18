@@ -1,5 +1,7 @@
 # Traspaso verificable — 12 de noviembre de 2026
 
+**Actualización posterior, 17/11/2026:** la segunda etapa de Adel parte de `eb00464`, crea y publica `feature/adel-refactor-backend` y dispone del [PR #2 en borrador](https://github.com/Adel01mcc/sistema-gestion-capacitaciones-unsaac/pull/2) hacia `main`. Refactor HU-03/HU-04, migración 002, 68 pruebas y build correctos, navegador 4/4. Evidencia publicada en AD-4, comentario 10039. Sin merge ni revisión humana acreditada; no se generó PDF actualizado. [Entrega y límites actuales](adel/ENTREGA.md). Las secciones siguientes conservan el registro histórico del 12/11.
+
 ## Resultado y límites
 
 Se implementó un primer incremento local para **HU-01, HU-02, HU-03, HU-04 y HU-16**: usuarios, roles/permisos, creación/edición/consulta de capacitaciones e inicio/cierre de sesión. Incluye interfaz en español, API Express real, SQLite en archivo, migración, semilla ficticia, validaciones, autorización, scrypt, cookie HttpOnly, CSRF y auditoría transaccional.

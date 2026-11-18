@@ -72,6 +72,10 @@ No deben mostrarse como funciones disponibles si no están implementadas.
 
 ## Registro de evidencia y cierre
 
+Actualización de ejecución conjunta (17/11/2026, RNF-06/07/10; soporte HU-01/02/03/04/16): `package.json` añade `local` para compilar y servir web/API juntas. `vite.config.ts` alinea HOST/PORT con el backend; siete casos en `tests/dev-config.test.js` usan sólo archivos ficticios. `.env.example` queda sin contraseña. Antes de abrir la base local se creó respaldo consistente; no se sembraron cuentas ni cambiaron contraseñas. La comprobación de disponibilidad observó web, `/api/health` y dos recursos compilados con 200 en `http://127.0.0.1:3001`. La suite completa y build aprobaron 75 pruebas. Detalles de ejecución en `PRUEBAS.md`; esta operación local no constituye integración de ramas ni cierre de la DoD.
+
+Actualización de publicación, 17/11/2026: push de `feature/adel-refactor-backend` confirmado, [PR #2 abierto como borrador hacia main](https://github.com/Adel01mcc/sistema-gestion-capacitaciones-unsaac/pull/2), documentación inicial en `2441af0`. Se publicó evidencia en AD-4 mediante el comentario `10039`; no se cambiaron estados ni datos del Sprint. [Entrega de los quince resultados](adel/ENTREGA.md). La revisión humana y la integración real continúan pendientes.
+
 Para cada ejecución conservar: fecha Lima, comando, versión del entorno,
 base/datos aislados, resultado/errores y criterios cubiertos. Un resultado de
 API no demuestra automáticamente que la interfaz fue probada en navegador.
@@ -81,3 +85,26 @@ La revisión humana, conformidad del cliente, PR e integración se mantienen
 **pendientes** hasta disponer de sus registros. No existen claves/URLs de Jira
 o PR verificadas en esta matriz. El estado de la DoD no se deduce del número
 de tests aprobados.
+
+## Segunda etapa de Adel — 17 de noviembre de 2026
+
+Este registro añade evidencia posterior sin reescribir las historias, sus puntos ni las fechas del Sprint. Referencia funcional previa: `eb004641b114d8c71f86af08b05f0f9e073baf73`. Rama creada desde `main`: `feature/adel-refactor-backend`. La rama remota de Brenda, observada en `845abe2` tras fetch, conserva sus aportes separados.
+
+| HU / tarea | Cambio concreto | Fuentes reales | Evidencia ejecutada | Estado de aceptación |
+| --- | --- | --- | --- | --- |
+| HU-03, soporte backend | Extraer entradas/filtros y SQL; conservar POST, responsable desde sesión y alta/auditoría atómicas | `server/validation/training-validation.js`, `server/repositories/training-repository.js`, `server/services/training-service.js` | Campos obligatorios, calendario/horario, duplicados, respuesta 201 y rollback por fallo de auditoría en `tests/trainings.test.js`; suite final 68/68 | Verificado técnicamente para casos registrados; no declara la HU Hecha |
+| HU-04, contribución principal | Separar coordinación de persistencia; conservar PUT y detalle, ID, responsable y creación | Mismos módulos; rutas existentes `server/routes/trainings.js` | Inexistentes y IDs inválidos; 25 pares de estados; duplicado sin efectos; edición por otro gestor conserva responsable; persistencia al reabrir SQLite/API | Revisión humana e integración pendientes de acreditar |
+| HU-03/HU-04, TT integridad | Rechazar calendario/horario inválidos también por SQL directo | `server/migrations/002_training_dates.sql` | `tests/training-migration.test.js` y `tests/persistence.test.js`: focal 8/8, preservación/FK/personalizaciones, históricos inválidos, reversión y reaplicación | Migración comprobada sólo en bases aisladas; base de trabajo no utilizada |
+| TT diseño relacionado con HU-04 | Evaluar State y conservar mapa por simplicidad de las reglas | `server/constants.js`, `updateTraining`; ADR-017 | Matriz de 25 pares con expectativas explícitas en `tests/trainings.test.js` | Decisión técnica; supuestos del cliente pendientes |
+| TT seguridad | Dejar de rastrear `.env` y SQLite/WAL/SHM, conservando archivos locales | Commit real `63cdbd9`; `.gitignore` existente | Verificación de presencia local y de retiro del índice sin leer contenidos | Ejecutado; historia anterior no saneada ni reescrita |
+| TT informe y exposición | Antes/después, explicación individual, Jira/Lab8 y capítulo LaTeX | `docs/adel/`, `docs/latex/capitulos/09_refactorizacion_adel.tex`, bitácora | Fuentes reales y comparación Git; compilador no disponible en entorno consultado | Fuentes preparadas para Overleaf; PDF anterior no actualizado |
+
+**Registro de pruebas:** `npm.cmd test` antes del cambio, 28/28; nuevos casos focales antes de la extracción, 35/35; `npm.cmd run check` final, 68/68 (43 pruebas de primer nivel y 25 subcasos), TypeScript/Vite con código 0. La revisión técnica independiente asistida por IA no encontró bloqueos y ejecutó 48 pruebas focales de capacitaciones y seguridad; no equivale a revisión humana. Véase [registro actualizado](PRUEBAS.md#segunda-etapa-de-adel--17-de-noviembre-de-2026).
+
+El primer runner UI completó cuatro casos pero quedó trabado al cerrar y se interrumpió con código 1. La repetición de `npm.cmd run test:ui` con permisos ampliados terminó: **4 aprobadas en 8,7 s, código 0**. Las capturas de prueba se conservaron en `.verification/adel-ui/`; las dos capturas históricas versionadas se restauraron exactamente desde `eb00464`.
+
+Commits reales: `63cdbd9` (seguridad), `36b2f2d` (extracción del backend), `1440c84` (migración temporal y sus pruebas), `541a3bf` (regresión API). El preparador Overleaf se ejecutó con código 0; no equivale a compilación del PDF.
+
+La consulta autorizada de Jira verificó **AD-4, HU-04, asignada a Adel**, con estado `Listo` ya existente. Las subtareas AD-35 a AD-39 estaban sin asignación y `Por hacer`; AD-3 corresponde a Daniela y no se atribuye a Adel. La preparación de `docs/adel/JIRA_LAB8.md` no acredita por sí misma que se haya publicado un comentario. El estado de publicación se registrará cuando exista la respuesta real del conector; no se cambian estados, puntos ni fechas para simular el trabajo.
+
+No se considera que una historia haya cumplido la DoD por aprobar pruebas. La revisión humana, la validación de supuestos y la integración real siguen requiriendo evidencia propia. Las referencias de esta sección actualizan el estado observado el 17/11 y no alteran retrospectivamente el registro del 12/11.

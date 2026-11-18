@@ -20,9 +20,12 @@ Las versiones resueltas en esta construcción son Express 5.3.0, React 19.3.1, Z
 \path{server/routes/trainings.js} & Entradas HTTP de capacitaciones y consultas iniciales \\
 \path{server/services/user-service.js} & Reglas de usuarios, roles e integridad administrativa \\
 \path{server/services/training-service.js} & Validación de planificación y transiciones \\
+\path{server/validation/training-validation.js} & Segunda etapa: esquemas de capacitación y filtros \\
+\path{server/repositories/training-repository.js} & Segunda etapa: consultas y escrituras parametrizadas \\
 \path{server/security.js} & Hashing, sesiones, CSRF y autorización \\
 \path{server/db.js} & Conexión, migraciones y transacciones \\
 \path{server/migrations/001_initial.sql} & Esquema inicial con restricciones persistentes \\
+\path{server/migrations/002_training_dates.sql} & Segunda etapa: integridad de calendario y horario \\
 \path{server/seed.js} & Datos ficticios de demostración y configuración de cuenta inicial \\
 \path{tests/api.test.js} & Casos HTTP de usuarios, roles y capacitaciones \\
 \path{tests/security.test.js} & Sesión, CSRF, límites y controles de privilegios \\
@@ -59,7 +62,14 @@ npm.cmd run db:seed
 npm.cmd run dev
 \end{lstlisting}
 
-La dirección y las variables exactas se consultan en el README y en el archivo de ejemplo que acompaña al incremento. Para comprobar tipos, API y compilación:
+La dirección y las variables exactas se consultan en el README y en el archivo de ejemplo que acompaña al incremento.
+
+\subsection{Arranque conjunto local: actualización del 17/11/2026}
+Con dependencias y cuenta local preparadas, \texttt{npm.cmd run local} compila la interfaz y arranca Express para servir web y API desde una sola dirección, normalmente \url{http://127.0.0.1:3001}. No requiere iniciar Vite por separado. Conserva cuentas y contraseñas; la conexión aplica las migraciones pendientes. Antes del arranque de esta sesión se creó un respaldo consistente de SQLite en \path{.verification/backups/}.
+
+En desarrollo, \path{vite.config.ts} obtiene HOST y PORT del proceso o exclusivamente de \path{.env}, igual que el backend. Se evita que los archivos por modo de Vite cambien sólo el destino del frontend. Siete pruebas con archivos ficticios aislados comprueban esa coherencia. Esta actualización no mezcla ramas ni acredita revisión humana o despliegue.
+
+Para comprobar tipos, API y compilación:
 
 \begin{lstlisting}[language={},numbers=none]
 npm.cmd run typecheck

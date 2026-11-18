@@ -1,0 +1,655 @@
+diff --git a/server/migrations/002_training_dates.sql b/server/migrations/002_training_dates.sql
+new file mode 100644
+index 0000000..bad0227
+--- /dev/null
++++ b/server/migrations/002_training_dates.sql
+@@ -0,0 +1,46 @@
++-- HU-03/HU-04: reforzar fechas y horas sin reconstruir ni reemplazar trainings.
++-- La migración se ejecuta en una transacción de createDatabase. Si existen
++-- datos inválidos, se cancela completa para que puedan revisarse explícitamente.
++CREATE TEMP TABLE training_dates_preflight (
++  start_date TEXT NOT NULL,
++  end_date TEXT NOT NULL,
++  start_time TEXT NOT NULL,
++  end_time TEXT NOT NULL,
++  CONSTRAINT training_dates_valid CHECK (
++    start_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
++    AND COALESCE(date(start_date, '+0 days') = start_date, 0)
++    AND end_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
++    AND COALESCE(date(end_date, '+0 days') = end_date, 0)
++    AND start_time GLOB '[0-2][0-9]:[0-5][0-9]' AND start_time < '24:00'
++    AND end_time GLOB '[0-2][0-9]:[0-5][0-9]' AND end_time < '24:00'
++  )
++);
++INSERT INTO training_dates_preflight (start_date, end_date, start_time, end_time)
++SELECT start_date, end_date, start_time, end_time FROM trainings;
++DROP TABLE training_dates_preflight;
++
++CREATE TRIGGER trainings_validate_dates_insert
++BEFORE INSERT ON trainings
++WHEN NOT COALESCE(
++  NEW.start_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
++  AND date(NEW.start_date, '+0 days') = NEW.start_date
++  AND NEW.end_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
++  AND date(NEW.end_date, '+0 days') = NEW.end_date
++  AND NEW.start_time GLOB '[0-2][0-9]:[0-5][0-9]' AND NEW.start_time < '24:00'
++  AND NEW.end_time GLOB '[0-2][0-9]:[0-5][0-9]' AND NEW.end_time < '24:00', 0)
++BEGIN
++  SELECT RAISE(ABORT, 'trainings: fecha YYYY-MM-DD u hora HH:mm invalida');
++END;
++
++CREATE TRIGGER trainings_validate_dates_update
++BEFORE UPDATE OF start_date, end_date, start_time, end_time ON trainings
++WHEN NOT COALESCE(
++  NEW.start_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
++  AND date(NEW.start_date, '+0 days') = NEW.start_date
++  AND NEW.end_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
++  AND date(NEW.end_date, '+0 days') = NEW.end_date
++  AND NEW.start_time GLOB '[0-2][0-9]:[0-5][0-9]' AND NEW.start_time < '24:00'
++  AND NEW.end_time GLOB '[0-2][0-9]:[0-5][0-9]' AND NEW.end_time < '24:00', 0)
++BEGIN
++  SELECT RAISE(ABORT, 'trainings: fecha YYYY-MM-DD u hora HH:mm invalida');
++END;
+diff --git a/server/repositories/training-repository.js b/server/repositories/training-repository.js
+new file mode 100644
+index 0000000..d343a17
+--- /dev/null
++++ b/server/repositories/training-repository.js
+@@ -0,0 +1,45 @@
++import { searchPattern } from '../errors.js';
++
++const select = `SELECT t.*, trim(i.first_name || ' ' || i.last_name) AS instructor_name, 0 AS enrolled_count, t.capacity AS available_seats FROM trainings t LEFT JOIN users i ON i.id=t.instructor_id`;
++
++// scope.where sólo recibe fragmentos definidos por el servicio, nunca texto del cliente.
++export function findTraining(db, id, scope) {
++  return db.prepare(`${select} WHERE t.id=? AND (${scope.where})`).get(id, ...scope.args);
++}
++
++export function searchTrainings(db, filters, scope) {
++  const { page, pageSize, search, status, from, to } = filters;
++  let where = `(${scope.where}) AND (t.title LIKE ? ESCAPE '\\' OR t.code LIKE ? ESCAPE '\\')`;
++  const args = [...scope.args, searchPattern(search), searchPattern(search)];
++  if (status) { where += ' AND t.status=?'; args.push(status); }
++  if (from) { where += ' AND t.start_date>=?'; args.push(from); }
++  if (to) { where += ' AND t.start_date<=?'; args.push(to); }
++  const total = db.prepare(`SELECT COUNT(*) AS total FROM trainings t WHERE ${where}`).get(...args).total;
++  const rows = db.prepare(`${select} WHERE ${where} ORDER BY t.start_date DESC,t.id DESC LIMIT ? OFFSET ?`).all(...args, pageSize, (page - 1) * pageSize);
++  return { rows, total };
++}
++
++export function isActiveInstructor(db, id) {
++  return Boolean(db.prepare(`SELECT 1 FROM users u WHERE u.id=? AND u.active=1
++    AND EXISTS (SELECT 1 FROM user_roles ur JOIN roles r ON r.id=ur.role_id
++      WHERE ur.user_id=u.id AND r.code='instructor')`).get(id));
++}
++
++export function trainingCodeExists(db, code, excludingId = 0) {
++  return Boolean(db.prepare('SELECT 1 FROM trainings WHERE code=? AND id<>?').get(code, excludingId));
++}
++
++export function insertTraining(db, value, responsibleId, timestamp) {
++  const result = db.prepare('INSERT INTO trainings (code,title,description,start_date,end_date,start_time,end_time,modality,location,capacity,status,instructor_id,responsible_id,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(value.code, value.title, value.description, value.start_date, value.end_date, value.start_time, value.end_time, value.modality, value.location, value.capacity, value.status, value.instructor_id, responsibleId, timestamp, timestamp);
++  return Number(result.lastInsertRowid);
++}
++
++export function saveTraining(db, id, value, timestamp) {
++  db.prepare('UPDATE trainings SET code=?,title=?,description=?,start_date=?,end_date=?,start_time=?,end_time=?,modality=?,location=?,capacity=?,status=?,instructor_id=?,updated_at=? WHERE id=?').run(value.code, value.title, value.description, value.start_date, value.end_date, value.start_time, value.end_time, value.modality, value.location, value.capacity, value.status, value.instructor_id, timestamp, id);
++}
++
++export function readTrainingDashboard(db, scope, today, includeAccounts) {
++  const trainings = db.prepare(`SELECT COUNT(*) AS total FROM trainings t WHERE ${scope.where}`).get(...scope.args).total;
++  const upcoming = db.prepare(`${select} WHERE (${scope.where}) AND t.status IN ('planificada','programada') AND t.start_date>=? ORDER BY t.start_date,t.start_time,t.id LIMIT 5`).all(...scope.args, today);
++  return { trainings, users: includeAccounts ? db.prepare('SELECT COUNT(*) AS total FROM users').get().total : null, roles: includeAccounts ? db.prepare('SELECT COUNT(*) AS total FROM roles').get().total : null, enrollments: 0, certificates: 0, upcoming };
++}
+diff --git a/server/services/training-service.js b/server/services/training-service.js
+index 12a8404..cd79e5c 100644
+--- a/server/services/training-service.js
++++ b/server/services/training-service.js
+@@ -1,3 +1,2 @@
+-import { z } from 'zod';
+-import { HttpError, validate, paginationSchema, paginated, searchPattern } from '../errors.js';
+-import { MODALITIES, TRAINING_STATUSES, TRANSITIONS } from '../constants.js';
++import { HttpError, paginated } from '../errors.js';
++import { TRANSITIONS } from '../constants.js';
+@@ -5 +4,3 @@ import { now, transaction } from '../db.js';
+-import { audit, hydrateUser } from '../security.js';
++import { audit } from '../security.js';
++import { parseTrainingInput, parseTrainingQuery } from '../validation/training-validation.js';
++import { findTraining, searchTrainings, isActiveInstructor, trainingCodeExists, insertTraining, saveTraining, readTrainingDashboard } from '../repositories/training-repository.js';
+@@ -7,25 +7,0 @@ import { audit, hydrateUser } from '../security.js';
+-const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use una fecha YYYY-MM-DD.').refine(value => {
+-  const date = new Date(`${value}T12:00:00Z`);
+-  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+-}, 'La fecha no existe.');
+-const timeSchema = z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, 'Use una hora HH:mm.');
+-const schema = z.object({
+-  code: z.string().trim().min(1, 'Ingrese el código.').max(30),
+-  title: z.string().trim().min(3, 'Ingrese un título de al menos 3 caracteres.').max(160),
+-  description: z.string().trim().max(4000).default(''),
+-  start_date: dateSchema,
+-  end_date: dateSchema,
+-  start_time: timeSchema,
+-  end_time: timeSchema,
+-  modality: z.enum(MODALITIES),
+-  location: z.string().trim().min(1, 'Indique el lugar o enlace.').max(240),
+-  capacity: z.number().int().min(1, 'El cupo mínimo es 1.').max(10000),
+-  status: z.enum(TRAINING_STATUSES).default('planificada'),
+-  instructor_id: z.number().int().positive().nullable().default(null),
+-  // Se acepta por compatibilidad, pero siempre se conserva el responsable autenticado.
+-  responsible_id: z.number().int().positive().optional(),
+-}).strict().superRefine((value, context) => {
+-  if (value.end_date < value.start_date) context.addIssue({ code: 'custom', path: ['end_date'], message: 'La fecha final debe ser igual o posterior al inicio.' });
+-  if (value.end_time <= value.start_time) context.addIssue({ code: 'custom', path: ['end_time'], message: 'La hora final debe ser posterior a la inicial (horario diario).' });
+-});
+-const select = `SELECT t.*, trim(i.first_name || ' ' || i.last_name) AS instructor_name, 0 AS enrolled_count, t.capacity AS available_seats FROM trainings t LEFT JOIN users i ON i.id=t.instructor_id`;
+@@ -39,2 +15 @@ export function getTraining(db, id, user) {
+-  const { where, args } = accessFilter(user);
+-  const row = db.prepare(`${select} WHERE t.id=? AND (${where})`).get(id, ...args);
++  const row = findTraining(db, id, accessFilter(user));
+@@ -45,15 +20,3 @@ export function listTrainings(db, query, user) {
+-  const { page, pageSize, search, status, from, to } = validate(z.object({
+-    ...paginationSchema, search: z.string().trim().max(160).default(''),
+-    status: z.preprocess(value => value === '' ? undefined : value, z.enum(TRAINING_STATUSES).optional()),
+-    from: z.preprocess(value => value === '' ? undefined : value, dateSchema.optional()),
+-    to: z.preprocess(value => value === '' ? undefined : value, dateSchema.optional()),
+-  }).refine(value => !value.from || !value.to || value.from <= value.to, { path: ['to'], message: 'El rango de fechas está invertido.' }), query);
+-  const access = accessFilter(user);
+-  let where = `(${access.where}) AND (t.title LIKE ? ESCAPE '\\' OR t.code LIKE ? ESCAPE '\\')`;
+-  const args = [...access.args, searchPattern(search), searchPattern(search)];
+-  if (status) { where += ' AND t.status=?'; args.push(status); }
+-  if (from) { where += ' AND t.start_date>=?'; args.push(from); }
+-  if (to) { where += ' AND t.start_date<=?'; args.push(to); }
+-  const total = db.prepare(`SELECT COUNT(*) AS total FROM trainings t WHERE ${where}`).get(...args).total;
+-  const rows = db.prepare(`${select} WHERE ${where} ORDER BY t.start_date DESC,t.id DESC LIMIT ? OFFSET ?`).all(...args, pageSize, (page - 1) * pageSize);
+-  return paginated(rows, total, page, pageSize);
++  const filters = parseTrainingQuery(query);
++  const { rows, total } = searchTrainings(db, filters, accessFilter(user));
++  return paginated(rows, total, filters.page, filters.pageSize);
+@@ -62,3 +25 @@ function checkInstructor(db, id) {
+-  if (id === null) return;
+-  const user = hydrateUser(db, id);
+-  if (!user?.active || !user.roles.includes('instructor')) throw new HttpError(422, 'Seleccione un instructor activo.', { instructor_id: 'El usuario debe estar activo y tener rol instructor.' });
++  if (id !== null && !isActiveInstructor(db, id)) throw new HttpError(422, 'Seleccione un instructor activo.', { instructor_id: 'El usuario debe estar activo y tener rol instructor.' });
+@@ -67 +28 @@ function assertCode(db, code, id = 0) {
+-  if (db.prepare('SELECT 1 FROM trainings WHERE code=? AND id<>?').get(code, id)) throw new HttpError(409, 'Ya existe una capacitación con ese código.', { code: 'Use otro código.' });
++  if (trainingCodeExists(db, code, id)) throw new HttpError(409, 'Ya existe una capacitación con ese código.', { code: 'Use otro código.' });
+@@ -70 +31 @@ export function createTraining(db, input, user) {
+-  const value = validate(schema, input);
++  const value = parseTrainingInput(input);
+@@ -75,3 +36 @@ export function createTraining(db, input, user) {
+-    const timestamp = now();
+-    const result = db.prepare('INSERT INTO trainings (code,title,description,start_date,end_date,start_time,end_time,modality,location,capacity,status,instructor_id,responsible_id,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(value.code, value.title, value.description, value.start_date, value.end_date, value.start_time, value.end_time, value.modality, value.location, value.capacity, value.status, value.instructor_id, user.id, timestamp, timestamp);
+-    const id = Number(result.lastInsertRowid);
++    const id = insertTraining(db, value, user.id, now());
+@@ -83 +42 @@ export function updateTraining(db, id, input, user) {
+-  const value = validate(schema, input);
++  const value = parseTrainingInput(input);
+@@ -90 +49 @@ export function updateTraining(db, id, input, user) {
+-    db.prepare('UPDATE trainings SET code=?,title=?,description=?,start_date=?,end_date=?,start_time=?,end_time=?,modality=?,location=?,capacity=?,status=?,instructor_id=?,updated_at=? WHERE id=?').run(value.code, value.title, value.description, value.start_date, value.end_date, value.start_time, value.end_time, value.modality, value.location, value.capacity, value.status, value.instructor_id, now(), id);
++    saveTraining(db, id, value, now());
+@@ -96,2 +54,0 @@ export function dashboard(db, user) {
+-  const access = accessFilter(user);
+-  const trainings = db.prepare(`SELECT COUNT(*) AS total FROM trainings t WHERE ${access.where}`).get(...access.args).total;
+@@ -99,3 +56 @@ export function dashboard(db, user) {
+-  const upcoming = db.prepare(`${select} WHERE (${access.where}) AND t.status IN ('planificada','programada') AND t.start_date>=? ORDER BY t.start_date,t.start_time,t.id LIMIT 5`).all(...access.args, today);
+-  const canManage = user.permissions.includes('users.manage');
+-  return { trainings, users: canManage ? db.prepare('SELECT COUNT(*) AS total FROM users').get().total : null, roles: canManage ? db.prepare('SELECT COUNT(*) AS total FROM roles').get().total : null, enrollments: 0, certificates: 0, upcoming };
++  return readTrainingDashboard(db, accessFilter(user), today, user.permissions.includes('users.manage'));
+diff --git a/server/validation/training-validation.js b/server/validation/training-validation.js
+new file mode 100644
+index 0000000..5490b28
+--- /dev/null
++++ b/server/validation/training-validation.js
+@@ -0,0 +1,41 @@
++import { z } from 'zod';
++import { validate, paginationSchema } from '../errors.js';
++import { MODALITIES, TRAINING_STATUSES } from '../constants.js';
++
++const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use una fecha YYYY-MM-DD.').refine(value => {
++  const date = new Date(`${value}T12:00:00Z`);
++  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
++}, 'La fecha no existe.');
++const timeSchema = z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, 'Use una hora HH:mm.');
++const trainingSchema = z.object({
++  code: z.string().trim().min(1, 'Ingrese el código.').max(30),
++  title: z.string().trim().min(3, 'Ingrese un título de al menos 3 caracteres.').max(160),
++  description: z.string().trim().max(4000).default(''),
++  start_date: dateSchema,
++  end_date: dateSchema,
++  start_time: timeSchema,
++  end_time: timeSchema,
++  modality: z.enum(MODALITIES),
++  location: z.string().trim().min(1, 'Indique el lugar o enlace.').max(240),
++  capacity: z.number().int().min(1, 'El cupo mínimo es 1.').max(10000),
++  status: z.enum(TRAINING_STATUSES).default('planificada'),
++  instructor_id: z.number().int().positive().nullable().default(null),
++  // Se acepta por compatibilidad: el alta usa al actor y la edición conserva al responsable.
++  responsible_id: z.number().int().positive().optional(),
++}).strict().superRefine((value, context) => {
++  if (value.end_date < value.start_date) context.addIssue({ code: 'custom', path: ['end_date'], message: 'La fecha final debe ser igual o posterior al inicio.' });
++  if (value.end_time <= value.start_time) context.addIssue({ code: 'custom', path: ['end_time'], message: 'La hora final debe ser posterior a la inicial (horario diario).' });
++});
++const optionalFilter = schema => z.preprocess(value => value === '' ? undefined : value, schema.optional());
++const querySchema = z.object({
++  ...paginationSchema,
++  search: z.string().trim().max(160).default(''),
++  status: optionalFilter(z.enum(TRAINING_STATUSES)),
++  from: optionalFilter(dateSchema),
++  to: optionalFilter(dateSchema),
++}).refine(value => !value.from || !value.to || value.from <= value.to, {
++  path: ['to'], message: 'El rango de fechas está invertido.',
++});
++
++export const parseTrainingInput = input => validate(trainingSchema, input);
++export const parseTrainingQuery = query => validate(querySchema, query);
+diff --git a/tests/persistence.test.js b/tests/persistence.test.js
+index 76307f0..525138e 100644
+--- a/tests/persistence.test.js
++++ b/tests/persistence.test.js
+@@ -3 +3 @@ import assert from 'node:assert/strict';
+-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
++import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+@@ -27 +27,2 @@ test('Persistencia real: migraciones/seed idempotentes y datos conservados al re
+-    assert.equal(db.prepare('SELECT COUNT(*) AS n FROM schema_migrations').get().n, 1);
++    const expectedMigrations = readdirSync(new URL('../server/migrations/', import.meta.url)).filter(name => name.endsWith('.sql')).sort();
++    assert.deepEqual(db.prepare('SELECT version FROM schema_migrations ORDER BY version').all().map(row => row.version), expectedMigrations);
+diff --git a/tests/training-migration.test.js b/tests/training-migration.test.js
+new file mode 100644
+index 0000000..1459282
+--- /dev/null
++++ b/tests/training-migration.test.js
+@@ -0,0 +1,145 @@
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
++import { dirname, join, resolve } from 'node:path';
++import { DatabaseSync } from 'node:sqlite';
++import { createDatabase, transaction } from '../server/db.js';
++
++const migration = '002_training_dates.sql';
++const triggerNames = ['trainings_validate_dates_insert', 'trainings_validate_dates_update'];
++const reverseMigration = `DROP TRIGGER trainings_validate_dates_insert;
++DROP TRIGGER trainings_validate_dates_update;
++DELETE FROM schema_migrations WHERE version='002_training_dates.sql';`;
++const input = { code: 'CAL-001', title: 'Capacitación ficticia', start_date: '2027-01-20', end_date: '2027-01-20', start_time: '09:00', end_time: '11:00', modality: 'presencial', location: 'Sala ficticia', capacity: 10, status: 'planificada', instructor_id: 1, responsible_id: 1, created_at: '2026-11-17T12:00:00.000Z', updated_at: '2026-11-17T12:00:00.000Z' };
++
++function insertTraining(db, overrides = {}) {
++  const value = { ...input, ...overrides };
++  const keys = Object.keys(value);
++  return db.prepare(`INSERT INTO trainings (${keys.join(',')}) VALUES (${keys.map(() => '?').join(',')})`).run(...Object.values(value));
++}
++
++function legacyFixture(t) {
++  const base = resolve('.verification');
++  mkdirSync(base, { recursive: true });
++  const directory = mkdtempSync(join(base, 'training-migration-'));
++  const migrationsDirectory = join(directory, 'migrations');
++  mkdirSync(migrationsDirectory);
++  writeFileSync(join(migrationsDirectory, '001_initial.sql'), readFileSync(new URL('../server/migrations/001_initial.sql', import.meta.url)));
++  const context = { path: join(directory, 'isolated.sqlite'), migrationsDirectory, db: undefined };
++  t.after(() => {
++    context.db?.close();
++    if (dirname(resolve(directory)) !== base) throw new Error('Directorio temporal fuera de .verification.');
++    rmSync(directory, { recursive: true, force: true });
++  });
++  context.db = createDatabase(context.path, { migrationsDirectory });
++  context.db.prepare('INSERT INTO users (first_name,last_name,email,password_hash,created_at,updated_at) VALUES (?,?,?,?,?,?)')
++    .run('Persona', 'Ficticia', 'calendar@demo.test', 'fixture-no-login', input.created_at, input.updated_at);
++  context.installMigration = () => writeFileSync(join(migrationsDirectory, migration), readFileSync(new URL(`../server/migrations/${migration}`, import.meta.url)));
++  context.reopen = () => {
++    context.db?.close();
++    context.db = undefined;
++    context.db = createDatabase(context.path, { migrationsDirectory });
++  };
++  return context;
++}
++
++function triggers(db) {
++  return db.prepare("SELECT name FROM sqlite_schema WHERE type='trigger' AND name LIKE 'trainings_validate_dates_%' ORDER BY name").all().map(row => row.name);
++}
++
++test('HU-03/HU-04: migrar desde 001 conserva registros, auditoría, permisos personalizados y FK; reapertura idempotente', t => {
++  const context = legacyFixture(t);
++  const db = context.db;
++  const id = Number(insertTraining(db).lastInsertRowid);
++  db.prepare("INSERT INTO audit_log (user_id,action,entity,entity_id,created_at) VALUES (1,'create','training',?,?)").run(id, input.created_at);
++  db.prepare("UPDATE roles SET name='Coordinación personalizada' WHERE code='coordinador'").run();
++  db.prepare("DELETE FROM role_permissions WHERE role_id=(SELECT id FROM roles WHERE code='coordinador') AND permission_code='certificates.manage'").run();
++  const before = db.prepare('SELECT * FROM trainings WHERE id=?').get(id);
++  const auditBefore = db.prepare('SELECT * FROM audit_log').all();
++  const permissionsBefore = db.prepare('SELECT * FROM role_permissions ORDER BY role_id,permission_code').all();
++  context.installMigration();
++  context.reopen();
++  context.reopen();
++  assert.deepEqual(context.db.prepare('SELECT * FROM trainings WHERE id=?').get(id), before);
++  assert.deepEqual(context.db.prepare('SELECT * FROM audit_log').all(), auditBefore);
++  assert.deepEqual(context.db.prepare('SELECT * FROM role_permissions ORDER BY role_id,permission_code').all(), permissionsBefore);
++  assert.equal(context.db.prepare("SELECT name FROM roles WHERE code='coordinador'").get().name, 'Coordinación personalizada');
++  assert.equal(context.db.prepare('SELECT COUNT(*) AS n FROM schema_migrations WHERE version=?').get(migration).n, 1);
++  assert.equal(context.db.prepare('PRAGMA foreign_keys').get().foreign_keys, 1);
++  assert.deepEqual(context.db.prepare('PRAGMA foreign_key_check').all(), []);
++  assert.deepEqual(triggers(context.db), triggerNames);
++  assert.throws(() => context.db.prepare('UPDATE trainings SET responsible_id=999999 WHERE id=?').run(id), /FOREIGN KEY/);
++});
++
++test('HU-03/HU-04: SQL rechaza INSERT y UPDATE de fechas/horas inválidas sin alterar registros', t => {
++  const context = legacyFixture(t);
++  context.installMigration();
++  context.reopen();
++  const db = context.db;
++  const id = Number(insertTraining(db).lastInsertRowid);
++  const before = db.prepare('SELECT * FROM trainings WHERE id=?').get(id);
++  const invalid = [
++    { start_date: '2027-02-30', end_date: '2027-03-01' },
++    { end_date: '2027-02-30' },
++    { start_date: '2023-02-29', end_date: '2023-03-01' },
++    { start_date: '2027-1-01', end_date: '2027-1-01' },
++    { start_date: '2027-13-01', end_date: '2027-13-01' },
++    { start_date: '2027-01-01T00:00:00Z', end_date: '2027-01-02' },
++    { start_date: null }, { end_date: null },
++    { start_time: '25:00', end_time: '26:00' },
++    { start_time: '09:60' }, { start_time: '9:00' },
++    { end_time: '24:00' }, { end_time: '11:00:00' },
++    { start_time: null }, { end_time: null },
++  ];
++  for (const [index, overrides] of invalid.entries()) {
++    assert.throws(() => insertTraining(db, { code: `INVALID-${index}`, ...overrides }), /fecha YYYY-MM-DD u hora HH:mm invalida/);
++    const keys = Object.keys(overrides);
++    assert.throws(() => db.prepare(`UPDATE trainings SET ${keys.map(key => `${key}=?`).join(',')} WHERE id=?`).run(...Object.values(overrides), id), /fecha YYYY-MM-DD u hora HH:mm invalida/);
++    assert.deepEqual(db.prepare('SELECT * FROM trainings WHERE id=?').get(id), before);
++  }
++  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM trainings').get().n, 1);
++  for (const date of ['0000-02-29', '2024-02-29', '9999-12-31']) {
++    insertTraining(db, { code: `VALID-${date}`, start_date: date, end_date: date, start_time: '00:00', end_time: '23:59' });
++  }
++  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM trainings').get().n, 4);
++});
++
++for (const [label, overrides] of [
++  ['fecha imposible', { start_date: '2027-02-30', end_date: '2027-03-01' }],
++  ['hora inválida', { start_time: '25:00', end_time: '26:00' }],
++]) {
++  test(`HU-03/HU-04: histórico con ${label} aborta migración completa y conserva datos`, t => {
++    const context = legacyFixture(t);
++    insertTraining(context.db, overrides);
++    const before = context.db.prepare('SELECT * FROM trainings').all();
++    context.installMigration();
++    assert.throws(() => context.reopen(), /training_dates_valid/);
++    // Abrir sólo con 001 demuestra que el fallo no borró datos ni registró 002.
++    context.db = new DatabaseSync(context.path);
++    assert.deepEqual(context.db.prepare('SELECT * FROM trainings').all(), before);
++    assert.equal(context.db.prepare('SELECT COUNT(*) AS n FROM schema_migrations WHERE version=?').get(migration).n, 0);
++    assert.equal(context.db.prepare('SELECT COUNT(*) AS n FROM schema_migrations').get().n, 1);
++    assert.deepEqual(triggers(context.db), []);
++  });
++}
++
++test('HU-03/HU-04: reversión transaccional de 002 conserva datos y permite reaplicar la migración', t => {
++  const context = legacyFixture(t);
++  const id = Number(insertTraining(context.db).lastInsertRowid);
++  const before = context.db.prepare('SELECT * FROM trainings WHERE id=?').get(id);
++  context.installMigration();
++  context.reopen();
++  assert.throws(() => transaction(context.db, () => {
++    context.db.exec(reverseMigration);
++    throw new Error('fallo deliberado de reversión');
++  }), /fallo deliberado/);
++  assert.deepEqual(triggers(context.db), triggerNames);
++  assert.equal(context.db.prepare('SELECT COUNT(*) AS n FROM schema_migrations WHERE version=?').get(migration).n, 1);
++  transaction(context.db, () => context.db.exec(reverseMigration));
++  assert.deepEqual(triggers(context.db), []);
++  assert.equal(context.db.prepare('SELECT COUNT(*) AS n FROM schema_migrations WHERE version=?').get(migration).n, 0);
++  assert.deepEqual(context.db.prepare('SELECT * FROM trainings WHERE id=?').get(id), before);
++  context.reopen();
++  assert.deepEqual(triggers(context.db), triggerNames);
++  assert.deepEqual(context.db.prepare('SELECT * FROM trainings WHERE id=?').get(id), before);
++});
+diff --git a/tests/trainings.test.js b/tests/trainings.test.js
+new file mode 100644
+index 0000000..a63e67f
+--- /dev/null
++++ b/tests/trainings.test.js
+@@ -0,0 +1,243 @@
++import { after, before, test } from 'node:test';
++import assert from 'node:assert/strict';
++import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
++import { dirname, join, resolve } from 'node:path';
++import { createDatabase } from '../server/db.js';
++import { createApp } from '../server/app.js';
++import { seedDemo } from '../server/seed.js';
++import { demoPassword, fixture, login, trainingInput } from './helpers.js';
++
++let context;
++let admin;
++before(async () => { context = await fixture(); admin = await login(context.app); });
++after(() => context?.close());
++
++const counts = () => ({
++  trainings: context.db.prepare('SELECT COUNT(*) AS n FROM trainings').get().n,
++  audit: context.db.prepare('SELECT COUNT(*) AS n FROM audit_log').get().n,
++});
++const stored = id => context.db.prepare('SELECT * FROM trainings WHERE id=?').get(id);
++const create = input => admin.agent.post('/api/trainings').set('X-CSRF-Token', admin.csrf).send(input);
++const update = (id, input) => admin.agent.put(`/api/trainings/${id}`).set('X-CSRF-Token', admin.csrf).send(input);
++
++test('HU-03/HU-04: cada campo obligatorio ausente produce 422 sin registro ni auditoría parcial', async () => {
++  const input = trainingInput({ code: 'OBLIGATORIOS' });
++  const created = await create(input).expect(201);
++  const id = created.body.data.id;
++  const beforeCounts = counts();
++  const beforeRow = stored(id);
++  for (const field of ['code', 'title', 'start_date', 'end_date', 'start_time', 'end_time', 'modality', 'location', 'capacity']) {
++    const incomplete = { ...input };
++    delete incomplete[field];
++    for (const call of [create(incomplete), update(id, incomplete)]) {
++      const response = await call.expect(422);
++      assert.equal(typeof response.body.error.fields[field], 'string', field);
++      assert.deepEqual(counts(), beforeCounts, field);
++      assert.deepEqual(stored(id), beforeRow, field);
++    }
++  }
++});
++
++test('HU-03/HU-04: fechas reales, años bisiestos y horas de frontera mantienen el contrato', async () => {
++  for (const [index, date] of ['2000-02-29', '2028-02-29', '2027-12-31'].entries()) {
++    const input = trainingInput({ code: `CALENDARIO-${index}`, start_date: date, end_date: date, start_time: '00:00', end_time: '23:59', capacity: 10000 });
++    const created = await create(input).expect(201);
++    const id = created.body.data.id;
++    assert.equal(created.body.data.start_date, date);
++    assert.equal(created.body.data.available_seats, 10000);
++    const result = await update(id, { ...input, capacity: 1 }).expect(200);
++    assert.equal(result.body.data.capacity, 1);
++    assert.equal(result.body.data.end_time, '23:59');
++  }
++});
++
++test('HU-03/HU-04: rechaza calendario, formatos e intervalos inválidos en alta y edición sin efectos', async () => {
++  const input = trainingInput({ code: 'INVALIDOS-EDICION' });
++  const id = (await create(input).expect(201)).body.data.id;
++  const beforeCounts = counts();
++  const beforeRow = stored(id);
++  const invalidCases = [
++    [{ start_date: '1900-02-29', end_date: '1900-03-01' }, 'start_date'],
++    [{ start_date: '2027-02-29', end_date: '2027-03-01' }, 'start_date'],
++    [{ end_date: '2027-04-31' }, 'end_date'],
++    [{ start_date: '2027-1-20' }, 'start_date'],
++    [{ start_date: '2027-01-20T00:00:00Z' }, 'start_date'],
++    [{ end_date: '2027-01-19' }, 'end_date'],
++    [{ start_time: '9:00' }, 'start_time'],
++    [{ start_time: '09:00:00' }, 'start_time'],
++    [{ start_time: '24:00' }, 'start_time'],
++    [{ end_time: '11:60' }, 'end_time'],
++    [{ end_time: '09:00' }, 'end_time'],
++    [{ start_date: '2027-01-20', end_date: '2027-01-21', start_time: '23:00', end_time: '01:00' }, 'end_time'],
++    [{ instructor_id: 999999 }, 'instructor_id'],
++    [{ unexpected_field: 'no admitido' }, 'form'],
++  ];
++  for (const [overrides, field] of invalidCases) {
++    for (const call of [create({ ...input, ...overrides }), update(id, { ...input, ...overrides })]) {
++      const response = await call.expect(422);
++      assert.equal(typeof response.body.error.fields[field], 'string', JSON.stringify(overrides));
++      assert.deepEqual(counts(), beforeCounts);
++      assert.deepEqual(stored(id), beforeRow);
++    }
++  }
++});
++
++test('HU-04: GET y PUT distinguen identificador inválido de capacitación inexistente', async () => {
++  const beforeCounts = counts();
++  for (const [id, status] of [['invalido', 422], ['0', 422], ['-1', 422], ['1.5', 422], ['9007199254740992', 422], ['999999', 404]]) {
++    const read = await admin.agent.get(`/api/trainings/${id}`).expect(status);
++    const edited = await update(id, trainingInput()).expect(status);
++    assert.equal(typeof read.body.error.message, 'string');
++    assert.equal(typeof edited.body.error.message, 'string');
++  }
++  assert.deepEqual(counts(), beforeCounts);
++});
++
++test('HU-04: PUT conserva ID, responsable y creación aunque otro gestor envíe responsable arbitrario', async () => {
++  const input = trainingInput({ code: 'CONTRATO-EDICION' });
++  const original = (await create(input).expect(201)).body.data;
++  const coordinator = await login(context.app, 'coordinacion@demo.test');
++  const next = { ...input, code: 'CONTRATO-ACTUALIZADO', title: 'Planificación actualizada', description: 'Descripción actualizada', location: 'Otra sala ficticia', modality: 'virtual', capacity: 22, status: 'programada', responsible_id: coordinator.user.id };
++  const edited = await coordinator.agent.put(`/api/trainings/${original.id}`).set('X-CSRF-Token', coordinator.csrf).send(next).expect(200);
++  const detail = await admin.agent.get(`/api/trainings/${original.id}`).expect(200);
++  assert.deepEqual(detail.body, edited.body);
++  const training = detail.body.data;
++  assert.equal(training.id, original.id);
++  assert.equal(training.responsible_id, admin.user.id);
++  assert.notEqual(training.responsible_id, coordinator.user.id);
++  assert.equal(training.created_at, original.created_at);
++  assert.equal(training.enrolled_count, 0);
++  assert.equal(training.available_seats, 22);
++  assert.equal(training.instructor_name, null);
++  assert.deepEqual(training.sessions, []);
++  assert.deepEqual(training.enrollments, []);
++  for (const field of ['code', 'title', 'description', 'location', 'modality', 'capacity', 'status']) assert.equal(training[field], next[field]);
++  const audit = context.db.prepare("SELECT user_id FROM audit_log WHERE entity='training' AND entity_id=? AND action='update'").all(original.id);
++  assert.deepEqual(audit.map(row => row.user_id), [coordinator.user.id]);
++});
++
++test('HU-04: conflicto de código sin distinguir mayúsculas preserva registro y auditoría', async () => {
++  await create(trainingInput({ code: 'CODIGO-OCUPADO' })).expect(201);
++  const input = trainingInput({ code: 'CODIGO-EDITABLE' });
++  const id = (await create(input).expect(201)).body.data.id;
++  const beforeRow = stored(id);
++  const beforeCounts = counts();
++  const conflict = await update(id, { ...input, code: 'codigo-ocupado', title: 'No debe persistir' }).expect(409);
++  assert.equal(typeof conflict.body.error.fields.code, 'string');
++  assert.deepEqual(stored(id), beforeRow);
++  assert.deepEqual(counts(), beforeCounts);
++});
++
++test('HU-04: matriz completa de 25 pares de estados respeta transiciones y bloqueos terminales', async t => {
++  // Tabla esperada independiente de constants.js: prueba las reglas del contrato.
++  const allowed = {
++    planificada: ['planificada', 'programada', 'cancelada'],
++    programada: ['planificada', 'programada', 'en_curso', 'cancelada'],
++    en_curso: ['en_curso', 'finalizada', 'cancelada'],
++    finalizada: [],
++    cancelada: [],
++  };
++  const paths = {
++    planificada: [],
++    programada: ['programada'],
++    en_curso: ['programada', 'en_curso'],
++    finalizada: ['programada', 'en_curso', 'finalizada'],
++    cancelada: ['cancelada'],
++  };
++  for (const from of Object.keys(allowed)) {
++    for (const to of Object.keys(allowed)) {
++      await t.test(`${from} -> ${to}`, async () => {
++        const input = trainingInput({ code: `E-${Object.keys(allowed).indexOf(from)}-${Object.keys(allowed).indexOf(to)}` });
++        const id = (await create(input).expect(201)).body.data.id;
++        for (const status of paths[from]) await update(id, { ...input, status }).expect(200);
++        const beforeRow = stored(id);
++        const beforeCounts = counts();
++        const accepted = allowed[from].includes(to);
++        const response = await update(id, { ...input, title: 'Edición por transición', status: to }).expect(accepted ? 200 : 409);
++        if (accepted) {
++          assert.equal(response.body.data.status, to);
++          assert.equal(stored(id).title, 'Edición por transición');
++          assert.equal(counts().audit, beforeCounts.audit + 1);
++          assert.equal(counts().trainings, beforeCounts.trainings);
++        } else {
++          assert.equal(typeof response.body.error.message, 'string');
++          assert.deepEqual(stored(id), beforeRow);
++          assert.deepEqual(counts(), beforeCounts);
++        }
++      });
++    }
++  }
++});
++
++test('HU-03/HU-04: fallo de auditoría devuelve 500 genérico y revierte alta y edición completas', async t => {
++  const input = trainingInput({ code: 'ROLLBACK-EDITABLE' });
++  const id = (await create(input).expect(201)).body.data.id;
++  const beforeRow = stored(id);
++  const beforeCounts = counts();
++  const errors = [];
++  t.mock.method(console, 'error', (...args) => errors.push(args));
++  context.db.exec(`CREATE TEMP TRIGGER fail_training_audit BEFORE INSERT ON audit_log
++    WHEN NEW.entity='training' BEGIN SELECT RAISE(ABORT, 'fallo ficticio de auditoria'); END;`);
++  try {
++    for (const call of [create(trainingInput({ code: 'ROLLBACK-NUEVA' })), update(id, { ...input, title: 'Cambio que debe revertirse', status: 'programada' })]) {
++      const response = await call.expect(500);
++      assert.deepEqual(response.body, { error: { message: 'Ocurrió un error inesperado. Inténtelo nuevamente.' } });
++      assert.deepEqual(counts(), beforeCounts);
++      assert.deepEqual(stored(id), beforeRow);
++    }
++    assert.equal(errors.length, 2);
++    assert.equal(context.db.prepare("SELECT COUNT(*) AS n FROM trainings WHERE code='ROLLBACK-NUEVA'").get().n, 0);
++  } finally {
++    context.db.exec('DROP TRIGGER fail_training_audit');
++  }
++  // La conexión sigue siendo utilizable después de los dos rollbacks.
++  await update(id, { ...input, title: 'Edición posterior al fallo' }).expect(200);
++});
++
++test('HU-03/HU-04: búsqueda literal y paginación conservan data/meta y filtros de fecha inclusivos', async () => {
++  const created = [];
++  for (const code of ['LITERAL_%', 'LITERAL_A', 'LITERAL_B']) created.push((await create(trainingInput({ code, title: `Curso ${code}` })).expect(201)).body.data.id);
++  const literal = await admin.agent.get('/api/trainings').query({ search: 'LITERAL_%', pageSize: 1 }).expect(200);
++  assert.equal(literal.body.meta.total, 1);
++  assert.equal(literal.body.data[0].id, created[0]);
++  const page = await admin.agent.get('/api/trainings').query({ search: 'LITERAL_', status: 'planificada', from: '2027-01-20', to: '2027-01-20', page: 2, pageSize: 2 }).expect(200);
++  assert.deepEqual(page.body.meta, { page: 2, pageSize: 2, total: 3, totalPages: 2 });
++  assert.deepEqual(page.body.data.map(row => row.id), [created[0]]);
++  assert.equal(page.body.data[0].sessions, undefined);
++  assert.equal(page.body.data[0].available_seats, 10);
++  for (const query of [{ page: 0 }, { pageSize: 101 }, { from: '2027-02-29' }, { from: '2027-02-01', to: '2027-01-01' }]) {
++    const response = await admin.agent.get('/api/trainings').query(query).expect(422);
++    assert.equal(typeof response.body.error.message, 'string');
++  }
++});
++
++test('HU-04: actualización y auditoría persisten al cerrar y reabrir SQLite y la aplicación', async () => {
++  const base = resolve('.verification');
++  mkdirSync(base, { recursive: true });
++  const directory = mkdtempSync(join(base, 'paz-sur-training-edit-'));
++  const path = join(directory, 'isolated.sqlite');
++  let db;
++  try {
++    db = createDatabase(path);
++    await seedDemo(db, demoPassword);
++    let app = createApp({ db, rateLimitEnabled: false });
++    let session = await login(app);
++    const input = trainingInput({ code: 'EDICION-PERSISTENTE' });
++    const original = (await session.agent.post('/api/trainings').set('X-CSRF-Token', session.csrf).send(input).expect(201)).body.data;
++    const edited = await session.agent.put(`/api/trainings/${original.id}`).set('X-CSRF-Token', session.csrf).send({ ...input, title: 'Título que sobrevive al reinicio', capacity: 3, status: 'programada' }).expect(200);
++    db.close();
++    db = undefined;
++    db = createDatabase(path);
++    app = createApp({ db, rateLimitEnabled: false });
++    session = await login(app);
++    const result = await session.agent.get(`/api/trainings/${original.id}`).expect(200);
++    assert.deepEqual(result.body.data, edited.body.data);
++    const history = db.prepare("SELECT action FROM audit_log WHERE entity='training' AND entity_id=? ORDER BY id").all(original.id);
++    assert.deepEqual(history.map(row => row.action), ['create', 'update']);
++    assert.deepEqual(db.prepare('PRAGMA foreign_key_check').all(), []);
++  } finally {
++    db?.close();
++    if (dirname(resolve(directory)) !== base) throw new Error('La base de prueba debe permanecer dentro de .verification.');
++    rmSync(directory, { recursive: true, force: true });
++  }
++});

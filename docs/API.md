@@ -75,6 +75,8 @@ Código único sin distinguir mayúsculas (1–30), título3–160, descripción
 
 Alta sólo planificada/programada. Transiciones: planificada→programada/cancelada; programada→planificada/en_curso/cancelada; en_curso→finalizada/cancelada. Finalizada/cancelada no admiten ediciones. El estado no se calcula automáticamente por reloj.
 
+Verificación de compatibilidad de Adel (17/11/2026, HU-03/HU-04): la extracción de validadores/repositorio conserva estos endpoints y sus formatos. PUT recibe el objeto completo, con los mismos valores predeterminados para descripción, estado e instructor si se omiten; no es PATCH. La prueba de responsable incluye editar desde otra cuenta gestora. Un fallo deliberado de auditoría devuelve 500 genérico y revierte tanto alta como edición. La migración 002 añade a SQLite la validación de fechas/horas que la API ya exigía. Véanse `tests/trainings.test.js`, `tests/training-migration.test.js` y [resultados](PRUEBAS.md).
+
 ## Filtros y errores
 
 Usuarios: `search`, `role`, `page`, `pageSize`. Capacitaciones: `search`, `status`, `from`, `to`, `page`, `pageSize`; fechas filtran la fecha de inicio inclusivamente. Filtros vacíos se omiten. Búsqueda literal (se escapan comodines LIKE); consultas SQL parametrizadas. Paginación: page1–100000, pageSize1–100, predeterminados1/20.
